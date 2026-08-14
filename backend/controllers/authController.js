@@ -32,8 +32,15 @@ exports.registerUser = async (req, res) => {
         res.status(201).json({ message: '✅ User registered successfully!' });
 
     } catch (error) {
-        console.error('Register Error:', error);
-        res.status(500).json({ message: '❌ Internal server error during registration!', error: error.message });
+        // Log the error along with the unique request ID for easy debugging
+        console.error(`[Req ID: ${req.requestId}] Register Error:`, error);
+        
+        // Return a response containing the request ID and error details
+        res.status(500).json({ 
+            message: '❌ Internal server error during registration!', 
+            error: error.message,
+            requestId: req.requestId 
+        });
     }
 };
 
@@ -75,7 +82,14 @@ exports.loginUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Login Error:', error);
-        res.status(500).json({ message: '❌ Internal server error during login!', error: error.message });
+        // Log the error along with the unique request ID for easy debugging
+        console.error(`[Req ID: ${req.requestId}] Login Error:`, error);
+        
+        // Return a response containing the request ID and error details
+        res.status(500).json({ 
+            message: '❌ Internal server error during login!', 
+            error: error.message,
+            requestId: req.requestId 
+        });
     }
 };
