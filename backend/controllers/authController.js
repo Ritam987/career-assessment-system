@@ -70,9 +70,19 @@ exports.loginUser = async (req, res) => {
             { expiresIn: '1d' }
         );
 
+        // ==========================================
+        // 🔹 INJECTED: Set JWT in HTTP-Only Cookie
+        // ==========================================
+        res.cookie('token', token, {
+            httpOnly: true, // hides from client-side JavaScript (Secures from XSS)
+            secure: process.env.NODE_ENV === 'production', // uses HTTPS in production
+            sameSite: 'strict', // CSRF attack protection
+            maxAge: 24 * 60 * 60 * 1000 // 1 Day
+        });
+
         res.status(200).json({
             message: '✅ Login successful!',
-            token: token,
+            token: token, // Postman testing convenience
             user: {
                 id: user.user_id,
                 full_name: user.full_name,
@@ -92,4 +102,17 @@ exports.loginUser = async (req, res) => {
             requestId: req.requestId 
         });
     }
+};
+
+// ==========================================
+// 3. LOGOUT CONTROLLER (Handles user logout)
+// ==========================================
+// 🔹 INJECTED: New logout controller
+exports.logoutUser = (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+    res.status(200).json({ message: '✅ Logged out successfully!' });
 };
