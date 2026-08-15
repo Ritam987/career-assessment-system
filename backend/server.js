@@ -1,24 +1,25 @@
-const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser'); // 🔹 INJECTED: কুকি হ্যান্ডেল করার জন্য
-const dotenv = require('dotenv');
+const express = require('express'); // Importing the Express framework
+const cors = require('cors'); // To handle Cross-Origin Resource Sharing
+const cookieParser = require('cookie-parser'); // To handle cookies
+const dotenv = require('dotenv'); // To load environment variables from .env file
 const db = require('./config/db'); // Importing the database connection
 const authRoutes = require('./routes/authRoutes'); // Importing the authentication routes
 const requestIdMiddleware = require('./middlewares/requestId'); // Importing the request ID middleware
+const assessmentRoutes = require('./routes/assessmentRoutes'); // Importing the assessment routes
 
 // Load environment variables from .env file
 dotenv.config();
 
-const app = express();
+const app = express(); // Create an Express application instance
 
 // Middleware configuration
-// 🔹 INJECTED: CORS updated to receive cookies from the frontend
+// CORS updated to receive cookies from the frontend
 app.use(cors({
     origin: 'http://localhost:5173', // Your React frontend's port (Vite's default port)
     credentials: true 
 })); 
 app.use(express.json()); // Parses incoming JSON requests
-app.use(cookieParser()); // 🔹 INJECTED: কুকি পার্স করার মিডলওয়্যার
+app.use(cookieParser()); // Middleware to parse cookies
 
 // Register the Request ID middleware at the top to track every incoming request
 app.use(requestIdMiddleware);
@@ -32,7 +33,8 @@ app.get('/', (req, res) => {
 // Authentication API Routes
 // All requests starting with /api/auth will be handled by authRoutes
 // ==========================================
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes); // Registering the authentication routes
+app.use('/api/assessments', assessmentRoutes); // Registering the assessment routes
 
 // Start the server on the specified port
 const PORT = process.env.PORT || 5000;

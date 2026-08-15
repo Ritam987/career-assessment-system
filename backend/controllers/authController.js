@@ -65,26 +65,24 @@ exports.loginUser = async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign(
-            { id: user.user_id, email: user.email }, 
+            { id: user.id, email: user.email }, // 
             process.env.JWT_SECRET, 
             { expiresIn: '1d' }
         );
 
-        // ==========================================
-        // 🔹 INJECTED: Set JWT in HTTP-Only Cookie
-        // ==========================================
+        // Set JWT in HTTP-Only Cookie
         res.cookie('token', token, {
-            httpOnly: true, // hides from client-side JavaScript (Secures from XSS)
-            secure: process.env.NODE_ENV === 'production', // uses HTTPS in production
-            sameSite: 'strict', // CSRF attack protection
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'strict', 
             maxAge: 24 * 60 * 60 * 1000 // 1 Day
         });
 
         res.status(200).json({
             message: '✅ Login successful!',
-            token: token, // Postman testing convenience
+            token: token, 
             user: {
-                id: user.user_id,
+                id: user.id, // 
                 full_name: user.full_name,
                 email: user.email,
                 preferred_field: user.preferred_field
@@ -92,10 +90,7 @@ exports.loginUser = async (req, res) => {
         });
 
     } catch (error) {
-        // Log the error along with the unique request ID for easy debugging
         console.error(`[Req ID: ${req.requestId}] Login Error:`, error);
-        
-        // Return a response containing the request ID and error details
         res.status(500).json({ 
             message: '❌ Internal server error during login!', 
             error: error.message,
@@ -107,7 +102,7 @@ exports.loginUser = async (req, res) => {
 // ==========================================
 // 3. LOGOUT CONTROLLER (Handles user logout)
 // ==========================================
-// 🔹 INJECTED: New logout controller
+// New logout controller
 exports.logoutUser = (req, res) => {
     res.clearCookie('token', {
         httpOnly: true,
