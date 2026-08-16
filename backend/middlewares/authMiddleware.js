@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); // Import jsonwebtoken for token verification
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = (req, res, next) => { // Middleware function to verify user authentication
     try {
         // Extract token from request cookies
         const token = req.cookies.token;
@@ -22,4 +22,4 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-module.exports = authMiddleware;
+module.exports = authMiddleware; // Export the middleware function for use in routes that require authentication

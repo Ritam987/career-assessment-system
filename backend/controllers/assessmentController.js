@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require('../config/db'); // Import database connection
 
 // ==========================================
 // 1. START OR RESUME ASSESSMENT

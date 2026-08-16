@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid'); // Import the UUID library to generate unique request IDs
 
 const requestIdMiddleware = (req, res, next) => {
     // Check if the client sent an existing request ID, otherwise generate a new UUID
@@ -14,4 +14,4 @@ const requestIdMiddleware = (req, res, next) => {
     next();
 };
 
-module.exports = requestIdMiddleware;
+module.exports = requestIdMiddleware; // Export the middleware function for use in the application

@@ -1,4 +1,4 @@
-const express = require('express'); // Importing the Express framework
+const express = require('express'); // Importing the Express framework and more
 const cors = require('cors'); // To handle Cross-Origin Resource Sharing
 const cookieParser = require('cookie-parser'); // To handle cookies
 const dotenv = require('dotenv'); // To load environment variables from .env file
@@ -6,6 +6,7 @@ const db = require('./config/db'); // Importing the database connection
 const authRoutes = require('./routes/authRoutes'); // Importing the authentication routes
 const requestIdMiddleware = require('./middlewares/requestId'); // Importing the request ID middleware
 const assessmentRoutes = require('./routes/assessmentRoutes'); // Importing the assessment routes
+const adminRoutes = require('./routes/adminRoutes'); // Importing the admin routes
 
 // Load environment variables from .env file
 dotenv.config();
@@ -35,6 +36,7 @@ app.get('/', (req, res) => {
 // ==========================================
 app.use('/api/auth', authRoutes); // Registering the authentication routes
 app.use('/api/assessments', assessmentRoutes); // Registering the assessment routes
+app.use('/api/admin', adminRoutes); // Registering the admin routes
 
 // Start the server on the specified port
 const PORT = process.env.PORT || 5000;
