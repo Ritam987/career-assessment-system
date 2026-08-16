@@ -1,7 +1,8 @@
 import React from 'react'
 
-export const Registaration = () => {
+const Registaration = () => {
   return (
     <div>Registaration</div>
   )
 }
+export default Registaration;

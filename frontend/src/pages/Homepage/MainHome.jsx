@@ -1,15 +1,13 @@
 import React from 'react'
-
-export const MainHome = () => {
-
-
-    
+import Navbar from '../../components/navbar/Navbar';
+const MainHome = () => {
+   
   return (
     <>
-    <div className='parent-container'> 
-       
-    </div>
+   homepage
     </>
     
   )
 }
+
+export default MainHome;

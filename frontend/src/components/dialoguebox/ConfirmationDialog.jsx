@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const confirmationDialog = () => {
+export const ConfirmationDialog = () => {
   return (
     <div>confirmationDialog</div>
   )
