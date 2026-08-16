@@ -3,7 +3,7 @@ const router = express.Router(); // Create a new router instance for handling as
 const authMiddleware = require('../middlewares/authMiddleware'); // Importing authentication middleware to protect assessment routes
 
 // Importing controller functions for assessment routes
-const { startAssessment, getNextQuestion, submitAnswer, completeAssessment } = require('../controllers/assessmentController');
+const { startAssessment, getNextQuestion, submitAnswer, completeAssessment, getAssessmentHistory } = require('../controllers/assessmentController');
 
 // 1. Start or Resume Assessment Route
 router.post('/start', authMiddleware, startAssessment);
@@ -17,5 +17,8 @@ router.post('/submit-answer', authMiddleware, submitAnswer);
 // 4. Complete Assessment Route
 // This route is for completing the assessment and finalizing the results. It requires authentication to ensure that only logged-in users can complete their assessments.
 router.post('/complete', authMiddleware, completeAssessment);
+
+// 5. Fetch User Assessment History Route
+router.get('/history', authMiddleware, getAssessmentHistory);
 
 module.exports = router; // Export the router to be used in the main application file (app.js or server.js)

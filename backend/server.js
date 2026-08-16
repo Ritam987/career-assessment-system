@@ -9,7 +9,7 @@ const assessmentRoutes = require('./routes/assessmentRoutes'); // Importing the 
 const adminRoutes = require('./routes/adminRoutes'); // Importing the admin routes
 
 // Load environment variables from .env file
-dotenv.config();
+require('dotenv').config();
 
 const app = express(); // Create an Express application instance
 

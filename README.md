@@ -2,31 +2,39 @@
 
 ## Project Overview
 
-The Career Assessment System is a full-stack application designed to support career guidance, user profiling, and future assessment-driven recommendations. The backend is built with Node.js and Express.js and follows a clean MVC-inspired structure to keep routes, controllers, models, middleware, and configuration organized.
+The Career Assessment System helps users discover career paths through structured profiling, assessments, and personalized recommendations. It is a modular full-stack application with a backend API and a separately developed frontend client. The codebase is organized to make it straightforward to extend assessments, scoring, and administrative workflows while keeping authentication, configuration, and data access clearly separated.
 
-This repository currently includes:
+Key points:
 
-- A backend API service in `backend/` with secure user registration and login flows.
-- A database connection layer configured in `backend/config/db.js`.
-- Request tracking middleware for debugging and traceability.
-- A frontend application in `frontend/` built with React and Vite, which is set up for the next UI integration phase.
+- Backend: Node.js + Express.js, following an MVC-inspired layout (routes, controllers, models, middleware).
+- Database: MySQL (via `mysql2`) is the current database implementation and is configured in `backend/config/db.js`.
+- Frontend: React + Vite (located in `frontend/`) — the UI scaffold is present and ready for feature wiring.
+- Focus & status: Core backend functionality (authentication, request tracking, and user model) is implemented; the next phase is frontend development and assessment workflows.
 
-Note: The implementation currently present in this workspace uses a MySQL connection configured through `mysql2` in `backend/config/db.js`. The codebase is therefore aligned to the MySQL-based backend implementation that is currently active in the repository.
+This repository contains the backend API, configuration, middleware, and a frontend scaffold ready for integration and iteration.
 
 ## Features Implemented
 
-The backend already includes the following implemented capabilities:
+Implemented (core):
 
-- Express.js server setup with JSON parsing and CORS enabled for cross-origin requests.
-- Database connectivity through `backend/config/db.js` using environment-based configuration values.
-- User registration endpoint with validation and duplicate email prevention.
-- Secure password hashing using `bcrypt` before storing user credentials.
-- User login endpoint that verifies credentials and returns a JWT token.
-- JWT-based authentication using `jsonwebtoken` with a configurable `JWT_SECRET` value.
-- Unique request tracking middleware (`backend/middlewares/requestId.js`) that generates or reuses an `X-Request-ID` for every incoming request.
-- Structured MVC-style folders for configuration, controllers, routes, middleware, and models.
-- Clean separation between route definitions and business logic, enabling future extension for assessment, question, admin, and user management features.
-- Environment-driven configuration for database connectivity and API security.
+- ✅ Authentication: user registration and login with validation, duplicate-email checks, and bcrypt password hashing. (See `backend/controllers/authController.js` and `backend/routes/authRoutes.js`)
+- ✅ JWT-based auth: token issuance and verification using a configurable `JWT_SECRET`.
+- ✅ Request tracing: request ID middleware (`backend/middlewares/requestId.js`) that reads or generates `X-Request-ID` and exposes it on `req.requestId` and responses.
+- ✅ Database connectivity: MySQL connection setup in `backend/config/db.js` with environment-driven configuration values.
+- ✅ Project structure: MVC-inspired layout separating routes, controllers, models, middleware, and utilities for maintainability.
+
+In progress / scaffolded:
+
+- ⚙️ Frontend scaffold: React + Vite app in `frontend/` is present and ready to be connected to backend endpoints.
+- ⚙️ Utility modules: `backend/utils/` contains utilities such as `scoreCalculator.js` and `pdfGenerator.js` to be integrated with assessment flows.
+
+Planned / next-phase features:
+
+- 🚀 Assessment engine: questions, scoring rules, and result generation that produce personalized career recommendations.
+- 🛠️ Admin interfaces: management endpoints and UI for creating/editing assessments, questions, and user outcomes.
+- 📄 Reporting: PDF or exportable summaries of assessment results using `backend/utils/pdfGenerator.js`.
+
+These lists capture the current capabilities and roadmap in a concise form to make it easier for contributors and maintainers to understand what is available and what to work on next.
 
 ## Project Structure
 

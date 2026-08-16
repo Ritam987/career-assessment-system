@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken for token generation
 const userModel = require('../models/userModel'); // Importing the user model for database queries
+const db = require('../config/db'); // Import database connection
 
 // ==========================================
 // 1. REGISTER CONTROLLER (Handles new user registration)
@@ -110,4 +111,30 @@ exports.logoutUser = (req, res) => {
         sameSite: 'strict'
     });
     res.status(200).json({ message: '✅ Logged out successfully!' });
+};
+
+// ==========================================
+// FETCH LOGGED-IN USER PROFILE
+// ==========================================
+exports.getUserProfile = async (req, res) => {
+    try {
+        // The authMiddleware sets req.user with the decoded token data
+        const userId = req.user.id;
+
+        // Fetch user from the database (excluding the password field for security)
+        const [users] = await db.query(
+            'SELECT id, full_name, email, created_at FROM users WHERE id = ?', 
+            [userId]
+        );
+
+        // Check if the user exists
+        if (users.length === 0) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.status(200).json({ user: users[0] });
+    } catch (error) {
+        console.error('Fetch Profile Error:', error);
+        res.status(500).json({ message: 'Server error while fetching profile.', error: error.message });
+    }
 };

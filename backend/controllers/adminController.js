@@ -187,3 +187,172 @@ exports.getAllCareers = async (req, res) => {
         res.status(500).json({ message: '❌ Failed to fetch careers.', error: error.message });
     }
 };
+
+// ==========================================
+// 7. GET ALL REGISTERED USERS (Admin Only)
+// ==========================================
+exports.getAllUsers = async (req, res) => {
+    try {
+        // Fetch all registered users excluding passwords, ordered by newest first
+        const [users] = await db.query(
+            'SELECT id, full_name, email, created_at FROM users ORDER BY created_at DESC'
+        );
+
+        res.status(200).json({ 
+            total: users.length, 
+            users: users 
+        });
+    } catch (error) {
+        console.error('Fetch All Users Error:', error);
+        res.status(500).json({ message: 'Failed to fetch users.', error: error.message });
+    }
+};
+
+// ==========================================
+// 8. GET ADMIN ANALYTICS (Dashboard Overview)
+// ==========================================
+exports.getAdminAnalytics = async (req, res) => {
+    try {
+        // Fetch total counts from respective tables using Promise.all for parallel execution
+        const [userResult] = await db.query('SELECT COUNT(*) as count FROM users');
+        const [questionResult] = await db.query('SELECT COUNT(*) as count FROM questions');
+        const [careerResult] = await db.query('SELECT COUNT(*) as count FROM careers');
+        const [assessmentResult] = await db.query('SELECT COUNT(*) as count FROM assessments WHERE status = ?', ['Completed']);
+
+        res.status(200).json({
+            totalUsers: userResult[0].count,
+            totalQuestions: questionResult[0].count,
+            totalCareers: careerResult[0].count,
+            completedAssessments: assessmentResult[0].count
+        });
+    } catch (error) {
+        console.error('Analytics Error:', error);
+        res.status(500).json({ message: '❌ Failed to fetch analytics.', error: error.message });
+    }
+};
+
+// ==========================================
+// 9. UPDATE QUESTION
+// ==========================================
+exports.updateQuestion = async (req, res) => {
+    try {
+        const { id } = req.params; // Extract question ID from URL
+        const {
+            category_id, question_text, question_type, mapped_trait,
+            option_a, option_b, option_c, option_d,
+            correct_answer, score_a, score_b, score_c, score_d, status
+        } = req.body;
+
+        const query = `
+            UPDATE questions 
+            SET category_id=?, question_text=?, question_type=?, mapped_trait=?, 
+                option_a=?, option_b=?, option_c=?, option_d=?, 
+                correct_answer=?, score_a=?, score_b=?, score_c=?, score_d=?, status=?
+            WHERE id=?
+        `;
+        
+        const values = [
+            category_id, question_text, question_type, mapped_trait,
+            option_a, option_b, option_c, option_d,
+            correct_answer, score_a, score_b, score_c, score_d, status,
+            id
+        ];
+
+        const [result] = await db.query(query, values);
+        
+        // Check if the question exists
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: '⚠️ Question not found.' });
+        }
+
+        res.status(200).json({ message: '✅ Question updated successfully!' });
+    } catch (error) {
+        console.error('Update Question Error:', error);
+        res.status(500).json({ message: '❌ Failed to update question.', error: error.message });
+    }
+};
+
+// ==========================================
+// 10. DELETE QUESTION
+// ==========================================
+exports.deleteQuestion = async (req, res) => {
+    try {
+        const { id } = req.params; // Extract question ID from URL
+        
+        const [result] = await db.query('DELETE FROM questions WHERE id = ?', [id]);
+        
+        // Check if the question exists
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: '⚠️ Question not found.' });
+        }
+        
+        res.status(200).json({ message: '✅ Question deleted successfully!' });
+    } catch (error) {
+        console.error('Delete Question Error:', error);
+        res.status(500).json({ message: '❌ Failed to delete question.', error: error.message });
+    }
+};
+
+// ==========================================
+// 11. UPDATE CAREER
+// ==========================================
+exports.updateCareer = async (req, res) => {
+    try {
+        const { id } = req.params; // Extract career ID from URL
+        const { career_name, skill_domain, course_training, description, required_traits } = req.body;
+
+        const query = `
+            UPDATE careers 
+            SET career_name=?, skill_domain=?, course_training=?, description=?, required_traits=?
+            WHERE id=?
+        `;
+        
+        const values = [career_name, skill_domain, course_training, description, required_traits, id];
+
+        const [result] = await db.query(query, values);
+        
+        // Check if the career exists
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: '⚠️ Career not found.' });
+        }
+
+        res.status(200).json({ message: '✅ Career updated successfully!' });
+    } catch (error) {
+        console.error('Update Career Error:', error);
+        res.status(500).json({ message: '❌ Failed to update career.', error: error.message });
+    }
+};
+
+// ==========================================
+// 12. DELETE CAREER
+// ==========================================
+exports.deleteCareer = async (req, res) => {
+    try {
+        const { id } = req.params; // Extract career ID from URL
+        
+        const [result] = await db.query('DELETE FROM careers WHERE id = ?', [id]);
+        
+        // Check if the career exists
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: '⚠️ Career not found.' });
+        }
+        
+        res.status(200).json({ message: '✅ Career deleted successfully!' });
+    } catch (error) {
+        console.error('Delete Career Error:', error);
+        res.status(500).json({ message: '❌ Failed to delete career.', error: error.message });
+    }
+};
+
+// ==========================================
+// 13. GET ALL CATEGORIES
+// ==========================================
+exports.getAllCategories = async (req, res) => {
+    try {
+        const [categories] = await db.query('SELECT * FROM categories ORDER BY id ASC');
+        res.status(200).json({ total: categories.length, categories });
+    } catch (error) {
+        console.error('Fetch Categories Error:', error);
+        res.status(500).json({ message: '❌ Failed to fetch categories.', error: error.message });
+    }
+};

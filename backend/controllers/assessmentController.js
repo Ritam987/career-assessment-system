@@ -204,3 +204,32 @@ exports.completeAssessment = async (req, res) => {
         });
     }
 };
+
+// ==========================================
+// 5. GET USER ASSESSMENT HISTORY
+// ==========================================
+exports.getAssessmentHistory = async (req, res) => {
+    try {
+        const userId = req.user.id; // User ID from authMiddleware
+
+        // Fetch user's assessment history sorted by newest first
+        const [history] = await db.query(
+            'SELECT id, status, created_at, completed_at FROM assessments WHERE user_id = ? ORDER BY created_at DESC',
+            [userId]
+        );
+
+        res.status(200).json({
+            message: '✅ Assessment history fetched successfully',
+            totalAssessments: history.length,
+            history: history
+        });
+
+    } catch (error) {
+        console.error(`[Req ID: ${req.requestId}] Fetch Assessment History Error:`, error);
+        res.status(500).json({
+            message: '❌ Error fetching assessment history',
+            error: error.message,
+            requestId: req.requestId
+        });
+    }
+};
