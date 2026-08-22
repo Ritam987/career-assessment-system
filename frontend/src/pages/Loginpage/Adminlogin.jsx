@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import "./login.css";
+import "./adminlogin.css"
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Adminlogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -25,12 +25,10 @@ const Login = () => {
     <div className="login-page">
       <div className="login-card">
 
-   
-
         {/* Heading */}
         <div className="login-heading">
-          <h2>Welcome back!</h2>
-          <p>Login to continue your career assessment journey</p>
+          <h2>Welcome back Admin!</h2>
+          <p>Login to the Portal</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -137,4 +135,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Adminlogin;

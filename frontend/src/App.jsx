@@ -9,6 +9,7 @@ import Admindashboard from './pages/Adminpage/Admindashboard';
 import Navbar from './components/navbar/Navbar';
 import Aboutassesment from './pages/aboutassesment/Aboutassesment';
 import Testpage from './pages/Testpage/Testpage';
+import Adminlogin from './pages/Loginpage/Adminlogin';
 
 const App = () => {
   return (
@@ -51,7 +52,7 @@ const App = () => {
 
         <Route
           path="/admin"
-          element={<Admindashboard />}
+          element={<Adminlogin />}
         />
       </Routes>
         </BrowserRouter>
