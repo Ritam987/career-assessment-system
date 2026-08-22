@@ -33,9 +33,14 @@ export default function Navbar(){
        </ul>
 
        <ul className='ul2' >
-        <li>
+        <li className='login-li'>
           <Link to="/login">
-            Login/Register
+            Login
+          </Link>
+        </li>
+         <li className='reg-li'>
+          <Link to="/registration">
+           Registration
           </Link>
         </li>
 
