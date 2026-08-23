@@ -4,47 +4,57 @@
 1 hello
 ## Project Overview
 
-The Career Assessment System is a full-stack application designed to support career guidance, user profiling, and future assessment-driven recommendations. The backend is built with Node.js and Express.js and follows a clean MVC-inspired structure to keep routes, controllers, models, middleware, and configuration organized.
+The Career Assessment System is a full-stack application designed to support career guidance, user profiling, skill-domain analysis, and assessment-driven recommendations. The backend is built with Node.js and Express.js, and the frontend is built with React + Vite. The project follows a modular structure with separate folders for backend logic, frontend pages, route definitions, database access, and shared UI components.
 
 This repository currently includes:
 
-- A backend API service in `backend/` with secure user registration and login flows.
-- A database connection layer configured in `backend/config/db.js`.
+- A backend API service in `backend/` with secure registration, login, admin flows, and assessment APIs.
+- A MySQL connection configured in `backend/config/db.js` using environment-based values.
 - Request tracking middleware for debugging and traceability.
-- A frontend application in `frontend/` built with React and Vite, which is set up for the next UI integration phase.
+- A React + Vite frontend in `frontend/` with multiple routes and page modules for user and admin flows.
 
-Note: The implementation currently present in this workspace uses a MySQL connection configured through `mysql2` in `backend/config/db.js`. The codebase is therefore aligned to the MySQL-based backend implementation that is currently active in the repository.
+Note: The current active implementation in this workspace is aligned to a MySQL-backed backend using `mysql2`, and the frontend is connected to the local backend through `http://localhost:5000`.
 
-## Features Implemented
+## Updated Project Status
 
-The backend already includes the following implemented capabilities:
+The project has moved beyond the initial backend-only setup. The following sections reflect the current implementation as it appears in the repository today.
 
-- Express.js server setup with JSON parsing and CORS enabled for cross-origin requests.
-- Database connectivity through `backend/config/db.js` using environment-based configuration values.
-- User registration endpoint with validation and duplicate email prevention.
-- Secure password hashing using `bcrypt` before storing user credentials.
-- User login endpoint that verifies credentials and returns a JWT token.
-- JWT-based authentication using `jsonwebtoken` with a configurable `JWT_SECRET` value.
-- Unique request tracking middleware (`backend/middlewares/requestId.js`) that generates or reuses an `X-Request-ID` for every incoming request.
-- Structured MVC-style folders for configuration, controllers, routes, middleware, and models.
-- Clean separation between route definitions and business logic, enabling future extension for assessment, question, admin, and user management features.
-- Environment-driven configuration for database connectivity and API security.
+### Completed and active implementation
+
+- Express server configured with JSON parsing, CORS, cookie support, and request ID tracking.
+- Database connectivity through MySQL pool with environment-based configuration.
+- User registration flow with validation, duplicate email prevention, and password hashing.
+- User login flow returning a JWT token and basic user details.
+- Admin setup and admin login flow with JWT-based authentication.
+- Assessment lifecycle APIs for starting, resuming, submitting answers, completing, and viewing history.
+- Admin APIs for questions, careers, users, analytics, and category listing.
+- React routing for home, login, registration, about-assessment, user dashboard, test page, report page, and admin login/dashboard.
+- Frontend UI scaffolding for the main screens and navigation flow.
+
+### Current status summary
+
+- Backend: Implemented and actively structured for authentication, admin management, and assessment logic.
+- Frontend: UI pages and routing are in place; the interface is functional as a scaffold and is ready for further refinement.
+- Testing and final polish: still ongoing for a complete end-to-end assessment flow, analytics dashboard, and result generation.
 
 ## Project Structure
 
 ```text
 career-assessment-system/
+├── README.md
 ├── backend/
 │   ├── .env
 │   ├── .gitignore
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── server.js
 │   ├── config/
 │   │   └── db.js
 │   ├── controllers/
 │   │   ├── adminController.js
 │   │   ├── assessmentController.js
 │   │   ├── authController.js
-│   │   ├── questionController.js
-│   │   └── userController.js
+│   │   └── questionController.js
 │   ├── middlewares/
 │   │   ├── authMiddleware.js
 │   │   ├── requestId.js
@@ -57,41 +67,108 @@ career-assessment-system/
 │   │   ├── authRoutes.js
 │   │   ├── questionRoutes.js
 │   │   └── userRoutes.js
-│   ├── utils/
-│   │   ├── pdfGenerator.js
-│   │   └── scoreCalculator.js
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── server.js
-│   └── node_modules/
+│   └── utils/
+│       ├── pdfGenerator.js
+│       └── scoreCalculator.js
 ├── frontend/
-│   ├── eslint.config.js
 │   ├── package.json
-│   ├── README.md
+│   ├── package-lock.json
 │   ├── vite.config.js
-│   └── node_modules/
-├── README.md
+│   ├── eslint.config.js
+│   ├── index.html
+│   └── src/
+│       ├── App.jsx
+│       ├── main.jsx
+│       ├── assets/
+│       │   └── logo.png
+│       ├── components/
+│       │   ├── Footer.jsx
+│       │   ├── Loader.jsx
+│       │   ├── button/
+│       │   │   └── Button.jsx
+│       │   ├── dialoguebox/
+│       │   │   └── ConfirmationDialog.jsx
+│       │   └── navbar/
+│       │       ├── Navbar.jsx
+│       │       └── navbar.css
+│       ├── pages/
+│       │   ├── Homepage/
+│       │   │   └── MainHome.jsx
+│       │   ├── Loginpage/
+│       │   │   ├── Login.jsx
+│       │   │   ├── Adminlogin.jsx
+│       │   │   ├── login.css
+│       │   │   └── adminlogin.css
+│       │   ├── Registrationpage/
+│       │   │   ├── Registaration.jsx
+│       │   │   └── Registration.css
+│       │   ├── Userpage/
+│       │   │   └── Userdashboard.jsx
+│       │   ├── Testpage/
+│       │   │   └── Testpage.jsx
+│       │   ├── Resultpage/
+│       │   │   └── Report_page_after_test.jsx
+│       │   ├── Adminpage/
+│       │   │   └── Admindashboard.jsx
+│       │   ├── aboutassesment/
+│       │   │   └── Aboutassesment.jsx
+│       │   └── errorPage/
+│       │       └── Errormessage.jsx
+│       └── services/
+│           ├── auth.js
+│           ├── fetchQuestion.js
+│           ├── getUserProfile.js
+│           ├── multilanguage.js
+│           └── postCredentials.js
 └── .git/
 ```
 
-### Directory Responsibilities
+### Directory responsibilities
 
-- `backend/config/`: Database and environment-based configuration files.
-- `backend/controllers/`: Business logic for requests such as registration, authentication, and future domain features.
-- `backend/middlewares/`: Custom middleware for authentication, authorization, request IDs, and request-level tracking.
-- `backend/models/`: Data access logic for interacting with the database.
-- `backend/routes/`: Express route definitions that map HTTP endpoints to controller functions.
-- `backend/utils/`: Utility modules for reusable calculations and generation logic.
-- `frontend/`: React + Vite client application for the user-facing interface.
+- `backend/config/`: Database and environment configuration.
+- `backend/controllers/`: Authentication, assessment, admin, and user business logic.
+- `backend/models/`: Database interaction for user-related data.
+- `backend/routes/`: Express routing for all API groups.
+- `backend/middlewares/`: Authentication, admin rules, and request-tracking logic.
+- `backend/utils/`: Result and document-related helper modules.
+- `frontend/src/pages/`: Feature screen modules for home, login, registration, dashboard, assessment, report, and admin tools.
+- `frontend/src/components/`: Shared UI elements such as navbar, buttons, loader, and confirmation dialog.
+- `frontend/src/services/`: API fetching logic for user/auth and assessment data.
 
-## API Documentation
+## Updated Architecture Overview
 
-The current active API implementation is focused on authentication and request tracking. The backend listens on `http://localhost:5000` by default unless overridden in the `.env` file.
+```text
++------------------------------------------------------------+
+|                         Frontend (React)                    |
+|  Home | About Assessment | Login | Registration | Dashboard |
+|  Test | Report | Admin Login | Admin Dashboard             |
++-------------------------+----------------------------------+
+                          |
+                          | REST API
+                          v
++------------------------------------------------------------+
+|                         Backend (Express)                    |
+|  authRoutes | assessmentRoutes | adminRoutes               |
+|  authController | assessmentController | adminController    |
++-------------------------+----------------------------------+
+                          |
+                          | MySQL database
+                          v
++------------------------------------------------------------+
+|                        Database (MySQL)                     |
+|  users | admins | questions | assessments | careers      |
+|  categories | user_responses                               |
++------------------------------------------------------------+
+```
 
-### Health Check
+## API documentation
+
+The current backend listens on `http://localhost:5000` unless overridden in the backend `.env` file.
+
+### Health check
 
 - `GET /`
-- Returns a simple running-status message from `backend/server.js`.
+- Returns a running-status message from the server.
 
 Example response:
 
@@ -101,22 +178,29 @@ Example response:
 }
 ```
 
-### Authentication Endpoints
+### Authentication endpoints
 
 #### 1) Register a new user
 
 - `POST /api/auth/register`
-- Route file: `backend/routes/authRoutes.js`
 - Controller: `backend/controllers/authController.js`
+- Model: `backend/models/userModel.js`
 
-Request body:
+Sample request body:
 
 ```json
 {
-  "full_name": "Ritam Das",
+  "name": "Ritam Das",
+  "gender": "male",
   "email": "ritam@example.com",
   "password": "StrongPassword123",
-  "age": 25,
+  "phone": "9876543210",
+  "dob": "1998-05-12",
+  "age": 26,
+  "city": "Kolkata",
+  "state": "West Bengal",
+  "pincode": "700001",
+  "education_level": "bachelors",
   "preferred_field": "Software Development",
   "career_goal": "Become a senior full-stack engineer"
 }
@@ -124,26 +208,25 @@ Request body:
 
 Expected behavior:
 
-- Checks whether the email already exists.
-- Hashes the password using `bcrypt`.
-- Inserts the user into the `users` table.
-- Returns a `201 Created` response with a success message.
+- Checks for an existing email.
+- Hashes the password with bcrypt.
+- Stores user details in the `users` table.
+- Returns a success message on completion.
 
-Example success response:
+Sample response:
 
 ```json
 {
-  "message": "✅ User registered successfully!"
+  "message": "User registered successfully!"
 }
 ```
 
 #### 2) Login a user
 
 - `POST /api/auth/login`
-- Route file: `backend/routes/authRoutes.js`
 - Controller: `backend/controllers/authController.js`
 
-Request body:
+Sample request:
 
 ```json
 {
@@ -152,40 +235,86 @@ Request body:
 }
 ```
 
-Expected behavior:
-
-- Finds the user by email.
-- Validates the provided password against the stored hash.
-- Signs a JWT token using the environment secret.
-- Returns the token plus a lightweight user summary.
-
-Example success response:
+Sample response:
 
 ```json
 {
-  "message": "✅ Login successful!",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "message": "Login successful!",
+  "token": "jwt_token_here",
   "user": {
     "id": 1,
-    "full_name": "Ritam Das",
-    "email": "ritam@example.com",
-    "preferred_field": "Software Development"
+    "name": "Ritam Das",
+    "email": "ritam@example.com"
   }
 }
 ```
 
-### Request Tracking
+### Admin endpoints
 
-All requests pass through `backend/middlewares/requestId.js`, which:
+- `POST /api/admin/setup`
+- `POST /api/admin/login`
+- `GET /api/admin/analytics`
+- `POST /api/admin/questions`
+- `GET /api/admin/questions`
+- `PUT /api/admin/questions/:id`
+- `DELETE /api/admin/questions/:id`
+- `POST /api/admin/careers`
+- `GET /api/admin/careers`
+- `GET /api/admin/users`
+- `GET /api/admin/categories`
 
-- Reads the incoming `x-request-id` header if provided.
-- Otherwise generates a UUID value.
-- Attaches it to `req.requestId`.
-- Sends the same value back as the `X-Request-ID` response header.
+These functions are defined in `backend/routes/adminRoutes.js` and implemented in `backend/controllers/adminController.js`.
 
-This makes debugging and traceability easier during development and production support scenarios.
+### Assessment endpoints
 
-## Local Setup Instructions
+- `POST /api/assessments/start`
+- `GET /api/assessments/next-question`
+- `POST /api/assessments/submit-answer`
+- `POST /api/assessments/complete`
+- `GET /api/assessments/history`
+
+These routes are protected by the auth middleware and are used to move the user through the psychometric assessment flow.
+
+### Request tracking
+
+All requests pass through the request ID middleware, which:
+
+- reads the incoming `x-request-id` header if present;
+- otherwise generates a UUID;
+- attaches it to `req.requestId`;
+- returns the same value in the `X-Request-ID` response header.
+
+This improves debugging and traceability during development and support.
+
+## Frontend pages and routes
+
+The frontend has the following route structure in the current project state:
+
+- `/` → Home page
+- `/about-assessment` → About assessment page
+- `/login` → User login page
+- `/registration` → Registration page
+- `/dashboard` → User dashboard
+- `/test` → Assessment page
+- `/report` → Result/report page
+- `/admin` → Admin login page
+- `/admin-dashboard` → Admin dashboard
+
+The actual routing setup is in `frontend/src/App.jsx` and the page modules exist under `frontend/src/pages/`.
+
+### Current frontend status
+
+The project has implemented the structural flow of a complete app, including:
+
+- page-level route architecture;
+- navbar navigation;
+- login/registration forms with validation;
+- admin login screen;
+- placeholder dashboard and assessment screens ready for further extension.
+
+This means the app is no longer only a backend prototype; it has a real UI foundation and page flow connected to the backend endpoints.
+
+## Local setup instructions
 
 Follow these steps to set up the project locally.
 
@@ -205,7 +334,7 @@ npm install
 
 ### 3) Configure environment variables
 
-Create a `.env` file in the `backend/` directory with the following values:
+Create a `.env` file inside `backend/` with values similar to:
 
 ```env
 PORT=5000
@@ -216,34 +345,24 @@ DB_NAME=career_assessment_db
 JWT_SECRET=your_secure_jwt_secret
 ```
 
-The code currently expects these values to match the MySQL database and JWT configuration used by `backend/config/db.js` and `backend/controllers/authController.js`.
-
-### 4) Create the database and required table
-
-Make sure MySQL is installed and running locally. Create the database used in the `.env` file:
+### 4) Create the database
 
 ```sql
 CREATE DATABASE career_assessment_db;
 ```
 
-The current `userModel.js` logic expects a `users` table with fields similar to the following:
-
-```sql
-CREATE TABLE users (
-  user_id INT AUTO_INCREMENT PRIMARY KEY,
-  full_name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
-  age INT,
-  preferred_field VARCHAR(255),
-  career_goal TEXT,
-  profile_completed BOOLEAN DEFAULT TRUE
-);
-```
+The current project expects MySQL tables including `users`, `admins`, `questions`, `assessments`, `user_responses`, `careers`, and `categories`.
 
 ### 5) Start the backend server
 
-The current backend package does not yet include explicit lifecycle scripts, so the recommended local scripts are:
+The current project does not yet contain a full lifecycle script set in `backend/package.json`, so the reliable local command is:
+
+```bash
+cd backend
+node server.js
+```
+
+If you want to add scripts for convenience, you can also use:
 
 ```json
 {
@@ -254,19 +373,7 @@ The current backend package does not yet include explicit lifecycle scripts, so 
 }
 ```
 
-Then run either command:
-
-```bash
-npm start
-```
-
-or
-
-```bash
-npm run dev
-```
-
-The server should start on:
+The server should run at:
 
 ```text
 http://localhost:5000
@@ -274,18 +381,25 @@ http://localhost:5000
 
 ### 6) Install and run the frontend
 
-The frontend is a separate React + Vite application located in `frontend/`.
-
 ```bash
-cd ../frontend
+cd frontend
 npm install
 npm run dev
 ```
 
-This starts the Vite development server for the UI so the frontend can later connect to the backend API.
+This starts the Vite development server and the frontend application at the default Vite port.
 
-## Current Priority & Next Steps
+## Current priority and next steps
 
-The application is now ready to move into the frontend development phase. The next major milestone is to design and build the user-facing React.js interface, define core UI screens, and connect those screens to the existing backend authentication and API workflows.
+The project is now at a strong intermediate stage. The following items are the next realistic priorities:
 
-Our immediate priority is to design and develop the frontend interface using React.js and seamlessly connect it to our established backend API.
+1. Complete the remaining frontend screens and polish the design.
+2. Connect the assessment UI to backend assessment APIs in real time.
+3. Add result generation and career recommendation logic.
+4. Finalize the admin dashboard for managing questions and careers.
+5. Improve authentication guard flow and role-based protections.
+6. Validate the end-to-end user journey from registration to result generation.
+
+## Important note
+
+The original README content has been preserved in intent and structure, and the new updates are appended as the current implementation status. This ensures the documentation remains clean, consistent, and aligned with the actual project state without removing earlier project context.
