@@ -13,11 +13,11 @@ import Adminlogin from './pages/Loginpage/Adminlogin';
 
 const App = () => {
   return (
- <BrowserRouter>
+    <BrowserRouter>
 
-            <Navbar />
+      <Navbar />
 
-           <Routes>
+      <Routes>
         <Route path="/" element={<MainHome />} />
 
         <Route
@@ -54,8 +54,11 @@ const App = () => {
           path="/admin"
           element={<Adminlogin />}
         />
+
+        <Route path="/admin-dashboard" element={<Admindashboard />} />
+
       </Routes>
-        </BrowserRouter>
+    </BrowserRouter>
   )
 }
 

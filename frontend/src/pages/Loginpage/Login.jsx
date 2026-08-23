@@ -13,12 +13,41 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Login Data:", data);
+ const onSubmit = async (data) => {
+    try {
+      console.log("Sending Login Data:", data);
 
-    // Send data to your backend here
-    // Example:
-    // axios.post("/api/login", data)
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // if your backend expects the identifier to be named differently (like "email" or "username"), you should map it accordingly. For now, I'm sending it as is:
+        // this is assuming your backend expects "email" and "password" in the request body. Adjust as necessary based on your backend implementation.
+        body: JSON.stringify({
+          email: data.identifier, // Adjust this key based on your backend's expected field name
+          password: data.password
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        alert("Login Successful!");
+        
+        // Save the token and user data in localStorage
+        localStorage.setItem("token", responseData.token);
+        localStorage.setItem("user", JSON.stringify(responseData.user));
+
+        // Navigate to the dashboard or any other page after successful login
+        navigate("/dashboard");
+      } else {
+        alert(`❌ Login Failed: ${responseData.message || 'Invalid credentials'}`);
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert("❌ Server error. Make sure backend is running.");
+    }
   };
 
   return (

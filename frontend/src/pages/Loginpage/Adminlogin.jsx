@@ -13,12 +13,43 @@ const Adminlogin = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Login Data:", data);
+ const onSubmit = async (data) => {
+    try {
+      console.log("Sending Admin Login Data:", data);
 
-    // Send data to your backend here
-    // Example:
-    // axios.post("/api/login", data)
+      // request to the backend for admin login
+      const response = await fetch("http://localhost:5000/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // if your backend expects the identifier to be named differently (like "email" or "username"), you should map it accordingly. For now, I'm sending it as is:
+        body: JSON.stringify({
+          email: data.identifier, 
+          password: data.password
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        alert("Admin Login Successful!");
+        
+        // Save the token and admin data in localStorage
+        localStorage.setItem("adminToken", responseData.token);
+        if(responseData.admin) {
+            localStorage.setItem("adminData", JSON.stringify(responseData.admin));
+        }
+
+        // Navigate to the admin dashboard or any other page after successful login
+        navigate("/admin-dashboard"); 
+      } else {
+        alert(`Login Failed: ${responseData.message || 'Invalid admin credentials'}`);
+      }
+    } catch (error) {
+      console.error("Admin Login Error:", error);
+      alert("Server error. Make sure backend is running.");
+    }
   };
 
   return (
