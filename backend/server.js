@@ -27,7 +27,7 @@ app.use(requestIdMiddleware);
 
 // Basic Test Route
 app.get('/', (req, res) => {
-    res.send('🚀 Career Assessment System API is running...');
+    res.send('Career Assessment System API is running...');
 });
 
 // ==========================================

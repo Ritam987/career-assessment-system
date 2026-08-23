@@ -195,7 +195,7 @@ exports.getAllUsers = async (req, res) => {
     try {
         // Fetch all registered users excluding passwords, ordered by newest first
         const [users] = await db.query(
-            'SELECT id, full_name, email, created_at FROM users ORDER BY created_at DESC'
+            'SELECT id, name, email, created_at FROM users ORDER BY created_at DESC'
         );
 
         res.status(200).json({ 

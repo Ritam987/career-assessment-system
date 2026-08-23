@@ -16,7 +16,7 @@ exports.startAssessment = async (req, res) => {
         if (existingAssessment.length > 0) {
             // if the user already has an in-progress assessment, resume it
             return res.status(200).json({
-                message: '✅ Resuming existing assessment',
+                message: 'Resuming existing assessment',
                 assessmentId: existingAssessment[0].id,
                 lastAnsweredQuestionId: existingAssessment[0].last_answered_question_id
             });
@@ -29,7 +29,7 @@ exports.startAssessment = async (req, res) => {
         );
 
         res.status(201).json({
-            message: '✅ New assessment started successfully!',
+            message: 'New assessment started successfully!',
             assessmentId: result.insertId,
             lastAnsweredQuestionId: null
         });
@@ -59,7 +59,7 @@ exports.getNextQuestion = async (req, res) => {
         );
 
         if (assessment.length === 0) {
-            return res.status(404).json({ message: '❌ No active assessment found. Please start the assessment first.' });
+            return res.status(404).json({ message: 'No active assessment found. Please start the assessment first.' });
         }
 
         const assessmentId = assessment[0].id;
@@ -80,14 +80,14 @@ exports.getNextQuestion = async (req, res) => {
         // if no more questions are left
         if (nextQuestion.length === 0) {
             return res.status(200).json({ 
-                message: '✅ Assessment completed! No more questions left.',
+                message: 'Assessment completed! No more questions left.',
                 completed: true 
             });
         }
 
         // send the next question to the frontend
         res.status(200).json({
-            message: '✅ Next question fetched successfully',
+            message: 'Next question fetched successfully',
             completed: false,
             question: nextQuestion[0]
         });
@@ -112,7 +112,7 @@ exports.submitAnswer = async (req, res) => {
 
         // Validate input
         if (!questionId || !selectedOption) {
-            return res.status(400).json({ message: '⚠️ Question ID and selected option are required!' });
+            return res.status(400).json({ message: 'Question ID and selected option are required!' });
         }
 
         // ১. Check if the user has an active assessment
@@ -147,13 +147,13 @@ exports.submitAnswer = async (req, res) => {
             );
         }
 
-        // ৪. Update the last answered question ID in the assessments table
+        // 4. Update the last answered question ID in the assessments table
         await db.query(
             'UPDATE assessments SET last_answered_question_id = ? WHERE id = ?',
             [questionId, assessmentId]
         );
 
-        res.status(200).json({ message: '✅ Answer submitted successfully!' });
+        res.status(200).json({ message: 'Answer submitted successfully!' });
 
     } catch (error) {
         console.error(`[Req ID: ${req.requestId}] Submit Answer Error:`, error);
@@ -179,7 +179,7 @@ exports.completeAssessment = async (req, res) => {
         );
 
         if (assessment.length === 0) {
-            return res.status(400).json({ message: '❌ No active assessment found to complete.' });
+            return res.status(400).json({ message: 'No active assessment found to complete.' });
         }
 
         const assessmentId = assessment[0].id;
@@ -191,7 +191,7 @@ exports.completeAssessment = async (req, res) => {
         );
 
         res.status(200).json({ 
-            message: '🎉 Assessment completed successfully! Your results are now being processed.',
+            message: 'Assessment completed successfully! Your results are now being processed.',
             assessmentId: assessmentId
         });
 
@@ -219,7 +219,7 @@ exports.getAssessmentHistory = async (req, res) => {
         );
 
         res.status(200).json({
-            message: '✅ Assessment history fetched successfully',
+            message: 'Assessment history fetched successfully',
             totalAssessments: history.length,
             history: history
         });
