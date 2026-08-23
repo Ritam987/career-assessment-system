@@ -8,7 +8,11 @@ const db = require('../config/db'); // Import database connection
 // ==========================================
 exports.registerUser = async (req, res) => {
     try {
-        const { name, email, password, age, preferred_field, career_goal } = req.body;
+        // fields are extracted from the request body
+        const { 
+            name, email, password, phone, age, gender, dob, 
+            city, state, pincode, education_level, preferred_field, career_goal 
+        } = req.body;
 
         // Check if user already exists using the model
         const existingUser = await userModel.findUserByEmail(email);
@@ -20,12 +24,19 @@ exports.registerUser = async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Save the new user using the model
+        // ২. মডেলে সমস্ত ডেটা পাঠানো হলো
         await userModel.createUser({ 
             name, 
             email, 
             hashedPassword, 
+            phone,
             age, 
+            gender, 
+            dob, 
+            city, 
+            state, 
+            pincode,
+            education_level, 
             preferred_field, 
             career_goal
         });
@@ -121,12 +132,14 @@ exports.getUserProfile = async (req, res) => {
         // The authMiddleware sets req.user with the decoded token data
         const userId = req.user.id;
 
-        // Fetch user from the database (excluding the password field for security)
-        const [users] = await db.query(
-            `SELECT id, name, email, created_at, age, gender, dob, city, state, pincode,
-                    education_level, preferred_field, career_goal, profile_completed
-            FROM users WHERE id = ?`);
+           // added a query to fetch user details
+        const query = `
+            SELECT id, name, email, created_at, age, gender, dob, city, state, pincode,
+                   education_level, preferred_field, career_goal, profile_completed 
+            FROM users WHERE id = ?
+        `;
         
+        // call the query with the userId
         const [users] = await db.query(query, [userId]);
 
         // Check if the user exists
