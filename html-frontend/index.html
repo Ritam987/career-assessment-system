@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Assessment System — Reach India Trust</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────── -->
+<nav class="lp-nav" id="mainNav">
+    <div class="container">
+        <a href="index.html" class="lp-brand">
+            <img src="assets/images/logo.jpg" alt="Logo" class="lp-logo">
+        </a>
+        <button class="lp-hamburger" id="hamburgerBtn" onclick="toggleMenu()">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="lp-nav-links" id="navLinks">
+            <a href="#about">About</a>
+            <a href="#steps">How It Works</a>
+            <a href="#faq">FAQ</a>
+            <div class="lp-lang">
+                <i class="bi bi-globe2"></i>
+                <select onchange="changeLanguage(this.value)">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी</option>
+                    <option value="bn">বাংলা</option>
+                </select>
+            </div>
+            <a href="login/login.html" class="nav-login">Log In</a>
+            <a href="register.html" class="nav-signup">Get Started</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────── -->
+<section class="hero">
+    <div class="hero-grid-overlay"></div>
+    <div class="container position-relative">
+        <div class="hero-inner">
+            <span class="hero-tag"><i class="bi bi-geo-alt-fill me-1"></i>Reach India Trust · Kolkata</span>
+            <h1>Career Assessment<br><span>For Every Student</span></h1>
+            <p>A free, guided psychometric assessment that helps you understand your strengths, personality, and the career paths most suited for you.</p>
+            <div class="hero-btns">
+                <a href="register.html" class="btn-primary-lp">Take Free Assessment</a>
+                <a href="login/login.html" class="btn-ghost-lp">Log In</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ── Stats Strip ──────────────────────────────────── -->
+<div class="stats-strip">
+    <div class="container">
+        <div class="stats-row">
+            <div class="stat-item">
+                <strong>80</strong>
+                <span>Psychometric Questions</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <strong>4 Categories</strong>
+                <span>Personality · Skills · Interests · Work Style</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <strong>100% Free</strong>
+                <span>No Hidden Charges</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ── About ────────────────────────────────────────── -->
+<section class="lp-section" id="about">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <div class="about-visual">
+                    <div class="av-card av-card-1">
+                        <i class="bi bi-person-fill"></i>
+                        <div>
+                            <strong>Personality</strong>
+                            <span>20 Questions</span>
+                        </div>
+                    </div>
+                    <div class="av-card av-card-2">
+                        <i class="bi bi-heart-fill"></i>
+                        <div>
+                            <strong>Interests</strong>
+                            <span>20 Questions</span>
+                        </div>
+                    </div>
+                    <div class="av-card av-card-3">
+                        <i class="bi bi-briefcase-fill"></i>
+                        <div>
+                            <strong>Skills</strong>
+                            <span>20 Questions</span>
+                        </div>
+                    </div>
+                    <div class="av-card av-card-4">
+                        <i class="bi bi-sun-fill"></i>
+                        <div>
+                            <strong>Work Style</strong>
+                            <span>20 Questions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <p class="about-label">What is this assessment?</p>
+                <h2 class="about-title">Understand yourself before choosing a career</h2>
+                <p class="about-text">Most students pick a career based on pressure or guesswork. Our assessment changes that. It measures four key areas of who you are — your personality, what interests you, what you're skilled at, and how you prefer to work.</p>
+                <p class="about-text">The result is a personalised report that recommends careers specifically matched to your unique profile — not just a list of random options.</p>
+                <a href="register.html" class="btn-primary-lp mt-2 d-inline-block">Start Now — It's Free</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Steps ────────────────────────────────────────── -->
+<section class="lp-section steps-section" id="steps">
+    <div class="container">
+        <div class="section-header">
+            <h2>How It Works</h2>
+            <p>Simple, straightforward, and takes less than 20 minutes.</p>
+        </div>
+        <div class="steps-list">
+            <div class="step-item">
+                <div class="step-circle">1</div>
+                <div class="step-line"></div>
+                <div class="step-content">
+                    <h5>Sign Up</h5>
+                    <p>Create a free account with just your name and email. No credit card needed.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-circle">2</div>
+                <div class="step-line"></div>
+                <div class="step-content">
+                    <h5>Answer the Questions</h5>
+                    <p>Go through 80 simple multiple-choice questions at your own pace. You can pause and come back.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-circle">3</div>
+                <div class="step-line"></div>
+                <div class="step-content">
+                    <h5>Get Your Report</h5>
+                    <p>Receive a detailed breakdown of your top career matches with scores and explanations for each.</p>
+                </div>
+            </div>
+            <div class="step-item last">
+                <div class="step-circle">4</div>
+                <div class="step-content">
+                    <h5>Explore and Decide</h5>
+                    <p>Save your results, share with a counsellor, and revisit anytime from your profile.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Why Us ────────────────────────────────────────── -->
+<section class="lp-section" id="why">
+    <div class="container">
+        <div class="section-header">
+            <h2>Why This Assessment</h2>
+            <p>Built with purpose, not for profit.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-6 col-lg-4">
+                <div class="why-card">
+                    <span class="why-icon purple"><i class="bi bi-mortarboard-fill"></i></span>
+                    <h6>Expert Backed</h6>
+                    <p>Based on Holland's Career Theory and Big Five Personality Model used by global career counsellors.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="why-card">
+                    <span class="why-icon green"><i class="bi bi-phone-fill"></i></span>
+                    <h6>Works on Any Device</h6>
+                    <p>Fully responsive. Works on the cheapest smartphones — no app download needed.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="why-card">
+                    <span class="why-icon blue"><i class="bi bi-translate"></i></span>
+                    <h6>Accessible Language</h6>
+                    <p>Clear, simple English designed for students. No jargon, no confusion.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="why-card">
+                    <span class="why-icon yellow"><i class="bi bi-shield-lock-fill"></i></span>
+                    <h6>Your Data is Private</h6>
+                    <p>We never sell or share your results. What you share stays with you.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="why-card">
+                    <span class="why-icon purple"><i class="bi bi-arrow-repeat"></i></span>
+                    <h6>Take It Again</h6>
+                    <p>As you grow, so do your interests. Retake the assessment whenever you feel ready.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="why-card">
+                    <span class="why-icon green"><i class="bi bi-headset"></i></span>
+                    <h6>Counsellor Support</h6>
+                    <p>Need help interpreting your report? Our support team is here for you.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── FAQ ──────────────────────────────────────────── -->
+<section class="lp-section faq-section" id="faq">
+    <div class="container">
+        <div class="section-header">
+            <h2>Common Questions</h2>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="accordion lp-accordion" id="faqAcc">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+                                Is this completely free?
+                            </button>
+                        </h2>
+                        <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#faqAcc">
+                            <div class="accordion-body">Yes. This is a free public service by Reach India Trust. There are no premium plans, no hidden fees, and no ads.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+                                Who is it for?
+                            </button>
+                        </h2>
+                        <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                            <div class="accordion-body">Students from Class 9 onwards, college students, and anyone at a career crossroads. Age is no barrier.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+                                How long does it take?
+                            </button>
+                        </h2>
+                        <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                            <div class="accordion-body">Most students finish in 15–20 minutes. You can save progress and continue later if needed.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4">
+                                What do I get at the end?
+                            </button>
+                        </h2>
+                        <div id="q4" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                            <div class="accordion-body">A full report showing your personality type, skill strengths, and a ranked list of career matches with explanations for each recommendation.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Bottom CTA ───────────────────────────────────── -->
+<section class="bottom-cta">
+    <div class="container text-center">
+        <h2>Your career starts with knowing yourself.</h2>
+        <p>Take the first step today — free, honest, and made for you.</p>
+        <a href="register.html" class="btn-primary-lp mt-4 d-inline-block">Begin Assessment →</a>
+    </div>
+</section>
+
+<!-- ── Footer ───────────────────────────────────────── -->
+<footer class="lp-footer">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-5">
+                <img src="assets/images/logo.jpg" alt="Logo" class="lp-logo mb-3">
+                <p class="text-muted small">Career Assessment System is a free initiative by <strong>Reach India Trust</strong>, Kolkata — dedicated to helping students discover the right career path.</p>
+            </div>
+            <div class="col-lg-2 col-6">
+                <h6 class="fw-semibold mb-3">Navigate</h6>
+                <ul class="list-unstyled lp-flinks">
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#steps">How It Works</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-6">
+                <h6 class="fw-semibold mb-3">Account</h6>
+                <ul class="list-unstyled lp-flinks">
+                    <li><a href="register.html">Sign Up</a></li>
+                    <li><a href="login/login.html">Log In</a></li>
+                    <li><a href="help/help.html">Support</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3">
+                <h6 class="fw-semibold mb-3">Contact</h6>
+                <p class="text-muted small mb-1"><i class="bi bi-envelope me-2"></i>support@careerassessment.org</p>
+                <p class="text-muted small"><i class="bi bi-geo-alt me-2"></i>Kolkata, West Bengal, India</p>
+            </div>
+        </div>
+        <hr class="my-4 opacity-10">
+        <p class="text-center text-muted small mb-0">&copy; 2024 Career Assessment System — Reach India Trust. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    window.addEventListener('scroll', () => {
+        document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 10);
+    });
+    function toggleMenu() {
+        document.getElementById('navLinks').classList.toggle('open');
+    }
+    document.querySelectorAll('.lp-nav-links a').forEach(l => {
+        l.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+    });
+</script>
+</body>
+</html>

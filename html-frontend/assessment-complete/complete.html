@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Complete Career Assessment System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="complete.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- â”€â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="../index.html">
+                <img src="../assets/images/logo.jpg" alt="Career Assessment" class="brand-logo">
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../dashboard/dashboard.html" class="nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+            <a href="../assessment-intro/intro.html" class="nav-item active"><i class="bi bi-pencil-square"></i><span>Take Assessment</span></a>
+            <a href="../results/results.html" class="nav-item"><i class="bi bi-bar-chart-line"></i><span>My Results</span></a>
+            <a href="../notifications/notifications.html" class="nav-item"><i class="bi bi-bell"></i><span>Notifications</span><span class="nav-badge" id="sidebarBadge">3</span></a>
+            <a href="../profile/profile.html" class="nav-item"><i class="bi bi-person"></i><span>My Profile</span></a>
+            <a href="#" class="nav-item"><i class="bi bi-gear"></i><span>Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+                        <div class="lang-switcher">
+                <i class="bi bi-globe2"></i>
+                <div class="lang-switcher-wrapper">
+                    <select id="langSelect" onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="hi">&#2361;&#2367;&#2306;&#2342;&#2368;</option>
+                        <option value="bn">&#2476;&#2494;&#2434;&#2482;&#2494;</option>
+                    </select>
+                </div>
+            </div>
+<a href="../help/help.html" class="nav-item"><i class="bi bi-question-circle"></i><span>Help & Support</span></a>
+            <a href="../login/login.html" class="nav-item logout"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+            <div class="help-card">
+                <div class="help-icon"><i class="bi bi-headset"></i></div>
+                <p class="help-title">Need Help?</p>
+                <p class="help-sub">Our support team is here to help you.</p>
+                <button class="help-btn" onclick="window.location.href='../help/help.html'">Contact Support</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- â”€â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div class="main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+            </div>
+            <div class="topbar-right">
+                <button class="notif-btn">
+                    <i class="bi bi-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <div class="user-chip dropdown" data-bs-toggle="dropdown">
+                    <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+                    <span>Name</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-1 rounded-3">
+                    <li><a class="dropdown-item small py-2" href="../profile/profile.html"><i class="bi bi-person me-2"></i>Profile</a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item small py-2 text-danger" href="../login/login.html"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <a href="../dashboard/dashboard.html" class="back-btn"><i class="bi bi-arrow-left"></i></a>
+                <div>
+                    <h3 class="page-title">Assessment Complete</h3>
+                    <p class="page-sub">Great job! You have successfully completed the assessment.</p>
+                </div>
+            </div>
+
+            <!-- Complete Card -->
+            <div class="complete-card">
+                
+                <!-- Success Icon -->
+                <div class="success-icon-wrap">
+                    <div class="success-circle">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <!-- Sparkles/rays -->
+                    <div class="ray ray-1"></div>
+                    <div class="ray ray-2"></div>
+                    <div class="ray ray-3"></div>
+                    <div class="ray ray-4"></div>
+                    <div class="ray ray-5"></div>
+                </div>
+
+                <h1 class="thank-you">Thank You!</h1>
+                <p class="complete-msg">You have successfully completed the assessment.</p>
+
+                <hr class="divider">
+
+                <!-- Feature List -->
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon bg-purple-icon"><i class="bi bi-clipboard-check"></i></div>
+                        <div class="feature-text">
+                            <h6>Your answers are saved</h6>
+                            <p>We have recorded your responses.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon bg-green-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
+                        <div class="feature-text">
+                            <h6>Results are ready</h6>
+                            <p>You can now view your results and career suggestions.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon bg-orange-icon"><i class="bi bi-download"></i></div>
+                        <div class="feature-text">
+                            <h6>Download your report</h6>
+                            <p>Get a detailed report of your results in PDF.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <p class="next-step-msg">Take the next step towards your better future!</p>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="../results/results.html" class="btn-outline-purple">
+                        <i class="bi bi-bar-chart-line"></i> View Results
+                    </a>
+                    <button class="btn-solid-purple" onclick="window.print()">
+                        <i class="bi bi-download"></i> Download Report
+                    </button>
+                    <a href="../dashboard/dashboard.html" class="btn-outline-purple">
+                        <i class="bi bi-house"></i> Go to Dashboard
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="complete.js"></script>
+</body>
+</html>
+
+
+

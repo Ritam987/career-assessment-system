@@ -1,0 +1,205 @@
+﻿/* ===================================================
+   Assessment Intro Page â€” Career Assessment System
+=================================================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --purple:       #4c1d95; /* Using a deeper purple to match the button in design */
+    --purple-main:  #5b21b6;
+    --purple-mid:   #ede9fe;
+    --purple-light: #f5f3ff;
+    --surface:      #f9fafb;
+    --border:       #e5e7eb;
+    --text:         #111827;
+    --text-sub:     #4b5563;
+    --white:        #ffffff;
+    --red:          #ef4444;
+    --green:        #22c55e;
+    --sidebar-w:    260px;
+    --topbar-h:     64px;
+    --radius:       14px;
+    --shadow:       0 1px 4px rgba(0,0,0,.07);
+}
+
+html, body { height: 100%; overflow: hidden; }
+body { font-family: 'Inter', sans-serif; background: var(--surface); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+/* â”€â”€â”€ App Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.app-shell { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
+
+/* â”€â”€â”€ Sidebar (shared) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; padding: 16px 14px; height: 100vh; }
+.sidebar-brand { display: flex; justify-content: center; margin-bottom: 0; }
+.brand-logo { height: 155px; width: auto; object-fit: contain; }
+.sidebar-nav { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-sub); text-decoration: none; transition: background .15s, color .15s; position: relative; }
+.nav-item i { font-size: 0.95rem; flex-shrink: 0; width: 18px; text-align: center; }
+.nav-item:hover { background: var(--surface); color: var(--text); }
+.nav-item.active { background: var(--purple-main); color: var(--white); box-shadow: 0 4px 10px rgba(91,33,182,.25); }
+.nav-badge { margin-left: auto; background: var(--purple-mid); color: var(--purple-main); border-radius: 20px; font-size: 0.68rem; font-weight: 700; padding: 1px 7px; }
+.nav-item.active .nav-badge { background: rgba(255,255,255,.25); color: var(--white); }
+
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    transition: background 0.25s ease;
+}
+.lang-switcher:hover {
+    background: var(--surface);
+}
+.lang-switcher i {
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+}
+.lang-switcher select {
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-sub);
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    appearance: none;
+    padding-right: 15px;
+}
+.lang-switcher select:focus {
+    color: var(--text);
+}
+.lang-switcher-wrapper {
+    position: relative;
+    flex-grow: 1;
+}
+.lang-switcher-wrapper::after {
+    content: "\F282";
+    font-family: "bootstrap-icons";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--text-sub);
+    pointer-events: none;
+}
+.sidebar-footer { padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 1px; }
+.nav-item.logout { color: var(--red); }
+.nav-item.logout:hover { background: #fff1f2; color: #dc2626; }
+
+/* Custom Help Card for this design */
+.help-card { margin-top: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 14px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+.help-icon { width: 38px; height: 38px; background: var(--purple-light); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--purple-main); font-size: 1.1rem; }
+.help-title { font-weight: 700; font-size: 0.85rem; color: var(--text); }
+.help-sub { font-size: 0.75rem; color: var(--text-sub); line-height: 1.4; }
+.help-btn { margin-top: 8px; width: 100%; background: var(--purple-main); border: none; color: var(--white); font-weight: 600; font-size: 0.8rem; padding: 9px; border-radius: 7px; cursor: pointer; transition: background .15s; }
+.help-btn:hover { background: var(--purple); }
+
+/* â”€â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; height: 100vh; }
+
+/* Topbar */
+.topbar { height: var(--topbar-h); background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; flex-shrink: 0; }
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text); cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.hamburger:hover { background: var(--surface); }
+.notif-btn { position: relative; background: none; border: none; font-size: 1.25rem; color: var(--text-sub); cursor: pointer; padding: 4px; }
+.notif-dot { position: absolute; top: 4px; right: 2px; width: 8px; height: 8px; background: var(--red); border-radius: 50%; border: 2px solid var(--white); }
+.user-chip { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); background: var(--white); font-size: 0.88rem; font-weight: 500; color: var(--text); }
+.user-chip:hover { background: var(--surface); }
+.user-chip .bi-chevron-down { font-size: 0.7rem; color: var(--text-sub); }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--text-sub); display: flex; justify-content: center; align-items: center; font-size: 0.85rem; }
+
+/* â”€â”€â”€ Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.content { flex: 1; overflow-y: auto; padding: 16px 40px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+
+.page-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0; }
+.back-btn { font-size: 1.25rem; color: var(--text); background: none; border: none; cursor: pointer; text-decoration: none; padding-top: 2px; }
+.back-btn:hover { color: var(--purple-main); }
+.page-title { font-size: 1.25rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.page-sub { font-size: 0.85rem; color: var(--text-sub); }
+
+/* â”€â”€â”€ Intro Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.intro-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 28px;
+    width: 100%;
+    max-width: 750px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.intro-section { margin-bottom: 16px; }
+.intro-section:last-of-type { margin-bottom: 20px; }
+
+.section-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.section-text { font-size: 0.85rem; color: var(--text); line-height: 1.5; }
+
+.divider { border-top: 1px solid var(--border); margin: 16px 0; opacity: 1; }
+
+/* Lists */
+.custom-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.custom-list li { display: flex; align-items: flex-start; gap: 10px; }
+.list-text { font-size: 0.85rem; color: var(--text); line-height: 1.4; padding-top: 1px; }
+
+/* Number List */
+.list-num {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--purple-main); color: var(--white);
+    font-size: 0.7rem; font-weight: 700;
+    display: flex; justify-content: center; align-items: center;
+    flex-shrink: 0; margin-top: 1px;
+}
+
+/* Check List */
+.check-icon { font-size: 1.1rem; color: var(--green); flex-shrink: 0; margin-top: -2px; }
+
+/* Start Button */
+.action-row { display: flex; justify-content: center; margin-top: 4px; }
+.start-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: #3b07bd; /* Deep purple from design */
+    color: var(--white); text-decoration: none;
+    padding: 10px 36px; border-radius: 8px;
+    font-size: 0.9rem; font-weight: 600;
+    transition: background .15s, transform .1s;
+}
+.start-btn:hover { background: #2e0596; color: var(--white); }
+.start-btn:active { transform: scale(0.98); }
+
+/* â”€â”€â”€ Overlay & Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; }
+.sidebar-overlay.active { display: block; }
+
+@media (max-width: 768px) {
+    .hamburger { display: flex; align-items: center; }
+    .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; z-index: 100; transition: left 0.25s ease; box-shadow: 4px 0 20px rgba(0,0,0,0.1); }
+    .sidebar.open { left: 0; }
+    .topbar { padding: 0 16px; }
+    .content { padding: 24px 20px; }
+    .intro-card { padding: 24px 20px; }
+    .page-header { gap: 12px; }
+    .start-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+    .user-chip span { display: none; }
+}
+
+
+
+
+
+
+
+
+

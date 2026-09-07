@@ -1,0 +1,84 @@
+﻿/* Custom Styles for Login Page */
+
+body {
+    background-color: #fbfbf9; /* Cream background from design */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.auth-card {
+    max-width: 450px;
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: none;
+}
+
+.login-logo {
+    height: 130px;
+    width: auto;
+    object-fit: contain;
+}
+
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.form-control {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    border-color: #e5e7eb;
+}
+
+.form-control:focus {
+    border-color: #0000d1;
+    box-shadow: 0 0 0 0.25rem rgba(0, 0, 209, 0.15);
+}
+
+.btn-login {
+    background-color: #0000d1;
+    border-color: #0000d1;
+    font-weight: 500;
+}
+
+.btn-login:hover {
+    background-color: #0000aa;
+    border-color: #0000aa;
+}
+
+.btn-google {
+    background-color: #ffffff;
+    border-color: #d1d5db;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.btn-google:hover {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.divider-line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #e5e7eb;
+}
+
+.register-link {
+    color: #5a189a;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Career Assessment System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="assessment.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- â”€â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="../index.html">
+                <img src="../assets/images/logo.jpg" alt="Career Assessment" class="brand-logo">
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../dashboard/dashboard.html" class="nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+            <a href="../assessment-intro/intro.html" class="nav-item active"><i class="bi bi-pencil-square"></i><span>Take Assessment</span></a>
+            <a href="../results/results.html" class="nav-item"><i class="bi bi-bar-chart-line"></i><span>My Results</span></a>
+            <a href="../notifications/notifications.html" class="nav-item"><i class="bi bi-bell"></i><span>Notifications</span><span class="nav-badge" id="sidebarBadge">3</span></a>
+            <a href="../profile/profile.html" class="nav-item"><i class="bi bi-person"></i><span>My Profile</span></a>
+            <a href="#" class="nav-item"><i class="bi bi-gear"></i><span>Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../help/help.html" class="nav-item"><i class="bi bi-question-circle"></i><span>Help & Support</span></a>
+            <a href="../login/login.html" class="nav-item logout"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+            <div class="help-card">
+                <div class="help-icon"><i class="bi bi-headset"></i></div>
+                <p class="help-title">Need Help?</p>
+                <p class="help-sub">We're here to help anytime.</p>
+                <button class="help-btn" onclick="window.location.href='../help/help.html'">Contact Support</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- â”€â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div class="main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+                <h5 class="topbar-title">Assessment</h5>
+            </div>
+            <div class="topbar-right">
+                <button class="notif-btn">
+                    <i class="bi bi-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <div class="user-chip dropdown" data-bs-toggle="dropdown">
+                    <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+                    <span>Name</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-1 rounded-3">
+                    <li><a class="dropdown-item small py-2" href="../profile/profile.html"><i class="bi bi-person me-2"></i>Profile</a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item small py-2 text-danger" href="../login/login.html"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Fullscreen Assessment Header -->
+        <header class="fs-header">
+            <div class="fs-brand">
+                <img src="../assets/images/logo.jpg" alt="Logo" class="fs-logo">
+                <h5 class="fs-title">Career Assessment</h5>
+            </div>
+            <button class="btn-exit" onclick="confirmExit()"><i class="bi bi-x-lg"></i> Exit</button>
+        </header>
+
+        <!-- Content Wrapper (quiz + right panel) -->
+        <div class="content-wrapper">
+
+            <!-- â”€â”€â”€ Quiz Area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+            <div class="quiz-area">
+
+                <!-- Category Tabs -->
+                <div class="category-tabs">
+                    <div class="cat-tab active" data-cat="personality">
+                        <div class="cat-icon bg-purple"><i class="bi bi-person-fill"></i></div>
+                        <span class="cat-name">Personality</span>
+                        <span class="cat-count">20 Questions</span>
+                    </div>
+                    <div class="cat-connector"></div>
+                    <div class="cat-tab locked" data-cat="interest">
+                        <div class="cat-icon bg-green"><i class="bi bi-heart-fill"></i></div>
+                        <span class="cat-name">Interest</span>
+                        <span class="cat-count">20 Questions</span>
+                    </div>
+                    <div class="cat-connector"></div>
+                    <div class="cat-tab locked" data-cat="skills">
+                        <div class="cat-icon bg-blue"><i class="bi bi-briefcase-fill"></i></div>
+                        <span class="cat-name">Skills</span>
+                        <span class="cat-count">20 Questions</span>
+                    </div>
+                    <div class="cat-connector"></div>
+                    <div class="cat-tab locked" data-cat="workpref">
+                        <div class="cat-icon bg-orange"><i class="bi bi-sun-fill"></i></div>
+                        <span class="cat-name">Work Preference</span>
+                        <span class="cat-count">20 Questions</span>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="question-card">
+                    <!-- Card Header -->
+                    <div class="q-header">
+                        <div>
+                            <span class="q-section-label">Personality Assessment</span>
+                            <p class="q-counter" id="questionCounter">Question 4 of 20</p>
+                            <div class="q-progress-bar"><div class="q-progress-fill" id="questionProgress" style="width: 20%"></div></div>
+                        </div>
+                        <button class="bookmark-btn" id="bookmarkBtn" onclick="toggleBookmark()">
+                            <i class="bi bi-bookmark" id="bookmarkIcon"></i> Bookmark
+                        </button>
+                    </div>
+
+                    <!-- Question Text -->
+                    <h4 class="q-text" id="questionText">I enjoy solving difficult problems.</h4>
+
+                    <!-- Options (Likert Scale) -->
+                    <div class="options-list" id="optionsList">
+                        <label class="option-row selected">
+                            <input type="radio" name="answer" value="5" checked>
+                            <span class="radio-custom"></span>
+                            <span class="option-label">Strongly Agree</span>
+                        </label>
+                        <label class="option-row">
+                            <input type="radio" name="answer" value="4">
+                            <span class="radio-custom"></span>
+                            <span class="option-label">Agree</span>
+                        </label>
+                        <label class="option-row">
+                            <input type="radio" name="answer" value="3">
+                            <span class="radio-custom"></span>
+                            <span class="option-label">Neutral</span>
+                        </label>
+                        <label class="option-row">
+                            <input type="radio" name="answer" value="2">
+                            <span class="radio-custom"></span>
+                            <span class="option-label">Disagree</span>
+                        </label>
+                        <label class="option-row">
+                            <input type="radio" name="answer" value="1">
+                            <span class="radio-custom"></span>
+                            <span class="option-label">Strongly Disagree</span>
+                        </label>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="q-nav">
+                        <button class="btn-prev" id="prevBtn" onclick="prevQuestion()">
+                            <i class="bi bi-arrow-left"></i> Previous
+                        </button>
+                        <button class="btn-review" onclick="markReview()">
+                            <i class="bi bi-bookmark"></i> Mark for Review
+                        </button>
+                        <button class="btn-next" id="nextBtn" onclick="nextQuestion()">
+                            Next <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info Bar -->
+                <div class="info-bar">
+                    <div class="info-tile info-purple">
+                        <div class="info-tile-icon"><i class="bi bi-lightbulb-fill"></i></div>
+                        <div>
+                            <p class="info-tile-title">Remember</p>
+                            <p class="info-tile-text">There are no right or wrong answers. Please answer honestly for accurate results.</p>
+                        </div>
+                    </div>
+                    <div class="info-tile info-yellow">
+                        <div>
+                            <p class="info-tile-title text-warning">You can pause anytime!</p>
+                            <p class="info-tile-text">Your progress is saved automatically.</p>
+                        </div>
+                        <button class="save-exit-btn">
+                            <i class="bi bi-save"></i> Save & Exit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer Note -->
+                <p class="footer-note">
+                    <i class="bi bi-shield-check me-1"></i>
+                    Your data is secure and confidential. Your responses are used only for assessment and recommendations.
+                </p>
+
+            </div>
+
+            <!-- â”€â”€â”€ Right Progress Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+            <aside class="progress-panel">
+
+                <!-- Overall Progress -->
+                <div class="panel-section">
+                    <h6 class="panel-title">Your Progress</h6>
+                    <div class="overall-row">
+                        <span class="overall-label">Overall Progress</span>
+                        <span class="overall-pct" id="overallPct">20%</span>
+                    </div>
+                    <div class="overall-bar">
+                        <div class="overall-fill" id="overallFill" style="width: 20%"></div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-label">Completed</span>
+                            <span class="stat-val" id="completedCount">4 / 80</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Time Elapsed</span>
+                            <span class="stat-val" id="timerDisplay">00:06:45</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <!-- Question Grid -->
+                <div class="panel-section">
+                    <h6 class="panel-title">Questions</h6>
+
+                    <!-- Legend -->
+                    <div class="legend">
+                        <div class="legend-item"><span class="leg-dot answered"></span> Answered</div>
+                        <div class="legend-item"><span class="leg-dot current"></span> Current</div>
+                        <div class="legend-item"><span class="leg-dot unanswered"></span> Unanswered</div>
+                        <div class="legend-item"><span class="leg-dot bookmarked"></span> Bookmarked</div>
+                    </div>
+
+                    <!-- Personality Grid (open) -->
+                    <div class="grid-section">
+                        <p class="grid-section-label">Personality (20)</p>
+                        <div class="q-grid" id="personalityGrid"></div>
+                    </div>
+
+                    <!-- Locked Sections -->
+                    <div class="locked-section">
+                        <span class="locked-label">Interest (20)</span>
+                        <div class="locked-right"><i class="bi bi-lock-fill text-muted"></i> <i class="bi bi-chevron-down text-muted"></i></div>
+                    </div>
+                    <div class="locked-section">
+                        <span class="locked-label">Skills (20)</span>
+                        <div class="locked-right"><i class="bi bi-lock-fill text-muted"></i> <i class="bi bi-chevron-down text-muted"></i></div>
+                    </div>
+                    <div class="locked-section">
+                        <span class="locked-label">Work Preference (20)</span>
+                        <div class="locked-right"><i class="bi bi-lock-fill text-muted"></i> <i class="bi bi-chevron-down text-muted"></i></div>
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+    </div>
+</div>
+
+<!-- Custom Exit Modal -->
+<div class="modal-overlay-custom" id="exitModal">
+    <div class="confirm-modal">
+        <div class="modal-icon"><i class="bi bi-exclamation-triangle"></i></div>
+        <h4>Exit Assessment?</h4>
+        <p>Are you sure you want to exit? Your complete assessment progress will be lost.</p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeExitModal()">Cancel</button>
+            <button class="btn-confirm" onclick="proceedExit()">Yes, Exit</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assessment.js"></script>
+<script>
+    function changeLanguage(lang) {
+        const langNames = { 'en': 'English', 'hi': 'Hindi (हिंदी)', 'bn': 'Bengali (বাংলা)' };
+        alert('Language changed to: ' + langNames[lang]);
+    }
+</script>
+</body>
+</html>
+
+

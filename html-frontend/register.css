@@ -1,0 +1,177 @@
+/* ===================================================
+   Registration Page — Compact, No Scroll
+=================================================== */
+
+:root {
+    --purple:       #5b21b6;
+    --purple-dark:  #4c1d95;
+    --purple-light: #f5f3ff;
+    --surface:      #f9fafb;
+    --border:       #e5e7eb;
+    --text:         #111827;
+    --text-sub:     #6b7280;
+    --white:        #ffffff;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Page Center ────────────────────────────────── */
+.reg-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 16px;
+}
+
+/* ── Card ───────────────────────────────────────── */
+.reg-card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+/* ── Logo ───────────────────────────────────────── */
+.reg-logo {
+    height: 130px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(91,33,182,0.15));
+    transition: transform 0.3s ease;
+}
+.reg-logo:hover { transform: scale(1.04); }
+
+/* ── Heading ────────────────────────────────────── */
+.reg-title {
+    font-size: 1.2rem; font-weight: 800;
+    color: var(--text); letter-spacing: -0.02em;
+    margin-bottom: 2px; text-align: center;
+}
+.reg-sub {
+    font-size: 0.83rem; color: var(--text-sub);
+    margin-bottom: 16px; text-align: center;
+}
+
+/* ── Labels ─────────────────────────────────────── */
+.reg-label {
+    display: block;
+    font-size: 0.78rem; font-weight: 600;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+    letter-spacing: 0.03em;
+}
+
+/* ── Input Wrap ─────────────────────────────────── */
+.input-wrap {
+    position: relative;
+    display: flex; align-items: center;
+}
+.input-wrap > i:first-child {
+    position: absolute; left: 11px;
+    color: var(--text-sub); font-size: 0.85rem;
+    pointer-events: none;
+}
+.reg-input {
+    width: 100%;
+    padding: 8px 11px 8px 34px;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    appearance: none;
+}
+.reg-input:focus {
+    border-color: var(--purple);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(91,33,182,0.1);
+}
+.reg-input::placeholder { color: #9ca3af; }
+.reg-select { cursor: pointer; }
+
+/* ── Password Toggle ────────────────────────────── */
+.pwd-toggle {
+    position: absolute; right: 10px;
+    background: none; border: none;
+    color: var(--text-sub); cursor: pointer;
+    font-size: 0.85rem; padding: 2px;
+    transition: color 0.2s;
+}
+.pwd-toggle:hover { color: var(--purple); }
+
+/* ── Register Button ────────────────────────────── */
+.btn-register {
+    width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--purple); color: var(--white);
+    font-size: 0.9rem; font-weight: 700;
+    padding: 10px;
+    border: none; border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(91,33,182,0.2);
+}
+.btn-register:hover {
+    background: var(--purple-dark);
+    transform: translateY(-1px);
+}
+
+/* ── Divider ────────────────────────────────────── */
+.reg-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 4px 0;
+}
+.reg-divider span { flex: 1; height: 1px; background: var(--border); }
+.reg-divider p {
+    font-size: 0.75rem; color: var(--text-sub);
+    font-weight: 500; margin: 0;
+}
+
+/* ── Google Button ──────────────────────────────── */
+.btn-google {
+    width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    padding: 9px;
+    font-size: 0.875rem; font-weight: 600;
+    color: var(--text); cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-google:hover {
+    border-color: #4285F4;
+    background: #f8f9ff;
+    box-shadow: 0 2px 10px rgba(66,133,244,0.12);
+}
+
+/* ── Login Link ─────────────────────────────────── */
+.reg-login-link {
+    text-align: center; margin-top: 14px;
+    font-size: 0.82rem; color: var(--text-sub);
+}
+.reg-login-link a {
+    color: var(--purple); font-weight: 700;
+    text-decoration: none;
+}
+.reg-login-link a:hover { text-decoration: underline; }
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 576px) {
+    .reg-card { padding: 24px 18px; }
+}

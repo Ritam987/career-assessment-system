@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile Career Assessment System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- â”€â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="../index.html">
+                <img src="../assets/images/logo.jpg" alt="Career Assessment" class="brand-logo">
+            </a>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="../dashboard/dashboard.html" class="nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+            <a href="../assessment-intro/intro.html" class="nav-item"><i class="bi bi-pencil-square"></i><span>Take Assessment</span></a>
+            <a href="../results/results.html" class="nav-item"><i class="bi bi-bar-chart-line"></i><span>My Results</span></a>
+            <a href="../notifications/notifications.html" class="nav-item"><i class="bi bi-bell"></i><span>Notifications</span><span class="nav-badge" id="sidebarBadge">3</span></a>
+            <a href="../profile/profile.html" class="nav-item active"><i class="bi bi-person"></i><span>My Profile</span></a>
+            <a href="#" class="nav-item"><i class="bi bi-gear"></i><span>Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+                        <div class="lang-switcher">
+                <i class="bi bi-globe2"></i>
+                <div class="lang-switcher-wrapper">
+                    <select id="langSelect" onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="hi">&#2361;&#2367;&#2306;&#2342;&#2368;</option>
+                        <option value="bn">&#2476;&#2494;&#2434;&#2482;&#2494;</option>
+                    </select>
+                </div>
+            </div>
+<a href="../help/help.html" class="nav-item"><i class="bi bi-question-circle"></i><span>Help & Support</span></a>
+            <a href="../login/login.html" class="nav-item logout"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+            <div class="help-card">
+                <div class="help-icon"><i class="bi bi-headset"></i></div>
+                <p class="help-title">Need Help?</p>
+                <p class="help-sub">We're here to help anytime.</p>
+                <button class="help-btn" onclick="window.location.href='../help/help.html'">Contact Support</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- â”€â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div class="main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../dashboard/dashboard.html" class="breadcrumb-link">Dashboard</a>
+                    <i class="bi bi-chevron-right breadcrumb-sep"></i>
+                    <span class="breadcrumb-current">My Profile</span>
+                </nav>
+            </div>
+
+            <div class="topbar-right">
+                <button class="notif-btn">
+                    <i class="bi bi-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <div class="user-chip dropdown" data-bs-toggle="dropdown">
+                    <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+                    <span id="headerName">Name</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-1 rounded-3">
+                    <li><a class="dropdown-item small py-2" href="profile.html"><i class="bi bi-person me-2"></i>Profile</a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item small py-2 text-danger" href="../login/login.html"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+
+            <!-- Page Title -->
+            <div class="page-title">
+                <h3>My Profile</h3>
+                <p>View and manage your personal information</p>
+            </div>
+
+            <!-- Profile Cards Row -->
+            <div class="profile-grid">
+
+                <!-- Left: Avatar Card -->
+                <div class="card-base avatar-card">
+                    <div class="avatar-wrap">
+                        <div class="avatar-circle">
+                            <i class="bi bi-person-fill avatar-icon"></i>
+                        </div>
+                        <button class="camera-btn" title="Change Photo">
+                            <i class="bi bi-camera-fill"></i>
+                        </button>
+                    </div>
+                    <h5 class="avatar-name" id="profileName">Name</h5>
+                    <p class="avatar-email" id="profileEmail">name@email.com</p>
+                    <div class="avatar-join">
+                        <i class="bi bi-calendar3"></i>
+                        <span id="profileJoined">Joined on 10 May 2024</span>
+                    </div>
+                </div>
+
+                <!-- Right: Personal Information Card -->
+                <div class="card-base info-card">
+                    <div class="info-header">
+                        <h5>Personal Information</h5>
+                        <button class="edit-btn" onclick="toggleEdit()">
+                            <i class="bi bi-pencil"></i> Edit Profile
+                        </button>
+                    </div>
+
+                    <div class="info-rows">
+                        <div class="info-row">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value" id="dispName">Name</span>
+                            <input class="info-input d-none" id="editName" type="text" value="Name">
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email Address</span>
+                            <span class="info-value" id="dispEmail">name@email.com</span>
+                            <input class="info-input d-none" id="editEmail" type="email" value="name@email.com">
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Age</span>
+                            <span class="info-value" id="dispAge">21</span>
+                            <input class="info-input d-none" id="editAge" type="number" value="21">
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Preferred Field</span>
+                            <span class="info-value" id="dispField">Information Technology</span>
+                            <input class="info-input d-none" id="editField" type="text" value="Information Technology">
+                        </div>
+                        <div class="info-row no-border">
+                            <span class="info-label">Career Goal</span>
+                            <span class="info-value" id="dispGoal">Software Developer</span>
+                            <input class="info-input d-none" id="editGoal" type="text" value="Software Developer">
+                        </div>
+                    </div>
+
+                    <!-- Save button (hidden until edit mode) -->
+                    <div class="save-row d-none" id="saveRow">
+                        <button class="save-btn" onclick="saveProfile()">Save Changes</button>
+                        <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Logout Card -->
+            <div class="logout-card">
+                <div class="logout-icon-wrap">
+                    <i class="bi bi-box-arrow-right logout-icon"></i>
+                </div>
+                <div class="logout-text">
+                    <h6>Logout</h6>
+                    <p>Log out from your account securely.</p>
+                </div>
+                <a href="../login/login.html" class="logout-btn">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="profile.js"></script>
+</body>
+</html>
+
+
+
