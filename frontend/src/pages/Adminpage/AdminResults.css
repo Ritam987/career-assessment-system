@@ -1,0 +1,142 @@
+.admin-results-container {
+  padding: 28px 32px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.admin-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 20px;
+}
+
+.admin-results-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-color, #1e293b);
+  margin: 0 0 4px 0;
+}
+
+.admin-results-sub {
+  font-size: 14px;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.search-box-results {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
+  width: 340px;
+}
+
+.search-box-results input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+  color: var(--text-color, #1e293b);
+}
+
+.results-table-card {
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
+  overflow-x: auto;
+}
+
+.sub-text {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted, #64748b);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-completed { background: #dcfce7; color: #16a34a; }
+.badge-progress { background: #fef3c7; color: #d97706; }
+
+.scores-pill-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.score-tag {
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tag-apt { background: #dbeafe; color: #1d4ed8; }
+.tag-per { background: #f3e8ff; color: #7e22ce; }
+.tag-int { background: #dcfce7; color: #15803d; }
+.tag-eq { background: #fef3c7; color: #b45309; }
+.tag-skl { background: #fee2e2; color: #b91c1c; }
+
+.careers-list-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.career-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+.career-pill-sec {
+  font-size: 11px;
+  color: var(--text-muted, #64748b);
+}
+
+.btn-download-pdf-admin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #ef4444;
+  background: transparent;
+  color: #ef4444;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-download-pdf-admin:hover:not(:disabled) {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.btn-download-pdf-admin:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.text-muted-sm {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+}

@@ -15,6 +15,10 @@ const {
     updateCareer,
     deleteCareer,    
     getAllUsers,
+    deleteUser,
+    getAssessmentResults,
+    getSystemSettings,
+    updateSystemSettings,
     getAdminAnalytics,
     getAllCategories
 } = require('../controllers/adminController'); 
@@ -40,10 +44,18 @@ router.get('/careers', adminMiddleware, getAllCareers);
 router.put('/careers/:id', adminMiddleware, updateCareer); // Update specific career
 router.delete('/careers/:id', adminMiddleware, deleteCareer); // Delete specific career
 
-// 5. User Management Route (Protected by Admin Middleware)
+// 5. User Management Routes (Protected by Admin Middleware)
 router.get('/users', adminMiddleware, getAllUsers);
+router.delete('/users/:id', adminMiddleware, deleteUser);
 
 // 6. Category Management Route (Protected by Admin Middleware)
 router.get('/categories', adminMiddleware, getAllCategories);
+
+// 7. Assessment Results Route
+router.get('/assessment-results', adminMiddleware, getAssessmentResults);
+
+// 8. System Settings Routes
+router.get('/settings', adminMiddleware, getSystemSettings);
+router.put('/settings', adminMiddleware, updateSystemSettings);
 
 module.exports = router;

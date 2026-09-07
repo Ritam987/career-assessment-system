@@ -1,19 +1,83 @@
+/**
+ * ============================================================================
+ * MULTILINGUAL i18n TRANSLATION SERVICE (multilanguage.js)
+ * ============================================================================
+ * Purpose: Contains translation dictionaries for English (en), Hindi (hi),
+ * and Bengali (bn). Offers utility functions to retrieve stored browser/local
+ * language preference and resolve dot-notation translation keys (e.g. 'nav.home').
+ * ============================================================================
+ */
+
+// 1. Supported Languages Metadata List
 export const supportedLanguages = [
-  { code: 'en', label: 'English', native: 'English' },
-  { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
-  { code: 'bn', label: 'Bengali', native: 'বাংলা' },
+  { code: 'en', label: 'English', native: 'English' }, // English Language Option
+  { code: 'hi', label: 'Hindi', native: 'हिन्दी' },   // Hindi Language Option
+  { code: 'bn', label: 'Bengali', native: 'বাংলা' },  // Bengali Language Option
 ];
 
+// 2. Comprehensive Multilingual Translation Dictionaries
 export const translations = {
+  // A. English Translations
   en: {
     nav: {
       home: 'Home',
-      about: 'About the Assessment',
+      dashboard: 'Dashboard',
+      profile: 'My Profile',
       assessment: 'Assessment',
       language: 'Language',
       login: 'Login',
-      signUp: 'Sign up',
+      logout: 'Logout',
+      signUp: 'Sign Up',
       admin: 'Admin',
+      brandTitle: 'REACH INDIA',
+      brandSubtitle: 'Assessment Portal',
+    },
+    profile: {
+      title: 'My Profile',
+      subtitle: 'Manage and update your personal, academic, and career details',
+      personalInfo: 'Personal Information',
+      locationInfo: 'Location Details',
+      careerInfo: 'Education & Career Goals',
+      name: 'Full Name',
+      email: 'Email Address',
+      phone: 'Phone Number',
+      gender: 'Gender',
+      dob: 'Date of Birth',
+      age: 'Age',
+      education: 'Education Level',
+      preferredField: 'Preferred Field',
+      careerGoal: 'Career Goal',
+      city: 'City',
+      state: 'State',
+      pincode: 'Pincode',
+      save: 'Save Profile',
+      saving: 'Saving Profile...',
+      successMsg: 'Profile updated successfully!',
+      errorMsg: 'Failed to update profile. Please try again.',
+      selectGender: 'Select Gender',
+      male: 'Male',
+      female: 'Female',
+      other: 'Other',
+    },
+    test: {
+      title: 'Assessment Test',
+      question: 'Question',
+      selectOption: 'Select an option to proceed',
+      submitAnswer: 'Submit Answer',
+      submitting: 'Submitting...',
+      loading: 'Loading question...',
+      completed: 'Assessment completed! Redirecting to report...',
+      noQuestion: 'No question available.',
+      saveExit: 'Save & Exit',
+      selectPrompt: 'Please select an option before submitting.',
+    },
+    dashboard: {
+      welcome: 'Welcome back',
+      startAssessment: 'Start Assessment',
+      historyTitle: 'Assessment History',
+      latestStatus: 'Latest Status',
+      viewReport: 'View Report',
+      noHistory: 'No assessment history yet.',
     },
     auth: {
       welcome: 'Welcome back!',
@@ -81,22 +145,84 @@ export const translations = {
       close: 'Close',
       english: 'English',
       hindi: 'हिन्दी',
-      bengali: 'বাংলा',
+      bengali: 'বাংলা',
     },
     modal: {
       title: 'Choose your language',
       close: 'Close',
     },
+    sidebar: {
+      dashboard: 'Dashboard',
+      takeAssessment: 'Take Assessment',
+      myResults: 'My Results',
+      notifications: 'Notifications',
+      myProfile: 'My Profile',
+      settings: 'Settings',
+      helpSupport: 'Help & Support',
+      logout: 'Logout',
+    },
   },
+  // B. Hindi Translations
   hi: {
     nav: {
       home: 'होम',
-      about: 'मूल्यांकन के बारे में',
+      dashboard: 'डैशबोर्ड',
+      profile: 'मेरी प्रोफ़ाइल',
       assessment: 'मूल्यांकन',
       language: 'भाषा',
       login: 'लॉगिन',
+      logout: 'लॉगआउट',
       signUp: 'साइन अप',
       admin: 'एडमिन',
+      brandTitle: 'REACH INDIA',
+      brandSubtitle: 'Assessment Portal',
+    },
+    profile: {
+      title: 'मेरी प्रोफ़ाइल',
+      subtitle: 'अपनी व्यक्तिगत, शैक्षणिक और करियर जानकारी प्रबंधित करें',
+      personalInfo: 'व्यक्तिगत जानकारी',
+      locationInfo: 'स्थान की जानकारी',
+      careerInfo: 'शिक्षा एवं करियर लक्ष्य',
+      name: 'पूरा नाम',
+      email: 'ईमेल पता',
+      phone: 'फोन नंबर',
+      gender: 'लिंग',
+      dob: 'जन्म तिथि',
+      age: 'उम्र',
+      education: 'शैक्षणिक स्तर',
+      preferredField: 'पसंदीदा क्षेत्र',
+      careerGoal: 'करियर लक्ष्य',
+      city: 'शहर',
+      state: 'राज्य',
+      pincode: 'पिनकोड',
+      save: 'प्रोफ़ाइल सहेजें',
+      saving: 'सहेजा जा रहा है...',
+      successMsg: 'प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!',
+      errorMsg: 'प्रोफ़ाइल अपडेट करने में विफल। कृपया पुनः प्रयास करें।',
+      selectGender: 'लिंग चुनें',
+      male: 'पुरुष',
+      female: 'महिला',
+      other: 'अन्य',
+    },
+    test: {
+      title: 'मूल्यांकन परीक्षा',
+      question: 'प्रश्न',
+      selectOption: 'आगे बढ़ने के लिए एक विकल्प चुनें',
+      submitAnswer: 'उत्तर सबमिट करें',
+      submitting: 'सबमिट हो रहा है...',
+      loading: 'प्रश्न लोड हो रहा है...',
+      completed: 'मूल्यांकन पूरा हुआ! रिपोर्ट पर भेजा जा रहा है...',
+      noQuestion: 'कोई प्रश्न उपलब्ध नहीं है।',
+      saveExit: 'सहेजें और बाहर निकलें',
+      selectPrompt: 'कृपया सबमिट करने से पहले एक विकल्प चुनें।',
+    },
+    dashboard: {
+      welcome: 'वापसी पर स्वागत है',
+      startAssessment: 'मूल्यांकन शुरू करें',
+      historyTitle: 'मूल्यांकन इतिहास',
+      latestStatus: 'नवीनतम स्थिति',
+      viewReport: 'रिपोर्ट देखें',
+      noHistory: 'अभी तक कोई मूल्यांकन इतिहास नहीं है।',
     },
     auth: {
       welcome: 'वापसी पर स्वागत है!',
@@ -170,16 +296,78 @@ export const translations = {
       title: 'अपनी भाषा चुनें',
       close: 'बंद करें',
     },
+    sidebar: {
+      dashboard: 'डैशबोर्ड',
+      takeAssessment: 'असेसमेंट दें',
+      myResults: 'मेरे परिणाम',
+      notifications: 'सूचनाएं',
+      myProfile: 'मेरी प्रोफाइल',
+      settings: 'सेटिंग्स',
+      helpSupport: 'सहायता एवं सहायता',
+      logout: 'लॉगआउट',
+    },
   },
+  // C. Bengali Translations
   bn: {
     nav: {
       home: 'হোম',
-      about: 'মূল্যায়ন সম্পর্কে',
-      assessment: 'মূল্যায়ন',
-      language: 'ভাষা',
+      dashboard: 'ড্যাশবোর্ড',
+      profile: 'মাই প্রোফাইল',
+      assessment: 'অ্যাসেসমেন্ট',
+      language: 'ল্যাঙ্গুয়েজ',
       login: 'লগইন',
+      logout: 'লগ আউট',
       signUp: 'সাইন আপ',
       admin: 'অ্যাডমিন',
+      brandTitle: 'REACH INDIA',
+      brandSubtitle: 'Assessment Portal',
+    },
+    profile: {
+      title: 'মাই প্রোফাইল',
+      subtitle: 'আপনার ব্যক্তিগত, শিক্ষাগত এবং ক্যারিয়ারের বিবরণ আপডেট করুন',
+      personalInfo: 'ব্যক্তিগত তথ্য',
+      locationInfo: 'ঠিকানার বিবরণ',
+      careerInfo: 'শিক্ষা ও ক্যারিয়ার লক্ষ্য',
+      name: 'সম্পূর্ণ নাম',
+      email: 'ইমেইল অ্যাড্রেস',
+      phone: 'ফোন নম্বর',
+      gender: 'লিঙ্গ',
+      dob: 'জন্ম তারিখ',
+      age: 'বয়স',
+      education: 'শিক্ষাগত যোগ্যতা',
+      preferredField: 'পছন্দের ক্ষেত্র',
+      careerGoal: 'ক্যারিয়ার লক্ষ্য',
+      city: 'শহর',
+      state: 'রাজ্য',
+      pincode: 'পিনকোড',
+      save: 'সেভ প্রোফাইল',
+      saving: 'সেভ হচ্ছে...',
+      successMsg: 'প্রোফাইল সফলভাবে আপডেট করা হয়েছে!',
+      errorMsg: 'প্রোফাইল আপডেট করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।',
+      selectGender: 'লিঙ্গ নির্বাচন করুন',
+      male: 'পুরুষ',
+      female: 'মহিলা',
+      other: 'অন্যান্য',
+    },
+    test: {
+      title: 'অ্যাসেসমেন্ট টেস্ট',
+      question: 'প্রশ্ন',
+      selectOption: 'এগিয়ে যেতে একটি অপশন নির্বাচন করুন',
+      submitAnswer: 'সাবমিট অ্যান্সার',
+      submitting: 'সাবমিট হচ্ছে...',
+      loading: 'প্রশ্ন লোড হচ্ছে...',
+      completed: 'অ্যাসেসমেন্ট সম্পন্ন হয়েছে! রিপোর্টে পাঠানো হচ্ছে...',
+      noQuestion: 'কোন প্রশ্ন উপলব্ধ নেই।',
+      saveExit: 'সেভ ও এক্সিট',
+      selectPrompt: 'সাবমিট করার আগে দয়া করে একটি অপশন নির্বাচন করুন।',
+    },
+    dashboard: {
+      welcome: 'স্বাগতম',
+      startAssessment: 'অ্যাসেসমেন্ট শুরু করুন',
+      historyTitle: 'অ্যাসেসমেন্ট হিস্ট্রি',
+      latestStatus: 'সর্বশেষ স্ট্যাটাস',
+      viewReport: 'রিপোর্ট দেখুন',
+      noHistory: 'এখনো পর্যন্ত কোনো অ্যাসেসমেন্ট হিস্ট্রি নেই।',
     },
     auth: {
       welcome: 'স্বাগতম!',
@@ -242,20 +430,29 @@ export const translations = {
       placeholderCareer: 'আপনি কী হতে চান? (উদা. সফটওয়্যার ইঞ্জিনিয়ার)',
       placeholderCity: 'আপনার শহর লিখুন',
       placeholderState: 'আপনার রাজ্য লিখুন',
-      placeholderPincode: '৬ সংখ্যার পিনকোড',
       languageTitle: 'আপনার ভাষা নির্বাচন করুন',
-      close: 'বন্ধ',
-      english: 'English',
-      hindi: 'हिन्दी',
-      bengali: 'বাংলা',
     },
     modal: {
       title: 'আপনার ভাষা নির্বাচন করুন',
       close: 'বন্ধ',
     },
+    sidebar: {
+      dashboard: 'ড্যাশবোর্ড',
+      takeAssessment: 'অ্যাসেসমেন্ট দিন',
+      myResults: 'আমার ফলাফল',
+      notifications: 'নোটিফিকেশন',
+      myProfile: 'আমার প্রোফাইল',
+      settings: 'সেটিংস',
+      helpSupport: 'হেল্প ও সাপোর্ট',
+      logout: 'লগআউট',
+    },
   },
 };
 
+/**
+ * Retrieves stored user language code from localStorage or defaults to 'en'.
+ * @returns {string} Language code ('en', 'hi', or 'bn')
+ */
 export function getStoredLanguage() {
   if (typeof window === 'undefined') return 'en';
 
@@ -263,6 +460,12 @@ export function getStoredLanguage() {
   return supportedLanguages.some((lang) => lang.code === saved) ? saved : 'en';
 }
 
+/**
+ * Resolves dot-notation translation key against active language dictionary.
+ * @param {string} key - Translation key path (e.g. 'nav.home')
+ * @param {string} language - Target language code ('en', 'hi', 'bn')
+ * @returns {string} Translated string value
+ */
 export function translate(key, language = getStoredLanguage()) {
   const path = key.split('.');
   const target = translations[language] || translations.en;
@@ -270,8 +473,18 @@ export function translate(key, language = getStoredLanguage()) {
 
   for (const segment of path) {
     value = value?.[segment];
-    if (value === undefined) return key;
+    if (value === undefined) {
+      // Fallback to English dictionary if translation key missing in target language
+      let fallback = translations.en;
+      for (const fSeg of path) {
+        fallback = fallback?.[fSeg];
+        if (fallback === undefined) return key;
+      }
+      return fallback;
+    }
   }
 
   return value;
 }
+
+export const getTranslation = translate;

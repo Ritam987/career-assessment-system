@@ -20,5 +20,9 @@ router.post('/complete', authMiddleware, completeAssessment);
 
 // 5. Fetch User Assessment History Route
 router.get('/history', authMiddleware, getAssessmentHistory);
+// get latest result
+router.get('/result/latest', authMiddleware, require('../controllers/assessmentController').getLatestResult);
+// download report PDF
+router.get('/download-report/:id', authMiddleware, require('../controllers/assessmentController').downloadReport);
 
 module.exports = router; // Export the router to be used in the main application file (app.js or server.js)

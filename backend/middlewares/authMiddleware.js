@@ -1,25 +1,51 @@
-const jwt = require('jsonwebtoken'); // Import jsonwebtoken for token verification
+/**
+ * ============================================================================
+ * AUTHENTICATION MIDDLEWARE (authMiddleware.js)
+ * ============================================================================
+ * Purpose: Verifies incoming user JSON Web Tokens (JWT) attached via HTTP-Only
+ * cookies or standard Bearer authorization headers. Attaches the decoded user
+ * payload (user ID, email) to req.user for protected route access control.
+ * ============================================================================
+ */
 
-const authMiddleware = (req, res, next) => { // Middleware function to verify user authentication
+// 1. Import JSON Web Token verification library
+const jwt = require('jsonwebtoken');
+
+/**
+ * Middleware handler to authenticate incoming HTTP requests.
+ */
+const authMiddleware = (req, res, next) => {
     try {
-        // Extract token from request cookies
-        const token = req.cookies.token;
+        // A. Prefer retrieving token from HTTP-Only cookie 'token'
+        let token = req.cookies && req.cookies.token;
 
+        // B. Fall back to checking Authorization header: "Bearer <token>"
         if (!token) {
-            return res.status(401).json({ message: 'Unauthorized: No token provided. Please log in.' });
+            const authHeader = req.headers.authorization || req.headers.Authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.split(' ')[1]; // Extract token string after "Bearer " prefix
+            }
         }
 
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // Save decoded user information in request object (so it can be used in controllers)
-        req.user = decoded; 
+        // C. Reject request if no authorization token was found
+        if (!token) {
+            return res.status(401).json({ message: 'Unauthorized: Access token missing. Please log in to continue.' });
+        }
 
-        next(); // If everything is fine, pass to the next step (controller)
+        // D. Verify token integrity and signature using secret key
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // E. Attach decoded token payload (e.g. { id, email }) to request object
+        req.user = decoded;
+
+        // F. Proceed to next controller middleware
+        next();
+
     } catch (error) {
-        console.error(`[Req ID: ${req.requestId}] Auth Middleware Error:`, error.message);
-        return res.status(401).json({ message: 'Unauthorized: Invalid or expired token.' });
+        console.error(`[Req ID: ${req.requestId}] Auth Middleware Verification Error:`, error.message);
+        return res.status(401).json({ message: 'Unauthorized: Invalid or expired access token.' });
     }
 };
 
-module.exports = authMiddleware; // Export the middleware function for use in routes that require authentication
+// Export middleware for route protection
+module.exports = authMiddleware;

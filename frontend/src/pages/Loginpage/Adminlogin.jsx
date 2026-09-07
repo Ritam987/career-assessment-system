@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import "./adminlogin.css"
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Adminlogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,8 @@ const Adminlogin = () => {
     formState: { errors },
   } = useForm();
 
+ const { loginAdmin } = useAuth();
+
  const onSubmit = async (data) => {
     try {
       console.log("Sending Admin Login Data:", data);
@@ -25,6 +28,7 @@ const Adminlogin = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: 'include',
         // if your backend expects the identifier to be named differently (like "email" or "username"), you should map it accordingly. For now, I'm sending it as is:
         body: JSON.stringify({
           email: data.identifier, 
@@ -38,10 +42,7 @@ const Adminlogin = () => {
         alert("Admin Login Successful!");
         
         // Save the token and admin data in localStorage
-        localStorage.setItem("adminToken", responseData.token);
-        if(responseData.admin) {
-            localStorage.setItem("adminData", JSON.stringify(responseData.admin));
-        }
+        loginAdmin(responseData.token, responseData.admin);
 
         // Navigate to the admin dashboard or any other page after successful login
         navigate("/admin-dashboard"); 
@@ -50,18 +51,19 @@ const Adminlogin = () => {
       }
     } catch (error) {
       console.error("Admin Login Error:", error);
-      alert("Server error. Make sure backend is running.");
+      const msg = error && error.message ? error.message : JSON.stringify(error);
+      alert(`❌ Server error: ${msg}`);
     }
   };
 
   return (
     <div className="login-page">
       <div className="auth-shell">
-        <div className="auth-brand" aria-label="Career Compass admin portal">
-          <div className="brand-mark">A</div>
+        <div className="auth-brand" aria-label="Reach India admin portal">
+          <div className="brand-mark">R</div>
           <div className="brand-text">
-            <strong>Admin Portal</strong>
-            <span>Career Compass</span>
+            <strong>REACH INDIA</strong>
+            <span>Assessment Portal</span>
           </div>
         </div>
 

@@ -1,21 +1,24 @@
 .registration-page {
   min-height: calc(100vh - 82px);
   padding: 48px 20px;
-  background: linear-gradient(135deg, #f8fbff 0%, #eff6ff 45%, #eef2ff 100%);
+  background: var(--page-bg, linear-gradient(135deg, #f8fbff 0%, #eff6ff 45%, #eef2ff 100%));
   display: flex;
   justify-content: center;
   align-items: flex-start;
   box-sizing: border-box;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 .registration-card {
   width: min(100%, 920px);
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--card, rgba(255, 255, 255, 0.96));
   padding: clamp(24px, 4vw, 52px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid var(--glass-border, rgba(148, 163, 184, 0.2));
   border-radius: 28px;
   box-sizing: border-box;
-  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 28px 60px var(--shadow, rgba(15, 23, 42, 0.08));
+  backdrop-filter: blur(10px);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .registration-header {
@@ -27,13 +30,13 @@
   font-size: clamp(2rem, 4vw, 2.7rem);
   font-weight: 700;
   letter-spacing: -0.04em;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .registration-header p {
   margin: 0;
   font-size: 1rem;
-  color: #475569;
+  color: var(--muted);
 }
 
 .registration-form {
@@ -57,11 +60,11 @@
 .form-group label {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .form-group label span {
-  color: #dc2626;
+  color: #ef4444;
 }
 
 .form-group input,
@@ -70,14 +73,19 @@
   width: 100%;
   min-height: 50px;
   padding: 12px 14px;
-  border: 1px solid #dfe6f2;
+  border: 1px solid var(--glass-border, #dfe6f2);
   border-radius: 12px;
-  background: #ffffff;
-  color: #0f172a;
+  background: var(--card, #ffffff);
+  color: var(--text-primary);
   font-size: 0.96rem;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.form-group select option {
+  background: var(--card, #ffffff);
+  color: var(--text-primary);
 }
 
 .form-group textarea {
@@ -87,25 +95,26 @@
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #94a3b8;
+  color: var(--muted);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: rgba(79, 70, 229, 0.6);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
 }
 
 .form-group input:read-only {
-  background: #f8fafc;
+  background: var(--nav-button-soft, rgba(148, 163, 184, 0.15));
+  color: var(--muted);
   cursor: not-allowed;
 }
 
 .field-error {
   margin: 0;
   font-size: 0.78rem;
-  color: #dc2626;
+  color: #ef4444;
 }
 
 .form-actions {
@@ -114,7 +123,7 @@
   gap: 12px;
   margin-top: 10px;
   padding-top: 18px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--glass-border, #e5e7eb);
 }
 
 .submit-button,
@@ -127,7 +136,7 @@
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.25s ease, color 0.25s ease;
 }
 
 .submit-button {
@@ -137,8 +146,9 @@
 }
 
 .reset-button {
-  background: #eef2ff;
-  color: #312e81;
+  background: var(--nav-button-soft, #eef2ff);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
 }
 
 .submit-button:hover,

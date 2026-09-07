@@ -30,7 +30,9 @@ class PromiseConnection extends EventEmitter {
 
   query(query, params) {
     const c = this.connection;
-    const stackHolder = captureStackHolder(PromiseConnection.prototype.query);
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.query)
+      : undefined;
     if (typeof params === 'function') {
       throw new Error(
         'Callback function is not available with promise clients.'
@@ -48,7 +50,9 @@ class PromiseConnection extends EventEmitter {
 
   execute(query, params) {
     const c = this.connection;
-    const stackHolder = captureStackHolder(PromiseConnection.prototype.execute);
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.execute)
+      : undefined;
     if (typeof params === 'function') {
       throw new Error(
         'Callback function is not available with promise clients.'
@@ -78,9 +82,9 @@ class PromiseConnection extends EventEmitter {
 
   beginTransaction() {
     const c = this.connection;
-    const stackHolder = captureStackHolder(
-      PromiseConnection.prototype.beginTransaction
-    );
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.beginTransaction)
+      : undefined;
     return new this.Promise((resolve, reject) => {
       const done = makeDoneCb(resolve, reject, stackHolder);
       c.beginTransaction(done);
@@ -89,7 +93,9 @@ class PromiseConnection extends EventEmitter {
 
   commit() {
     const c = this.connection;
-    const stackHolder = captureStackHolder(PromiseConnection.prototype.commit);
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.commit)
+      : undefined;
     return new this.Promise((resolve, reject) => {
       const done = makeDoneCb(resolve, reject, stackHolder);
       c.commit(done);
@@ -98,9 +104,9 @@ class PromiseConnection extends EventEmitter {
 
   rollback() {
     const c = this.connection;
-    const stackHolder = captureStackHolder(
-      PromiseConnection.prototype.rollback
-    );
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.rollback)
+      : undefined;
     return new this.Promise((resolve, reject) => {
       const done = makeDoneCb(resolve, reject, stackHolder);
       c.rollback(done);
@@ -109,7 +115,9 @@ class PromiseConnection extends EventEmitter {
 
   ping() {
     const c = this.connection;
-    const stackHolder = captureStackHolder(PromiseConnection.prototype.ping);
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.ping)
+      : undefined;
     return new this.Promise((resolve, reject) => {
       c.ping((err) => {
         if (err) {
@@ -124,7 +132,9 @@ class PromiseConnection extends EventEmitter {
 
   reset() {
     const c = this.connection;
-    const stackHolder = captureStackHolder(PromiseConnection.prototype.reset);
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.reset)
+      : undefined;
     return new this.Promise((resolve, reject) => {
       c.reset((err) => {
         if (err) {
@@ -139,7 +149,9 @@ class PromiseConnection extends EventEmitter {
 
   connect() {
     const c = this.connection;
-    const stackHolder = captureStackHolder(PromiseConnection.prototype.connect);
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.connect)
+      : undefined;
     return new this.Promise((resolve, reject) => {
       c.connect((err, param) => {
         if (err) {
@@ -155,7 +167,9 @@ class PromiseConnection extends EventEmitter {
   prepare(options) {
     const c = this.connection;
     const promiseImpl = this.Promise;
-    const stackHolder = captureStackHolder(PromiseConnection.prototype.prepare);
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.prepare)
+      : undefined;
     return new this.Promise((resolve, reject) => {
       c.prepare(options, (err, statement) => {
         if (err) {
@@ -174,9 +188,9 @@ class PromiseConnection extends EventEmitter {
 
   changeUser(options) {
     const c = this.connection;
-    const stackHolder = captureStackHolder(
-      PromiseConnection.prototype.changeUser
-    );
+    const stackHolder = c.config.trace
+      ? captureStackHolder(PromiseConnection.prototype.changeUser)
+      : undefined;
     return new this.Promise((resolve, reject) => {
       c.changeUser(options, (err) => {
         if (err) {

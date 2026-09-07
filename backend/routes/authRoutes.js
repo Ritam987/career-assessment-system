@@ -1,21 +1,39 @@
-const express = require('express'); // Import Express to create a router for authentication-related routes
-const router = express.Router(); // Create a new router instance for handling authentication routes
-const authMiddleware = require('../middlewares/authMiddleware'); // Import the authentication middleware to protect certain routes
+/**
+ * ============================================================================
+ * AUTHENTICATION ROUTES ROUTER (authRoutes.js)
+ * ============================================================================
+ * Purpose: Defines HTTP route endpoints for user registration, user login,
+ * user logout, profile fetching, and profile updating under `/api/auth`.
+ * Uses `authMiddleware` to guard protected profile endpoints.
+ * ============================================================================
+ */
 
-// logoutUser added
-const { registerUser, loginUser, logoutUser, getUserProfile } = require('../controllers/authController');
+// 1. Express Framework & Router Setup
+const express = require('express');
+const router = express.Router();
 
-// 1. Register Route: POST http://localhost:5000/api/auth/register
+// 2. Middleware & Controller Imports
+const authMiddleware = require('../middlewares/authMiddleware');
+const { registerUser, loginUser, logoutUser, getUserProfile, updateUserProfile } = require('../controllers/authController');
+
+// ============================================================================
+// ROUTE ENDPOINTS
+// ============================================================================
+
+// A. Register New User: POST /api/auth/register
 router.post('/register', registerUser);
 
-// 2. Login Route: POST http://localhost:5000/api/auth/login
+// B. User Login: POST /api/auth/login
 router.post('/login', loginUser);
 
-// 3. Logout Route: POST http://localhost:5000/api/auth/logout
-// New logout route
+// C. User Logout: POST /api/auth/logout
 router.post('/logout', logoutUser);
 
-// 4. Route to get user profile (protected route)
+// D. Fetch Current User Profile (Protected): GET /api/auth/profile
 router.get('/profile', authMiddleware, getUserProfile);
 
-module.exports = router; // Export the router to be used in the main application file (app.js or server.js)
+// E. Update Current User Profile (Protected): PUT /api/auth/profile
+router.put('/profile', authMiddleware, updateUserProfile);
+
+// Export router instance for mounting in server.js
+module.exports = router;

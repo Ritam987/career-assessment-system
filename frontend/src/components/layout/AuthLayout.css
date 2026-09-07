@@ -1,0 +1,28 @@
+.auth-layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+  gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.main-page-container {
+  flex: 1;
+  padding: 24px 16px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .auth-layout-wrapper {
+    flex-direction: column;
+    gap: 0;
+  }
+  .main-page-container {
+    padding: 12px 8px;
+  }
+}

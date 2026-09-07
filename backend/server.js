@@ -1,45 +1,127 @@
-const express = require('express'); // Importing the Express framework and more
-const cors = require('cors'); // To handle Cross-Origin Resource Sharing
-const cookieParser = require('cookie-parser'); // To handle cookies
-const dotenv = require('dotenv'); // To load environment variables from .env file
-const db = require('./config/db'); // Importing the database connection
-const authRoutes = require('./routes/authRoutes'); // Importing the authentication routes
-const requestIdMiddleware = require('./middlewares/requestId'); // Importing the request ID middleware
-const assessmentRoutes = require('./routes/assessmentRoutes'); // Importing the assessment routes
-const adminRoutes = require('./routes/adminRoutes'); // Importing the admin routes
+/**
+ * ============================================================================
+ * SERVER.JS - Express Backend Entry Point
+ * ============================================================================
+ * Purpose: This file initializes the Express application, configures security
+ * and parsing middleware (CORS, JSON, Cookies, Request Tracing), initializes
+ * the MySQL database schema automatically, registers API router endpoints,
+ * and starts listening for HTTP client connections on the configured PORT.
+ * ============================================================================
+ */
 
-// Load environment variables from .env file
-require('dotenv').config();
+// 1. Core Node.js & Third-Party Package Imports
+const express = require('express');          // Core Web Application Framework for Node.js
+const cors = require('cors');                // Middleware to enable Cross-Origin Resource Sharing
+const cookieParser = require('cookie-parser'); // Middleware to parse incoming HTTP cookie headers
+const dotenv = require('dotenv');            // Utility to load environment variables from a .env file
+const path = require('path');                // Core Node.js path module for cross-platform file paths
 
-const app = express(); // Create an Express application instance
+// 2. Load Environment Variables from .env file located in backend directory
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-// Middleware configuration
-// CORS updated to receive cookies from the frontend
+// 3. Database Connection & System Service Imports
+const db = require('./config/db');           // MySQL Database Connection Pool instance
+const initDb = require('./config/initDb');   // Database auto-schema migration & table initializer script
+
+// 4. API Route Handlers Imports
+const authRoutes = require('./routes/authRoutes');                 // Authentication routes (Register, Login, Profile)
+const assessmentRoutes = require('./routes/assessmentRoutes');     // Assessment lifecycle routes (Start, Answer, Complete, Report)
+const adminRoutes = require('./routes/adminRoutes');               // Admin panel routes (Users, Careers, Questions, Settings)
+const questionRoutes = require('./routes/questionRoutes');         // Question bank management routes
+const notificationRoutes = require('./routes/notificationRoutes'); // User notification feed routes
+const supportRoutes = require('./routes/supportRoutes');           // Customer support & help request routes
+
+// 5. Instantiate Express Application Instance
+const app = express();
+
+// ============================================================================
+// MIDDLEWARE CONFIGURATION
+// ============================================================================
+
+// A. Dynamic CORS (Cross-Origin Resource Sharing) Configuration
+// Allows frontend development servers (Vite/React on localhost ports 5173, 5174, etc.)
+// to securely communicate with this Express backend API using credentials/cookies.
 app.use(cors({
-    origin: 'http://localhost:5173', // Your React frontend's port (Vite's default port)
-    credentials: true 
-})); 
-app.use(express.json()); // Parses incoming JSON requests
-app.use(cookieParser()); // Middleware to parse cookies
+    origin: function(origin, callback) {
+        // Allow non-browser requests (e.g. cURL, Postman, server-to-server) without an origin header
+        if (!origin) return callback(null, true);
 
-// Register the Request ID middleware at the top to track every incoming request
+        try {
+            const url = new URL(origin);
+            // Dynamically permit any request originating from localhost or 127.0.0.1 loopback interfaces
+            if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                return callback(null, true);
+            }
+        } catch (e) {
+            // Ignore URL parsing failure and fall back to explicit whitelist below
+        }
+
+        // Fallback explicit whitelist of permitted frontend origins
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:5174',
+            'http://localhost:5175'
+        ];
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            return callback(null, true);
+        }
+
+        // Reject request if origin is not permitted
+        return callback(new Error('CORS policy: This origin is not allowed by backend CORS.'));
+    },
+    credentials: true // Allow sending cookies and authorization headers cross-origin
+}));
+
+// B. Request Body & Cookie Parsing Middlewares
+app.use(express.json());       // Parse incoming requests with JSON payloads into req.body
+app.use(cookieParser());       // Parse cookies attached to the client request into req.cookies
+
+// C. Custom Request Tracking Middleware
+// Attaches a unique request ID (X-Request-ID) to incoming requests for audit logging & debugging
+const requestIdMiddleware = require('./middlewares/requestId');
 app.use(requestIdMiddleware);
 
-// Basic Test Route
+// ============================================================================
+// DATABASE AUTOMATIC INITIALIZATION
+// ============================================================================
+// Automatically checks for missing database tables (users, assessments, careers, settings)
+// and creates them on startup so the system is self-contained and ready to run immediately.
+initDb();
+
+// ============================================================================
+// HEALTH CHECK ROUTE
+// ============================================================================
+// Endpoint: GET /
+// Description: Simple health check endpoint to confirm the Express backend API is alive.
 app.get('/', (req, res) => {
-    res.send('Career Assessment System API is running...');
+    res.status(200).json({
+        status: 'success',
+        message: 'Career Assessment System API is running smoothly...',
+        timestamp: new Date().toISOString()
+    });
 });
 
-// ==========================================
-// Authentication API Routes
-// All requests starting with /api/auth will be handled by authRoutes
-// ==========================================
-app.use('/api/auth', authRoutes); // Registering the authentication routes
-app.use('/api/assessments', assessmentRoutes); // Registering the assessment routes
-app.use('/api/admin', adminRoutes); // Registering the admin routes
+// ============================================================================
+// MOUNT API ROUTE ENDPOINTS
+// ============================================================================
+app.use('/api/auth', authRoutes);                   // User & Admin Authentication & Profile routes
+app.use('/api/assessments', assessmentRoutes);     // Assessment test taking, autosaving, scoring & reports
+app.use('/api/admin', adminRoutes);                 // Admin management panel endpoints
+app.use('/api/questions', questionRoutes);         // Question bank endpoints
+app.use('/api/notifications', notificationRoutes); // User notification endpoints
+app.use('/api/support', supportRoutes);             // Support request endpoints
 
-// Start the server on the specified port
-const PORT = process.env.PORT || 5000;
+// Static Assets Serving (Serves generated PDF reports from the 'reports/' directory)
+app.use('/reports', express.static(path.join(__dirname, 'reports')));
+
+// ============================================================================
+// START EXPRESS HTTP SERVER
+// ============================================================================
+const PORT = process.env.PORT || 5000; // Read server port from environment variable or default to 5000
 app.listen(PORT, () => {
-    console.log(`Server is running on port : http://localhost:${PORT}`);
+    console.log(`===========================================================`);
+    console.log(`🚀 Career Assessment Backend Server running on port ${PORT}`);
+    console.log(`🔗 API Base URL: http://localhost:${PORT}`);
+    console.log(`===========================================================`);
 });
