@@ -23,7 +23,16 @@
 
         <!-- Heading -->
         <h4 class="reg-title">Create Account</h4>
-        <p class="reg-sub">Start your career journey today.</p>
+        <p class="reg-sub" id="regSub">Start your career journey today.</p>
+
+        <!-- Role Toggle -->
+        <div class="role-toggle mb-4">
+            <input type="radio" id="roleUser" name="role" value="user" checked onchange="toggleRole()">
+            <label for="roleUser" class="role-btn"><i class="bi bi-person-fill me-1"></i> Student</label>
+            
+            <input type="radio" id="roleAdmin" name="role" value="admin" onchange="toggleRole()">
+            <label for="roleAdmin" class="role-btn"><i class="bi bi-shield-lock-fill me-1"></i> Admin</label>
+        </div>
 
         <!-- Form -->
         <form id="registerForm" action="dashboard/dashboard.html" method="GET" novalidate>
@@ -45,8 +54,8 @@
                     </div>
                 </div>
 
-                <!-- Password + Age -->
-                <div class="col-md-6">
+                <!-- Password -->
+                <div class="col-md-12" id="passwordCol">
                     <label class="reg-label">Password</label>
                     <div class="input-wrap">
                         <i class="bi bi-lock"></i>
@@ -54,36 +63,41 @@
                         <button type="button" class="pwd-toggle" onclick="togglePwd()"><i class="bi bi-eye" id="eyeIcon"></i></button>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="reg-label">Age</label>
-                    <div class="input-wrap">
-                        <i class="bi bi-calendar3"></i>
-                        <input type="number" class="reg-input" placeholder="Your age" required min="10" max="100" name="age">
-                    </div>
-                </div>
 
-                <!-- Preferred Field + Career Goal -->
-                <div class="col-md-6">
-                    <label class="reg-label">Preferred Field</label>
-                    <div class="input-wrap">
-                        <i class="bi bi-briefcase"></i>
-                        <select class="reg-input reg-select" required name="preferred_field">
-                            <option value="" disabled selected>Select a field</option>
-                            <option value="tailoring">Tailoring</option>
-                            <option value="beauty">Beauty &amp; Wellness</option>
-                            <option value="retail">Retail &amp; Shopkeeping</option>
-                        </select>
+                <!-- Student Specific Fields -->
+                <div id="studentFields" class="row g-2 m-0 p-0">
+                    <!-- Age -->
+                    <div class="col-md-4">
+                        <label class="reg-label">Age</label>
+                        <div class="input-wrap">
+                            <i class="bi bi-calendar3"></i>
+                            <input type="number" class="reg-input" placeholder="Age" required min="10" max="100" name="age" id="ageInput">
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <label class="reg-label">Career Goal</label>
-                    <div class="input-wrap">
-                        <i class="bi bi-bullseye"></i>
-                        <select class="reg-input reg-select" required name="career_goal">
-                            <option value="" disabled selected>Select your goal</option>
-                            <option value="job">Get a Full-time Job</option>
-                            <option value="business">Start my own Shop</option>
-                        </select>
+
+                    <!-- Preferred Field + Career Goal -->
+                    <div class="col-md-4">
+                        <label class="reg-label">Preferred Field</label>
+                        <div class="input-wrap">
+                            <i class="bi bi-briefcase"></i>
+                            <select class="reg-input reg-select" required name="preferred_field" id="fieldInput">
+                                <option value="" disabled selected>Select field</option>
+                                <option value="tailoring">Tailoring</option>
+                                <option value="beauty">Beauty</option>
+                                <option value="retail">Retail</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="reg-label">Career Goal</label>
+                        <div class="input-wrap">
+                            <i class="bi bi-bullseye"></i>
+                            <select class="reg-input reg-select" required name="career_goal" id="goalInput">
+                                <option value="" disabled selected>Select goal</option>
+                                <option value="job">Job</option>
+                                <option value="business">Business</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -132,6 +146,26 @@
         } else {
             input.type = 'password';
             icon.className = 'bi bi-eye';
+        }
+    }
+
+    function toggleRole() {
+        const isAdmin = document.getElementById('roleAdmin').checked;
+        const studentFields = document.getElementById('studentFields');
+        const regSub = document.getElementById('regSub');
+        
+        if (isAdmin) {
+            studentFields.style.display = 'none';
+            document.getElementById('ageInput').removeAttribute('required');
+            document.getElementById('fieldInput').removeAttribute('required');
+            document.getElementById('goalInput').removeAttribute('required');
+            regSub.textContent = "Sign in to manage the platform.";
+        } else {
+            studentFields.style.display = 'flex';
+            document.getElementById('ageInput').setAttribute('required', 'true');
+            document.getElementById('fieldInput').setAttribute('required', 'true');
+            document.getElementById('goalInput').setAttribute('required', 'true');
+            regSub.textContent = "Start your career journey today.";
         }
     }
 </script>

@@ -1,5 +1,5 @@
-/* ===================================================
-   Registration Page — Compact, No Scroll
+﻿/* ===================================================
+   Registration Page â€” Compact, No Scroll
 =================================================== */
 
 :root {
@@ -22,7 +22,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ── Page Center ────────────────────────────────── */
+/* â”€â”€ Page Center â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reg-page {
     min-height: 100vh;
     display: flex;
@@ -31,7 +31,7 @@ body {
     padding: 20px 16px;
 }
 
-/* ── Card ───────────────────────────────────────── */
+/* â”€â”€ Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reg-card {
     width: 100%;
     max-width: 560px;
@@ -42,7 +42,7 @@ body {
     box-shadow: 0 4px 24px rgba(0,0,0,0.06);
 }
 
-/* ── Logo ───────────────────────────────────────── */
+/* â”€â”€ Logo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reg-logo {
     height: 130px;
     width: auto;
@@ -52,7 +52,7 @@ body {
 }
 .reg-logo:hover { transform: scale(1.04); }
 
-/* ── Heading ────────────────────────────────────── */
+/* â”€â”€ Heading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reg-title {
     font-size: 1.2rem; font-weight: 800;
     color: var(--text); letter-spacing: -0.02em;
@@ -63,7 +63,7 @@ body {
     margin-bottom: 16px; text-align: center;
 }
 
-/* ── Labels ─────────────────────────────────────── */
+/* â”€â”€ Labels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reg-label {
     display: block;
     font-size: 0.78rem; font-weight: 600;
@@ -72,7 +72,7 @@ body {
     letter-spacing: 0.03em;
 }
 
-/* ── Input Wrap ─────────────────────────────────── */
+/* â”€â”€ Input Wrap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .input-wrap {
     position: relative;
     display: flex; align-items: center;
@@ -103,7 +103,7 @@ body {
 .reg-input::placeholder { color: #9ca3af; }
 .reg-select { cursor: pointer; }
 
-/* ── Password Toggle ────────────────────────────── */
+/* â”€â”€ Password Toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .pwd-toggle {
     position: absolute; right: 10px;
     background: none; border: none;
@@ -113,7 +113,7 @@ body {
 }
 .pwd-toggle:hover { color: var(--purple); }
 
-/* ── Register Button ────────────────────────────── */
+/* â”€â”€ Register Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn-register {
     width: 100%;
     display: flex; align-items: center; justify-content: center;
@@ -130,7 +130,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* ── Divider ────────────────────────────────────── */
+/* â”€â”€ Divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reg-divider {
     display: flex; align-items: center; gap: 10px;
     margin: 4px 0;
@@ -141,7 +141,7 @@ body {
     font-weight: 500; margin: 0;
 }
 
-/* ── Google Button ──────────────────────────────── */
+/* â”€â”€ Google Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn-google {
     width: 100%;
     display: flex; align-items: center; justify-content: center;
@@ -160,7 +160,7 @@ body {
     box-shadow: 0 2px 10px rgba(66,133,244,0.12);
 }
 
-/* ── Login Link ─────────────────────────────────── */
+/* â”€â”€ Login Link â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reg-login-link {
     text-align: center; margin-top: 14px;
     font-size: 0.82rem; color: var(--text-sub);
@@ -171,7 +171,39 @@ body {
 }
 .reg-login-link a:hover { text-decoration: underline; }
 
-/* ── Responsive ─────────────────────────────────── */
+/* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 576px) {
     .reg-card { padding: 24px 18px; }
+}
+
+/* ── Role Toggle ────────────────────────────────── */
+.role-toggle {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 5px;
+    position: relative;
+    margin-top: 10px;
+}
+.role-toggle input[type="radio"] {
+    display: none;
+}
+.role-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    z-index: 1;
+    margin: 0;
+}
+.role-toggle input[type="radio"]:checked + .role-btn {
+    background: var(--white);
+    color: var(--purple);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
 }
