@@ -35,7 +35,7 @@
         </div>
 
         <!-- Form -->
-        <form id="registerForm" action="dashboard/dashboard.html" method="GET" novalidate>
+        <form id="registerForm" novalidate>
             <div class="row g-2">
 
                 <!-- Full Name + Email -->
@@ -74,29 +74,41 @@
                             <input type="number" class="reg-input" placeholder="Age" required min="10" max="100" name="age" id="ageInput">
                         </div>
                     </div>
-
-                    <!-- Preferred Field + Career Goal -->
+                    <!-- Education Level -->
                     <div class="col-md-4">
-                        <label class="reg-label">Preferred Field</label>
+                        <label class="reg-label">Education Level</label>
                         <div class="input-wrap">
-                            <i class="bi bi-briefcase"></i>
-                            <select class="reg-input reg-select" required name="preferred_field" id="fieldInput">
-                                <option value="" disabled selected>Select field</option>
-                                <option value="tailoring">Tailoring</option>
-                                <option value="beauty">Beauty</option>
-                                <option value="retail">Retail</option>
+                            <i class="bi bi-book"></i>
+                            <select class="reg-input reg-select" required name="education_level" id="eduInput">
+                                <option value="" disabled selected>Select level</option>
+                                <option value="10th">Class 10</option>
+                                <option value="12th">Class 12</option>
+                                <option value="diploma">Diploma</option>
+                                <option value="bachelors">Bachelor's</option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
                     </div>
+                    <!-- Phone Number -->
                     <div class="col-md-4">
-                        <label class="reg-label">Career Goal</label>
+                        <label class="reg-label">Phone Number</label>
                         <div class="input-wrap">
-                            <i class="bi bi-bullseye"></i>
-                            <select class="reg-input reg-select" required name="career_goal" id="goalInput">
-                                <option value="" disabled selected>Select goal</option>
-                                <option value="job">Job</option>
-                                <option value="business">Business</option>
-                            </select>
+                            <i class="bi bi-telephone"></i>
+                            <input type="tel" class="reg-input" placeholder="Phone Number" required name="phone_number" id="phoneInput">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Specific Fields -->
+                <div id="adminFields" class="row g-2 m-0 p-0" style="display:none;">
+                    <div class="col-md-12">
+                        <label class="reg-label">Company ID <span style="color:#ef4444;font-size:12px;">* Required for Admin</span></label>
+                        <div class="input-wrap">
+                            <i class="bi bi-building"></i>
+                            <input type="password" class="reg-input" placeholder="Enter authorized Company ID" name="company_id" id="companyInput">
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                            <i class="bi bi-info-circle"></i> This ID will be securely validated by the backend.
                         </div>
                     </div>
                 </div>
@@ -152,23 +164,45 @@
     function toggleRole() {
         const isAdmin = document.getElementById('roleAdmin').checked;
         const studentFields = document.getElementById('studentFields');
+        const adminFields = document.getElementById('adminFields');
         const regSub = document.getElementById('regSub');
         
         if (isAdmin) {
+            // Show Admin, Hide Student
             studentFields.style.display = 'none';
+            adminFields.style.display = 'flex';
+            
+            // Remove required from student
             document.getElementById('ageInput').removeAttribute('required');
-            document.getElementById('fieldInput').removeAttribute('required');
-            document.getElementById('goalInput').removeAttribute('required');
+            document.getElementById('eduInput').removeAttribute('required');
+            document.getElementById('phoneInput').removeAttribute('required');
+            
+            // Add required to admin
+            document.getElementById('companyInput').setAttribute('required', 'true');
+            
             regSub.textContent = "Sign in to manage the platform.";
         } else {
+            // Show Student, Hide Admin
             studentFields.style.display = 'flex';
+            adminFields.style.display = 'none';
+            
+            // Add required to student
             document.getElementById('ageInput').setAttribute('required', 'true');
-            document.getElementById('fieldInput').setAttribute('required', 'true');
-            document.getElementById('goalInput').setAttribute('required', 'true');
+            document.getElementById('eduInput').setAttribute('required', 'true');
+            document.getElementById('phoneInput').setAttribute('required', 'true');
+            
+            // Remove required from admin
+            document.getElementById('companyInput').removeAttribute('required');
+            
             regSub.textContent = "Start your career journey today.";
         }
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/register.js"></script>
 </body>
 </html>
+
+
+

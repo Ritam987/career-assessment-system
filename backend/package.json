@@ -1,10 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Career Assessment System — Express + MySQL Backend",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:setup": "node run-db-setup.js"
   },
   "keywords": [],
   "author": "",
@@ -19,9 +21,13 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.1",
     "mysql2": "^3.23.3",
-    "parser": "^0.1.4",
+    "pdfkit": "^0.20.2",
     "uuid": "^14.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   },
   "allowScripts": {
     "bcrypt@6.0.0": true

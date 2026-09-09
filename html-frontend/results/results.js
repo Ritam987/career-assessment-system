@@ -1,75 +1,150 @@
-// ===================================================
-// Results Page — Mock Data & Logic
-// ===================================================
+// =============================================================
+// results.js — My Results page
+// Exact HTML IDs:
+//   #topCareer, #topCareerDesc, #matchScore, #altCareersList
+//   #scorePersonality, #scoreInterest, #scoreSkills, #scoreWork
+//   #barPersonality, #barInterest, #barSkills, #barWork
+//   #traitSummaryText
+//   Topbar name: .user-chip span (no id)
+// =============================================================
 
-// Sidebar toggle for mobile
 function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("open");
-    document.getElementById("sidebarOverlay").classList.toggle("active");
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
 }
 function closeSidebar() {
-    document.getElementById("sidebar").classList.remove("open");
-    document.getElementById("sidebarOverlay").classList.remove("active");
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+function changeLanguage(lang) { localStorage.setItem('cas_lang', lang); }
+async function logoutUser() {
+    await apiPost('/auth/logout');
+    localStorage.removeItem('cas_user');
+    window.location.href = '/login/login.html';
 }
 
-// ─── Mock Results Data ──────────────────────────────
-// Backend dev: replace this object with GET /api/results/me
-const mockResults = {
-    topCareer: {
-        title: "Software Developer",
-        description: "You have a strong logical mindset and enjoy working with technology. Software Development is highly recommended for your skillset.",
-        score: "92%",
-        demand: "High"
-    },
-    alternateCareers: [
-        { title: "Data Analyst", category: "Information Technology", score: "85%" },
-        { title: "IT Support Specialist", category: "Information Technology", score: "78%" },
-        { title: "Digital Marketer", category: "Marketing", score: "72%" }
-    ],
-    traitScores: {
-        personality: 85,
-        interest: 70,
-        skills: 90,
-        workPreference: 78
-    },
-    summaryText: "You show a strong inclination towards analytical tasks and problem-solving. You prefer structured environments where you can apply technical skills independently."
-};
+document.addEventListener('DOMContentLoaded', async () => {
 
-// ─── Render Data ────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Populate Top Career
-    document.getElementById("topCareer").textContent = mockResults.topCareer.title;
-    document.getElementById("topCareerDesc").textContent = mockResults.topCareer.description;
-    document.getElementById("matchScore").textContent = mockResults.topCareer.score;
+    // ── 1. Auth guard ────────────────────────────────────────
+    const user = await requireAuth();
+    if (!user) return;
 
-    // 2. Populate Alternate Careers List
-    const altList = document.getElementById("altCareersList");
-    altList.innerHTML = mockResults.alternateCareers.map(career => `
-        <div class="alt-card">
-            <div class="alt-info">
-                <h6>${career.title}</h6>
-                <p>${career.category}</p>
-            </div>
-            <div class="alt-score">${career.score}</div>
-        </div>
-    `).join("");
+    // ── 2. Topbar name (no id — use .user-chip span) ─────────
+    const chipSpan = document.querySelector('.user-chip span');
+    if (chipSpan) chipSpan.textContent = user.full_name || 'User';
 
-    // 3. Populate Trait Scores
-    // Animate bars on load
-    setTimeout(() => {
-        document.getElementById("barPersonality").style.width = mockResults.traitScores.personality + "%";
-        document.getElementById("scorePersonality").textContent = mockResults.traitScores.personality + "%";
-        
-        document.getElementById("barInterest").style.width = mockResults.traitScores.interest + "%";
-        document.getElementById("scoreInterest").textContent = mockResults.traitScores.interest + "%";
-        
-        document.getElementById("barSkills").style.width = mockResults.traitScores.skills + "%";
-        document.getElementById("scoreSkills").textContent = mockResults.traitScores.skills + "%";
-        
-        document.getElementById("barWork").style.width = mockResults.traitScores.workPreference + "%";
-        document.getElementById("scoreWork").textContent = mockResults.traitScores.workPreference + "%";
-    }, 100);
-
-    // 4. Populate Summary
-    document.getElementById("traitSummaryText").textContent = mockResults.summaryText;
+    // ── 3. Load results ──────────────────────────────────────
+    await loadResults();
 });
+
+async function loadResults() {
+    const res = await apiGet('/assessments/results');
+
+    if (!res || !res.ok || !res.data.hasResults) {
+        // No results yet — show prompt to take assessment
+        showNoResultsState();
+        return;
+    }
+
+    const d = res.data;
+
+    // ── Primary career card ───────────────────────────────────
+    const primary = d.primaryCareer;
+    if (primary) {
+        const topCareerEl     = document.getElementById('topCareer');
+        const topCareerDescEl = document.getElementById('topCareerDesc');
+        const matchScoreEl    = document.getElementById('matchScore');
+
+        if (topCareerEl)     topCareerEl.textContent     = primary.name || '—';
+        if (matchScoreEl)    matchScoreEl.textContent     = `${primary.match_pct}%`;
+        if (topCareerDescEl) topCareerDescEl.textContent  =
+            d.careerMatches[0]?.description || `Your profile matches best with ${primary.name}.`;
+    }
+
+    // ── Alternate careers list ────────────────────────────────
+    const altEl = document.getElementById('altCareersList');
+    if (altEl) {
+        const alts = (d.careerMatches || []).slice(1, 6); // positions 2-6
+        if (alts.length === 0) {
+            altEl.innerHTML = '<p class="text-muted small">No alternate careers found.</p>';
+        } else {
+            altEl.innerHTML = alts.map(career => `
+                <div class="alt-card" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px;">
+                    <div>
+                        <div style="font-weight:600;font-size:14px;">${career.career_name}</div>
+                        <div style="font-size:12px;color:#6b7280;">${career.skill_domain || ''}</div>
+                    </div>
+                    <div style="font-weight:700;color:#6366f1;font-size:16px;">${career.match_pct}%</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // ── Category score bars (animated) ───────────────────────
+    // Reset bars to 0 first, then animate to real values
+    const barIds = {
+        barPersonality: 0,
+        barInterest:    0,
+        barSkills:      0,
+        barWork:        0
+    };
+    Object.keys(barIds).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.width = '0%';
+    });
+
+    // Animate after a short delay
+    setTimeout(() => {
+        setBar('barPersonality', 'scorePersonality', d.personalityScore);
+        setBar('barInterest',    'scoreInterest',    d.interestScore);
+        setBar('barSkills',      'scoreSkills',      d.skillsScore);
+        setBar('barWork',        'scoreWork',        d.workStyleScore);
+    }, 300);
+
+    // ── Summary text ──────────────────────────────────────────
+    const summaryEl = document.getElementById('traitSummaryText');
+    if (summaryEl) summaryEl.textContent = buildSummary(d);
+}
+
+function setBar(barId, scoreId, value) {
+    const bar   = document.getElementById(barId);
+    const score = document.getElementById(scoreId);
+    const pct   = parseFloat(value) || 0;
+    if (bar)   { bar.style.transition = 'width 0.8s ease'; bar.style.width = pct + '%'; }
+    if (score) score.textContent = pct + '%';
+}
+
+function buildSummary(d) {
+    const scores = [
+        { name: 'Personality', val: parseFloat(d.personalityScore)  || 0 },
+        { name: 'Skills',      val: parseFloat(d.skillsScore)       || 0 },
+        { name: 'Interests',   val: parseFloat(d.interestScore)     || 0 },
+        { name: 'Work Style',  val: parseFloat(d.workStyleScore)    || 0 }
+    ].sort((a, b) => b.val - a.val);
+
+    const top    = scores[0];
+    const second = scores[1];
+    const career = d.primaryCareer?.name  || 'the recommended career';
+    const pct    = d.primaryCareer?.match_pct || 0;
+
+    return `Your strongest area is ${top.name} (${top.val}%), followed by ${second.name} (${second.val}%). ` +
+        `Based on this profile, ${career} is your best career match at ${pct}% compatibility. ` +
+        `This reflects how well your personality, skills, interests, and work style align with the demands of this role.`;
+}
+
+function showNoResultsState() {
+    // Replace the results layout with a prompt
+    const layout = document.querySelector('.results-layout');
+    if (!layout) return;
+    layout.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;width:100%;">
+            <div style="font-size:56px;margin-bottom:16px;">📋</div>
+            <h4 style="font-weight:700;margin-bottom:8px;">No Results Yet</h4>
+            <p style="color:#6b7280;margin-bottom:24px;">You haven't completed the assessment yet. Take the assessment to see your career recommendations.</p>
+            <a href="../assessment-intro/intro.html"
+               style="display:inline-block;background:#6366f1;color:#fff;padding:12px 28px;border-radius:10px;font-weight:600;text-decoration:none;">
+                Take Assessment &rarr;
+            </a>
+        </div>
+    `;
+}

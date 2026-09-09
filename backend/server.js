@@ -1,45 +1,67 @@
-const express = require('express'); // Importing the Express framework and more
-const cors = require('cors'); // To handle Cross-Origin Resource Sharing
-const cookieParser = require('cookie-parser'); // To handle cookies
-const dotenv = require('dotenv'); // To load environment variables from .env file
-const db = require('./config/db'); // Importing the database connection
-const authRoutes = require('./routes/authRoutes'); // Importing the authentication routes
-const requestIdMiddleware = require('./middlewares/requestId'); // Importing the request ID middleware
-const assessmentRoutes = require('./routes/assessmentRoutes'); // Importing the assessment routes
-const adminRoutes = require('./routes/adminRoutes'); // Importing the admin routes
-
-// Load environment variables from .env file
+const express      = require('express');
+const cors         = require('cors');
+const cookieParser = require('cookie-parser');
+const path         = require('path');
+const multer       = require('multer');
+const fs           = require('fs');
 require('dotenv').config();
 
-const app = express(); // Create an Express application instance
+const db                   = require('./config/db');
+const authRoutes           = require('./routes/authRoutes');
+const assessmentRoutes     = require('./routes/assessmentRoutes');
+const adminRoutes          = require('./routes/adminRoutes');
+const requestIdMiddleware  = require('./middlewares/requestId');
 
-// Middleware configuration
-// CORS updated to receive cookies from the frontend
+const app = express();
+
+// ── Ensure uploads folder exists ──────────────────────────────
+const uploadDir = process.env.UPLOAD_DIR || './uploads';
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+// ── CORS ──────────────────────────────────────────────────────
+// Allow both same-origin (static serving) and local dev ports
 app.use(cors({
-    origin: 'http://localhost:5173', // Your React frontend's port (Vite's default port)
-    credentials: true 
-})); 
-app.use(express.json()); // Parses incoming JSON requests
-app.use(cookieParser()); // Middleware to parse cookies
+    origin: ['http://localhost:5000', 'http://localhost:5173', 'http://127.0.0.1:5500'],
+    credentials: true
+}));
 
-// Register the Request ID middleware at the top to track every incoming request
+// ── Core Middleware ───────────────────────────────────────────
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(requestIdMiddleware);
 
-// Basic Test Route
-app.get('/', (req, res) => {
-    res.send('Career Assessment System API is running...');
+// ── Serve Uploaded Profile Pictures ──────────────────────────
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ── Serve Static HTML Frontend ───────────────────────────────
+// This eliminates CORS issues — both frontend + API on port 5000
+app.use(express.static(path.join(__dirname, '..', 'html-frontend')));
+
+// ── API Routes ────────────────────────────────────────────────
+app.use('/api/auth',        authRoutes);
+app.use('/api/assessments', assessmentRoutes);
+app.use('/api/admin',       adminRoutes);
+
+// ── Health Check ──────────────────────────────────────────────
+app.get('/api', (req, res) => {
+    res.json({ message: 'Career Assessment System API is running ✅', version: '2.0' });
 });
 
-// ==========================================
-// Authentication API Routes
-// All requests starting with /api/auth will be handled by authRoutes
-// ==========================================
-app.use('/api/auth', authRoutes); // Registering the authentication routes
-app.use('/api/assessments', assessmentRoutes); // Registering the assessment routes
-app.use('/api/admin', adminRoutes); // Registering the admin routes
+// ── Catch-all: serve index.html for any non-API route ────────
+app.use((req, res, next) => {
+    if (!req.path.startsWith('/api')) {
+        res.sendFile(path.join(__dirname, '..', 'html-frontend', 'index.html'));
+    } else {
+        next();
+    }
+});
 
-// Start the server on the specified port
+
+// ── Start Server ──────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port : http://localhost:${PORT}`);
+    console.log(`\n🚀 Server running at: http://localhost:${PORT}`);
+    console.log(`📁 Frontend served at: http://localhost:${PORT}/index.html`);
+    console.log(`🔑 API base:           http://localhost:${PORT}/api\n`);
 });

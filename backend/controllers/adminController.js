@@ -3,34 +3,39 @@ const jwt = require('jsonwebtoken'); // Import jsonwebtoken for token generation
 const db = require('../config/db'); // Import database connection
 
 // ==========================================
-// 1. SETUP FIRST ADMIN (One-time use)
+// 1. REGISTER ADMIN (requires valid Company ID)
 // ==========================================
-exports.setupFirstAdmin = async (req, res) => {
+exports.registerAdmin = async (req, res) => {
     try {
-        const hashedPassword = await bcrypt.hash('admin123', 10);
-        
-        // check if an admin already exists
-        const [existingAdmins] = await db.query('SELECT id FROM admins LIMIT 1');
-        if (existingAdmins.length > 0) {
-            return res.status(400).json({ message: 'Admin already exists! Use login.' });
+        const { name, email, password, company_id } = req.body;
+
+        if (!name || !email || !password || !company_id) {
+            return res.status(400).json({ message: 'All fields including Company ID are required.' });
         }
 
-        // Insert the first admin into the database
+        // Validate Company ID against the secret stored in .env
+        if (company_id !== process.env.ADMIN_COMPANY_ID) {
+            return res.status(403).json({ message: 'Invalid Company ID. You are not authorized to register as an admin.' });
+        }
+
+        // Check if email already exists
+        const [existing] = await db.query('SELECT id FROM admins WHERE email = ?', [email]);
+        if (existing.length > 0) {
+            return res.status(400).json({ message: 'An admin account with this email already exists.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         await db.query(
-            "INSERT INTO admins (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
-            ['Super Admin', 'admin@example.com', hashedPassword, 'SuperAdmin']
+            'INSERT INTO admins (name, email, password_hash, role, company_id) VALUES (?, ?, ?, ?, ?)',
+            [name, email, hashedPassword, 'SuperAdmin', company_id]
         );
 
-        // Respond with success message and credentials
-        res.status(201).json({ 
-            message: 'First Admin created successfully!', 
-            email: 'admin@example.com', 
-            password: 'admin123' 
-        });
+        res.status(201).json({ message: 'Admin registered successfully! Please log in.' });
 
     } catch (error) {
-        console.error('Setup Admin Error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Admin Register Error:', error);
+        res.status(500).json({ message: 'Server error during admin registration.', error: error.message });
     }
 };
 

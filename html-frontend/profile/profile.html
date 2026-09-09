@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -104,10 +104,16 @@
                 <!-- Left: Avatar Card -->
                 <div class="card-base avatar-card">
                     <div class="avatar-wrap">
-                        <div class="avatar-circle">
-                            <i class="bi bi-person-fill avatar-icon"></i>
+                        <div class="avatar-circle" id="avatarCircle">
+                            <!-- Photo shown here when uploaded; icon shown as default -->
+                            <img id="avatarImg" src="" alt="Profile Photo"
+                                 style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;">
+                            <i class="bi bi-person-fill avatar-icon" id="avatarIcon"></i>
                         </div>
-                        <button class="camera-btn" title="Change Photo">
+                        <!-- Hidden file input — triggered by camera button -->
+                        <input type="file" id="photoInput" accept="image/*"
+                               style="display:none;" onchange="handlePhotoSelect(this)">
+                        <button class="camera-btn" title="Change Photo" onclick="document.getElementById('photoInput').click()">
                             <i class="bi bi-camera-fill"></i>
                         </button>
                     </div>
@@ -184,7 +190,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="profile.js"></script>
+<script src="/assets/js/api.js"></script>
+    <script src="profile.js"></script>
 </body>
 </html>
 

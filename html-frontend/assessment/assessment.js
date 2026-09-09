@@ -1,198 +1,371 @@
-// ===================================================
-// Assessment Page — Mock Data & Interactive Logic
-// ===================================================
+// =============================================================
+// assessment.js — Full real-API assessment engine
+// HTML IDs: #questionCounter, #questionProgress, #questionText
+//           #bookmarkBtn, #bookmarkIcon, #optionsList .option-row
+//           #prevBtn, #nextBtn, #overallPct, #overallFill
+//           #completedCount, #timerDisplay, #exitModal
+//           #grid-personality, #grid-interests, #grid-skills, #grid-workstyle
+//           #chevron-personality/interests/skills/workstyle
+//           #count-personality/interests/skills/workstyle
+// =============================================================
 
-// Sidebar toggle
+// ── Sidebar ───────────────────────────────────────────────────
 function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("open");
-    document.getElementById("sidebarOverlay").classList.toggle("active");
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
 }
 function closeSidebar() {
-    document.getElementById("sidebar").classList.remove("open");
-    document.getElementById("sidebarOverlay").classList.remove("active");
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+async function logoutUser() {
+    await apiPost('/auth/logout');
+    localStorage.removeItem('cas_user');
+    window.location.href = '/login/login.html';
 }
 
-// ─── Mock Questions Data ────────────────────────────
-// Backend dev: replace this array with a real API call
-const mockQuestions = [
-    "I enjoy solving difficult problems.",
-    "I prefer working in a team rather than alone.",
-    "I like helping others with their tasks.",
-    "I enjoy learning new skills regularly.",
-    "I am comfortable speaking in front of people.",
-    "I prefer routine work over creative tasks.",
-    "I enjoy organizing and planning things.",
-    "I like working with my hands.",
-    "I enjoy reading and researching new topics.",
-    "I feel energized when meeting new people.",
-    "I prefer working outdoors over indoors.",
-    "I enjoy working with numbers and calculations.",
-    "I like coming up with new ideas.",
-    "I prefer to follow instructions rather than lead.",
-    "I enjoy caring for others (children, elderly, etc.).",
-    "I am patient when things move slowly.",
-    "I like working with technology and computers.",
-    "I enjoy physical and active work.",
-    "I prefer detailed and precise tasks.",
-    "I enjoy artistic or creative activities."
-];
+// ── Category → grid key mapping (DB name → HTML id suffix) ───
+const catKey = {
+    'Personality': 'personality',
+    'Interests':   'interests',
+    'Skills':      'skills',
+    'Work Style':  'workstyle'
+};
 
-const answers = new Array(20).fill(null);
-const bookmarks = new Array(20).fill(false);
-let currentQ = 3; // 0-indexed, start at question 4
+// ── State ─────────────────────────────────────────────────────
+let allQuestions  = [];
+let answeredMap   = {};
+let bookmarked    = new Set();
+let currentIndex  = 0;
+let timerInterval = null;
+let startTime     = null;
+let isSaving      = false;
 
-// ─── Timer ─────────────────────────────────────────
-let totalSeconds = 405; // start at 6:45 for demo
-setInterval(() => {
-    totalSeconds++;
-    const m = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-    const s = String(totalSeconds % 60).padStart(2, '0');
-    document.getElementById("timerDisplay").textContent = `00:${m}:${s}`;
-}, 1000);
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = await requireAuth();
+    if (!user) return;
 
-// ─── Build Question Number Grid ─────────────────────
-function buildGrid() {
-    const grid = document.getElementById("personalityGrid");
-    grid.innerHTML = "";
-    for (let i = 0; i < 20; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i + 1;
-        btn.className = "q-num";
-        if (answers[i] !== null) btn.classList.add("answered");
-        if (bookmarks[i])        btn.classList.add("bookmarked");
-        if (i === currentQ)      { btn.classList.remove("answered"); btn.classList.add("current"); }
-        btn.onclick = () => goToQuestion(i);
-        grid.appendChild(btn);
-    }
-}
+    // Timer: restore across refresh
+    const saved = localStorage.getItem('cas_timer_start');
+    startTime   = saved ? parseInt(saved) : Date.now();
+    localStorage.setItem('cas_timer_start', startTime);
+    startTimer();
 
-// ─── Load Question ──────────────────────────────────
-function loadQuestion(index) {
-    currentQ = index;
-    const total = mockQuestions.length;
-
-    document.getElementById("questionText").textContent    = mockQuestions[index];
-    document.getElementById("questionCounter").textContent = `Question ${index + 1} of ${total}`;
-    document.getElementById("questionProgress").style.width = ((index + 1) / total * 100) + "%";
-
-    // Bookmark button state
-    const bookmarkBtn  = document.getElementById("bookmarkBtn");
-    const bookmarkIcon = document.getElementById("bookmarkIcon");
-    if (bookmarks[index]) {
-        bookmarkBtn.classList.add("active");
-        bookmarkIcon.className = "bi bi-bookmark-fill";
-    } else {
-        bookmarkBtn.classList.remove("active");
-        bookmarkIcon.className = "bi bi-bookmark";
-    }
-
-    // Reset options
-    const rows = document.querySelectorAll(".option-row");
-    rows.forEach(row => {
-        row.classList.remove("selected");
-        const radio = row.querySelector("input[type=radio]");
-        radio.checked = false;
+    // Wire option rows
+    document.querySelectorAll('#optionsList .option-row').forEach((row, idx) => {
+        row.addEventListener('click', () => handleOptionClick(idx));
     });
 
-    // Restore saved answer
-    if (answers[index] !== null) {
-        rows.forEach(row => {
-            const radio = row.querySelector("input[type=radio]");
-            if (parseInt(radio.value) === answers[index]) {
-                row.classList.add("selected");
-                radio.checked = true;
+    await loadQuestions();
+});
+
+// ── Timer ─────────────────────────────────────────────────────
+function startTimer() {
+    timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+        const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+        const s = String(elapsed % 60).padStart(2, '0');
+        const el = document.getElementById('timerDisplay');
+        if (el) el.textContent = `${h}:${m}:${s}`;
+    }, 1000);
+}
+
+// ── Load questions from API ───────────────────────────────────
+async function loadQuestions() {
+    try {
+        const res = await apiGet('/assessments/questions');
+        if (!res || !res.ok) {
+            showToast('No active assessment. Starting from intro...', 'error');
+            setTimeout(() => { window.location.href = '../assessment-intro/intro.html'; }, 2000);
+            return;
+        }
+        allQuestions = res.data.questions || [];
+        answeredMap  = res.data.answeredMap || {};
+
+        if (allQuestions.length === 0) {
+            showToast('No questions found. Please contact support.', 'error');
+            return;
+        }
+
+        // Resume from first unanswered
+        const firstUnanswered = allQuestions.findIndex(q => !answeredMap[q.id]);
+        currentIndex = firstUnanswered >= 0 ? firstUnanswered : 0;
+
+        buildAllGrids();
+        renderQuestion(currentIndex);
+
+    } catch (err) {
+        showToast('Failed to load questions. Please refresh.', 'error');
+    }
+}
+
+// ── Build ALL 4 category grids once at load time ──────────────
+function buildAllGrids() {
+    const groups = {};
+    allQuestions.forEach((q, globalIdx) => {
+        const key = catKey[q.category_name] || 'personality';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push({ q, globalIdx });
+    });
+
+    Object.entries(groups).forEach(([key, items]) => {
+        const grid     = document.getElementById(`grid-${key}`);
+        const countEl  = document.getElementById(`count-${key}`);
+        if (!grid) return;
+
+        grid.innerHTML = '';
+        if (countEl) countEl.textContent = `(${items.length})`;
+
+        items.forEach(({ q, globalIdx }, localIdx) => {
+            const btn = document.createElement('button');
+            btn.textContent = localIdx + 1;
+            btn.className   = 'q-num';
+            btn.title       = `Question ${globalIdx + 1}`;
+            btn.dataset.qid = q.id;
+            btn.dataset.idx = globalIdx;
+            btn.addEventListener('click', () => renderQuestion(globalIdx));
+            grid.appendChild(btn);
+        });
+    });
+}
+
+// ── Update grid button states (answered/current/bookmarked) ───
+function updateGridStates() {
+    Object.values(catKey).forEach(key => {
+        const grid = document.getElementById(`grid-${key}`);
+        if (!grid) return;
+        grid.querySelectorAll('.q-num').forEach(btn => {
+            const qid     = parseInt(btn.dataset.qid);
+            const idx     = parseInt(btn.dataset.idx);
+            btn.className = 'q-num';
+            if (answeredMap[qid])    btn.classList.add('answered');
+            if (bookmarked.has(qid)) btn.classList.add('bookmarked');
+            if (idx === currentIndex) {
+                btn.classList.remove('answered');
+                btn.classList.add('current');
             }
         });
-    }
-
-    // Update Next/Submit button
-    const nextBtn = document.getElementById("nextBtn");
-    if (index === total - 1) {
-        nextBtn.innerHTML = 'Submit Assessment <i class="bi bi-check2-circle"></i>';
-        nextBtn.classList.add("btn-submit");
-    } else {
-        nextBtn.innerHTML = 'Next <i class="bi bi-arrow-right"></i>';
-        nextBtn.classList.remove("btn-submit");
-    }
-
-    // Disable previous on first
-    document.getElementById("prevBtn").disabled = index === 0;
-
-    // Update overall progress
-    const answered = answers.filter(a => a !== null).length;
-    const pct = Math.round(answered / 80 * 100);
-    document.getElementById("overallPct").textContent    = pct + "%";
-    document.getElementById("overallFill").style.width   = pct + "%";
-    document.getElementById("completedCount").textContent = `${answered} / 80`;
-
-    buildGrid();
-}
-
-function goToQuestion(index) { loadQuestion(index); }
-
-// ─── Option Click ────────────────────────────────────
-document.querySelectorAll(".option-row").forEach(row => {
-    row.addEventListener("click", () => {
-        document.querySelectorAll(".option-row").forEach(r => r.classList.remove("selected"));
-        row.classList.add("selected");
-        const radio = row.querySelector("input[type=radio]");
-        radio.checked = true;
-        answers[currentQ] = parseInt(radio.value);
-        buildGrid();
-        updateProgress();
     });
-});
-
-function updateProgress() {
-    const answered = answers.filter(a => a !== null).length;
-    const pct = Math.round(answered / 80 * 100);
-    document.getElementById("overallPct").textContent    = pct + "%";
-    document.getElementById("overallFill").style.width   = pct + "%";
-    document.getElementById("completedCount").textContent = `${answered} / 80`;
 }
 
-// ─── Custom Exit Modal ──────────────────────────────
-function confirmExit() {
-    document.getElementById("exitModal").classList.add("show");
+// ── Open the category section for the current question ────────
+function openCategorySection(categoryName) {
+    const activeKey = catKey[categoryName] || 'personality';
+
+    Object.entries(catKey).forEach(([, key]) => {
+        const grid    = document.getElementById(`grid-${key}`);
+        const chevron = document.getElementById(`chevron-${key}`);
+        if (key === activeKey) {
+            // Expand
+            if (grid)    grid.style.display    = '';
+            if (chevron) chevron.className      = 'bi bi-chevron-up';
+        } else {
+            // Collapse
+            if (grid)    grid.style.display    = 'none';
+            if (chevron) chevron.className      = 'bi bi-chevron-down';
+        }
+    });
 }
 
-function closeExitModal() {
-    document.getElementById("exitModal").classList.remove("show");
+// ── Manual toggle when user clicks a category header ─────────
+function toggleCatGrid(key) {
+    const grid    = document.getElementById(`grid-${key}`);
+    const chevron = document.getElementById(`chevron-${key}`);
+    if (!grid) return;
+    const isOpen = grid.style.display !== 'none';
+    grid.style.display    = isOpen ? 'none' : '';
+    if (chevron) chevron.className = isOpen ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
 }
 
-function proceedExit() {
-    window.location.href = "../dashboard/dashboard.html";
+// ── Render a question by index ────────────────────────────────
+function renderQuestion(index) {
+    if (index < 0 || index >= allQuestions.length) return;
+    currentIndex = index;
+
+    const q      = allQuestions[index];
+    const total  = allQuestions.length;
+    const opts   = [q.option_a, q.option_b, q.option_c, q.option_d];
+    const optKeys = ['A', 'B', 'C', 'D'];
+
+    // Question text & counter
+    const counterEl  = document.getElementById('questionCounter');
+    const progressEl = document.getElementById('questionProgress');
+    const textEl     = document.getElementById('questionText');
+    if (counterEl)  counterEl.textContent  = `Question ${index + 1} of ${total}`;
+    if (progressEl) progressEl.style.width = `${((index + 1) / total) * 100}%`;
+    if (textEl)     textEl.textContent     = q.question_text;
+
+    // Category label above question
+    const sectionLabel = document.querySelector('.q-section-label');
+    if (sectionLabel) sectionLabel.textContent = `${q.category_name} Assessment`;
+
+    // Bookmark
+    const isBookmarked = bookmarked.has(q.id);
+    const bookmarkIcon = document.getElementById('bookmarkIcon');
+    const bookmarkBtn  = document.getElementById('bookmarkBtn');
+    if (bookmarkIcon) bookmarkIcon.className = isBookmarked ? 'bi bi-bookmark-fill' : 'bi bi-bookmark';
+    if (bookmarkBtn)  bookmarkBtn.classList.toggle('active', isBookmarked);
+
+    // Option labels and selection state
+    const rows = document.querySelectorAll('#optionsList .option-row');
+    rows.forEach((row, i) => {
+        const labelEl = row.querySelector('.option-label');
+        const radioEl = row.querySelector('input[type="radio"]');
+        if (labelEl) labelEl.textContent = opts[i] || optKeys[i];
+        if (radioEl) radioEl.value       = optKeys[i];
+        row.classList.remove('selected');
+        if (radioEl) radioEl.checked = false;
+        if (answeredMap[q.id] === optKeys[i]) {
+            row.classList.add('selected');
+            if (radioEl) radioEl.checked = true;
+        }
+    });
+
+    // Category tab highlight
+    updateCategoryTab(q.category_name);
+
+    // Auto-open the right category section in the right panel
+    openCategorySection(q.category_name);
+
+    // Update grid button states
+    updateGridStates();
+
+    // Update overall progress bar
+    updateOverallProgress();
+
+    // Prev / Next buttons
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    if (prevBtn) prevBtn.disabled = (index === 0);
+    if (nextBtn) {
+        if (index === total - 1) {
+            nextBtn.innerHTML  = 'Submit <i class="bi bi-check2-circle"></i>';
+            nextBtn.style.background = '#10b981';
+        } else {
+            nextBtn.innerHTML  = 'Next <i class="bi bi-arrow-right"></i>';
+            nextBtn.style.background = '';
+        }
+    }
 }
 
-// ─── Navigation ──────────────────────────────────────
+// ── Category tab highlight (top of quiz area) ─────────────────
+function updateCategoryTab(categoryName) {
+    const tabMap = {
+        'Personality': 'personality',
+        'Interests':   'interest',
+        'Skills':      'skills',
+        'Work Style':  'workpref'
+    };
+    const active = tabMap[categoryName];
+    document.querySelectorAll('.cat-tab').forEach(tab => {
+        tab.classList.remove('active');
+        tab.classList.add('locked');
+        if (tab.dataset.cat === active) {
+            tab.classList.add('active');
+            tab.classList.remove('locked');
+        }
+    });
+}
+
+// ── Overall progress bar ──────────────────────────────────────
+function updateOverallProgress() {
+    const answeredCount = Object.keys(answeredMap).length;
+    const total         = allQuestions.length;
+    const pct           = Math.round((answeredCount / total) * 100);
+
+    const overallPct  = document.getElementById('overallPct');
+    const overallFill = document.getElementById('overallFill');
+    const countEl     = document.getElementById('completedCount');
+    if (overallPct)  overallPct.textContent  = pct + '%';
+    if (overallFill) overallFill.style.width = pct + '%';
+    if (countEl)     countEl.textContent     = `${answeredCount} / ${total}`;
+}
+
+// ── Option click handler ──────────────────────────────────────
+async function handleOptionClick(optionIndex) {
+    const q      = allQuestions[currentIndex];
+    const option = ['A', 'B', 'C', 'D'][optionIndex];
+    if (!q || !option) return;
+
+    // Update UI immediately
+    document.querySelectorAll('#optionsList .option-row').forEach((row, i) => {
+        row.classList.toggle('selected', i === optionIndex);
+        const radio = row.querySelector('input[type="radio"]');
+        if (radio) radio.checked = (i === optionIndex);
+    });
+
+    answeredMap[q.id] = option;
+    updateGridStates();
+    updateOverallProgress();
+
+    // Save to backend (non-blocking)
+    if (!isSaving) {
+        isSaving = true;
+        apiPost('/assessments/submit-answer', { questionId: q.id, selectedOption: option })
+            .catch(() => showToast('Answer not saved — check connection.', 'error'))
+            .finally(() => { isSaving = false; });
+    }
+}
+
+// ── Navigation ────────────────────────────────────────────────
 function nextQuestion() {
-    if (currentQ < mockQuestions.length - 1) loadQuestion(currentQ + 1);
-    else window.location.href = "../assessment-complete/complete.html";
+    if (currentIndex < allQuestions.length - 1) {
+        renderQuestion(currentIndex + 1);
+    } else {
+        submitAssessment();
+    }
 }
 function prevQuestion() {
-    if (currentQ > 0) loadQuestion(currentQ - 1);
+    if (currentIndex > 0) renderQuestion(currentIndex - 1);
 }
 
-// ─── Bookmark ────────────────────────────────────────
+// ── Bookmark ──────────────────────────────────────────────────
 function toggleBookmark() {
-    bookmarks[currentQ] = !bookmarks[currentQ];
-    const bookmarkBtn  = document.getElementById("bookmarkBtn");
-    const bookmarkIcon = document.getElementById("bookmarkIcon");
-    if (bookmarks[currentQ]) {
-        bookmarkBtn.classList.add("active");
-        bookmarkIcon.className = "bi bi-bookmark-fill";
-    } else {
-        bookmarkBtn.classList.remove("active");
-        bookmarkIcon.className = "bi bi-bookmark";
-    }
-    buildGrid();
+    const q = allQuestions[currentIndex];
+    if (!q) return;
+    if (bookmarked.has(q.id)) bookmarked.delete(q.id);
+    else bookmarked.add(q.id);
+    renderQuestion(currentIndex);
 }
-
 function markReview() { toggleBookmark(); }
 
-// ─── Init ────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-    // Pre-fill some answered questions for demo
-    answers[0] = 5; answers[1] = 4; answers[2] = 3;
-    loadQuestion(currentQ);
-});
+// ── Save & Exit (replaces Exit) ───────────────────────────────
+function saveAndExit() {
+    // Progress is already auto-saved on every answer — just navigate away
+    showToast('Progress saved! Returning to dashboard...', 'success');
+    setTimeout(() => { window.location.href = '../dashboard/dashboard.html'; }, 1000);
+}
+
+// ── Kept for compatibility but no longer called by UI ─────────
+function confirmExit()   { saveAndExit(); }
+function closeExitModal(){ }
+function proceedExit()   { window.location.href = '../dashboard/dashboard.html'; }
+
+// ── Submit assessment ─────────────────────────────────────────
+async function submitAssessment() {
+    const answered = Object.keys(answeredMap).length;
+    const total    = allQuestions.length;
+
+    if (answered < total) {
+        const ok = confirm(
+            `You have ${total - answered} unanswered question(s) out of ${total}.\n\nUnanswered questions will score 0.\n\nSubmit anyway?`
+        );
+        if (!ok) return;
+    }
+
+    const nextBtn = document.getElementById('nextBtn');
+    if (nextBtn) setLoading(nextBtn, true);
+
+    const res = await apiPost('/assessments/complete');
+    if (res && res.ok) {
+        clearInterval(timerInterval);
+        localStorage.removeItem('cas_timer_start');
+        showToast('Assessment submitted! Calculating your results...', 'success');
+        setTimeout(() => { window.location.href = '../results/results.html'; }, 1800);
+    } else {
+        showToast(res?.data?.message || 'Could not submit. Please try again.', 'error');
+        if (nextBtn) setLoading(nextBtn, false);
+    }
+}

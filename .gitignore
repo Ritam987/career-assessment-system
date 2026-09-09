@@ -1,0 +1,14 @@
+# Node dependencies
+backend/node_modules/
+node_modules/
+
+# Environment variables (Passwords & Secrets)
+backend/.env
+.env
+
+# User Uploads
+backend/uploads/
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -76,7 +76,7 @@
                 <img src="../assets/images/logo.jpg" alt="Logo" class="fs-logo">
                 <h5 class="fs-title">Career Assessment</h5>
             </div>
-            <button class="btn-exit" onclick="confirmExit()"><i class="bi bi-x-lg"></i> Exit</button>
+            <button class="btn-exit" onclick="saveAndExit()" style="background:#6366f1;border-color:#6366f1;"><i class="bi bi-save2"></i> Save &amp; Exit</button>
         </header>
 
         <!-- Content Wrapper (quiz + right panel) -->
@@ -239,24 +239,37 @@
                         <div class="legend-item"><span class="leg-dot bookmarked"></span> Bookmarked</div>
                     </div>
 
-                    <!-- Personality Grid (open) -->
-                    <div class="grid-section">
-                        <p class="grid-section-label">Personality (20)</p>
-                        <div class="q-grid" id="personalityGrid"></div>
+                    <!-- All 4 Category Grids — JS controls which one is open -->
+                    <div class="grid-section" id="section-personality">
+                        <div class="grid-section-header" onclick="toggleCatGrid('personality')" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">
+                            <p class="grid-section-label" style="margin:0">Personality <span id="count-personality"></span></p>
+                            <i class="bi bi-chevron-up" id="chevron-personality" style="font-size:12px;color:#6b7280;"></i>
+                        </div>
+                        <div class="q-grid" id="grid-personality"></div>
                     </div>
 
-                    <!-- Locked Sections -->
-                    <div class="locked-section">
-                        <span class="locked-label">Interest (20)</span>
-                        <div class="locked-right"><i class="bi bi-lock-fill text-muted"></i> <i class="bi bi-chevron-down text-muted"></i></div>
+                    <div class="grid-section" id="section-interests" style="margin-top:10px;">
+                        <div class="grid-section-header" onclick="toggleCatGrid('interests')" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">
+                            <p class="grid-section-label" style="margin:0">Interest <span id="count-interests"></span></p>
+                            <i class="bi bi-chevron-down" id="chevron-interests" style="font-size:12px;color:#6b7280;"></i>
+                        </div>
+                        <div class="q-grid" id="grid-interests" style="display:none"></div>
                     </div>
-                    <div class="locked-section">
-                        <span class="locked-label">Skills (20)</span>
-                        <div class="locked-right"><i class="bi bi-lock-fill text-muted"></i> <i class="bi bi-chevron-down text-muted"></i></div>
+
+                    <div class="grid-section" id="section-skills" style="margin-top:10px;">
+                        <div class="grid-section-header" onclick="toggleCatGrid('skills')" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">
+                            <p class="grid-section-label" style="margin:0">Skills <span id="count-skills"></span></p>
+                            <i class="bi bi-chevron-down" id="chevron-skills" style="font-size:12px;color:#6b7280;"></i>
+                        </div>
+                        <div class="q-grid" id="grid-skills" style="display:none"></div>
                     </div>
-                    <div class="locked-section">
-                        <span class="locked-label">Work Preference (20)</span>
-                        <div class="locked-right"><i class="bi bi-lock-fill text-muted"></i> <i class="bi bi-chevron-down text-muted"></i></div>
+
+                    <div class="grid-section" id="section-workstyle" style="margin-top:10px;">
+                        <div class="grid-section-header" onclick="toggleCatGrid('workstyle')" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">
+                            <p class="grid-section-label" style="margin:0">Work Preference <span id="count-workstyle"></span></p>
+                            <i class="bi bi-chevron-down" id="chevron-workstyle" style="font-size:12px;color:#6b7280;"></i>
+                        </div>
+                        <div class="q-grid" id="grid-workstyle" style="display:none"></div>
                     </div>
                 </div>
 
@@ -280,7 +293,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assessment.js"></script>
+<script src="/assets/js/api.js"></script>
+    <script src="assessment.js"></script>
 <script>
     function changeLanguage(lang) {
         const langNames = { 'en': 'English', 'hi': 'Hindi (हिंदी)', 'bn': 'Bengali (বাংলা)' };

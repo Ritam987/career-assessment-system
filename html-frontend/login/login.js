@@ -1,23 +1,39 @@
-// Custom JavaScript for Login Page
+document.addEventListener('DOMContentLoaded', () => {
 
-document.addEventListener("DOMContentLoaded", function() {
-    const loginForm = document.getElementById("loginForm");
+    const loginForm = document.getElementById('loginForm');
 
-    loginForm.addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent default form submission
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
+        const email    = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-        // Basic validation check
-        if(email && password) {
-            console.log("Mock Login Attempt:", { email, password });
-            
-            // Simulate a successful login and redirect to the dashboard (or index for now)
-            alert("Login successful! Redirecting...");
-            window.location.href = "../index.html"; 
-        } else {
-            alert("Please fill in all fields.");
+        if (!email || !password) {
+            showToast('Please enter your email and password.', 'error');
+            return;
+        }
+
+        setLoading(submitBtn, true);
+
+        try {
+            const res = await apiPost('/auth/login', { email, password });
+
+            if (res.ok) {
+                // Cache user info for quick display on dashboard
+                localStorage.setItem('cas_user', JSON.stringify(res.data.user));
+                showToast('Login successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/dashboard/dashboard.html';
+                }, 800);
+            } else {
+                showToast(res.data.message || 'Login failed. Please check your credentials.', 'error');
+                setLoading(submitBtn, false);
+            }
+
+        } catch (err) {
+            showToast('Could not connect to the server. Please try again.', 'error');
+            setLoading(submitBtn, false);
         }
     });
 });

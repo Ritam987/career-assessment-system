@@ -2,9 +2,8 @@ const express = require('express');
 const router = express.Router(); 
 const adminMiddleware = require('../middlewares/adminMiddleware');
 
-// Importing all functions from adminController.js
 const { 
-    setupFirstAdmin, 
+    registerAdmin, 
     adminLogin, 
     addQuestion, 
     getAllQuestions,
@@ -20,8 +19,9 @@ const {
 } = require('../controllers/adminController'); 
 
 // 1. Setup & Login
-router.post('/setup', setupFirstAdmin);
-router.post('/login', adminLogin);
+router.post('/register', registerAdmin);  // POST /api/admin/register
+router.post('/login',    adminLogin);
+
 
 // 2. Dashboard Analytics Route
 // Fetch overall statistics for the admin dashboard
