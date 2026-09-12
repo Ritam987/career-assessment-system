@@ -1,21 +1,20 @@
 /**
  * API origin helper.
- *
- * In Vite dev, API calls stay on the same host/port as the frontend
- * (e.g. http://192.168.x.x:5173/api/...) and Vite proxies them to the
- * backend on 127.0.0.1:5000. That way a phone on Wi-Fi never has to
- * open port 5000, and never talks to "localhost" (which would be the phone).
- *
- * Override only if you must: VITE_API_URL=http://192.168.x.x:5000
+ * Configured for Production Railway Backend URL:
+ * https://career-assessment-system-production.up.railway.app
  */
 export const getApiBaseUrl = () => {
-  const fromEnv = import.meta.env.VITE_API_URL;
+  const fromEnv =
+    import.meta.env.REACT_APP_BACKEND_URL ||
+    import.meta.env.VITE_API_URL ||
+    import.meta.env.VITE_BACKEND_URL;
+
   if (fromEnv && String(fromEnv).trim()) {
     return String(fromEnv).replace(/\/$/, '');
   }
 
-  // Same-origin: laptop localhost, LAN IP, and real phones all work.
-  return '';
+  // Deployed Railway Production Backend URL
+  return 'https://career-assessment-system-production.up.railway.app';
 };
 
 export const apiUrl = (path = '') => {
@@ -27,6 +26,6 @@ export const apiUrl = (path = '') => {
 export const API_BASE_URL = getApiBaseUrl();
 
 if (typeof window !== 'undefined') {
-  console.log('🔗 API Base URL:', getApiBaseUrl() || window.location.origin);
+  console.log('🔗 API Base URL:', getApiBaseUrl());
   console.log('🌐 Page origin:', window.location.origin);
 }
