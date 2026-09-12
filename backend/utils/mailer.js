@@ -3,8 +3,8 @@
  * NODEMAILER EMAIL SERVICE UTILITY (mailer.js)
  * ============================================================================
  * Purpose: Configures Nodemailer transporter for sending 6-digit OTP codes via
- * HTML emails. Features automatic fallback for local development if SMTP
- * credentials are not configured in environment variables.
+ * HTML emails over SSL Port 465 with forced IPv4 (family: 4) resolution to prevent
+ * ENETUNREACH IPv6 connection errors on cloud hosts like Railway.
  * ============================================================================
  */
 
@@ -13,7 +13,7 @@ const nodemailer = require('nodemailer');
 // Initialize Nodemailer transporter instance based on environment configuration
 const createTransporter = () => {
     const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
+    const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
     const smtpUser = process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
 
@@ -21,11 +21,12 @@ const createTransporter = () => {
         return nodemailer.createTransport({
             host: smtpHost,
             port: smtpPort,
-            secure: smtpPort === 465, // true for port 465, false for 587
+            secure: smtpPort === 465, // true for SSL port 465
             auth: {
                 user: smtpUser,
                 pass: smtpPass
-            }
+            },
+            family: 4 // Force IPv4 resolution to prevent ENETUNREACH IPv6 errors on cloud servers
         });
     }
 
@@ -100,11 +101,10 @@ exports.sendOTPEmail = async ({ to, otpCode, purpose = 'signup' }) => {
     if (transporter) {
         try {
             await transporter.sendMail(mailOptions);
-            console.log(`[Mailer] OTP Email dispatched via SMTP to ${to}`);
+            console.log(`[Mailer] OTP Email dispatched via SSL SMTP (Port 465 IPv4) to ${to}`);
             return true;
         } catch (err) {
             console.error(`[Mailer] SMTP Delivery Error for ${to}:`, err.message);
-            // Fallback to console log if SMTP transmission fails
         }
     }
 

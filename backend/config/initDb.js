@@ -191,12 +191,17 @@ async function initDb() {
                 email VARCHAR(255) NOT NULL,
                 otp_code VARCHAR(10) NOT NULL,
                 purpose VARCHAR(50) DEFAULT 'verification',
+                user_data TEXT NULL,
                 expires_at DATETIME NOT NULL,
                 is_used BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 INDEX idx_email_purpose (email, purpose)
             )
         `);
+
+        try {
+            await db.query(`ALTER TABLE otps ADD COLUMN user_data TEXT NULL;`);
+        } catch (e) {}
 
         // Re-enable foreign key checks after schema initialization
         await db.query('SET FOREIGN_KEY_CHECKS = 1;');

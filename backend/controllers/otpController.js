@@ -30,6 +30,8 @@ exports.sendOTP = async (req, res) => {
         // 1. Check user account existence based on purpose
         const existingUser = await userModel.findUserByEmail(cleanEmail);
 
+        let userDataPayload = null;
+
         if (purpose === 'password_reset') {
             if (!existingUser) {
                 return res.status(404).json({ message: 'No registered account found with this email address.' });
@@ -37,6 +39,15 @@ exports.sendOTP = async (req, res) => {
         } else if (purpose === 'signup') {
             if (existingUser && existingUser.is_verified) {
                 return res.status(400).json({ message: 'This email is already registered and verified. Please log in.' });
+            }
+
+            // Preserve last registration payload from otps table if resending signup OTP
+            const [lastOtpRows] = await db.query(
+                `SELECT user_data FROM otps WHERE LOWER(email) = LOWER(?) AND purpose = 'signup' AND user_data IS NOT NULL ORDER BY id DESC LIMIT 1`,
+                [cleanEmail]
+            );
+            if (lastOtpRows.length > 0 && lastOtpRows[0].user_data) {
+                userDataPayload = lastOtpRows[0].user_data;
             }
         }
 
@@ -49,12 +60,12 @@ exports.sendOTP = async (req, res) => {
             [cleanEmail, purpose]
         );
 
-        // 4. Insert new OTP record into database with 10-minute expiration
+        // 4. Insert new OTP record into database with 10-minute expiration and user_data payload
         const query = `
-            INSERT INTO otps (email, otp_code, purpose, expires_at)
-            VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))
+            INSERT INTO otps (email, otp_code, purpose, user_data, expires_at)
+            VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))
         `;
-        await db.query(query, [cleanEmail, otpCode, purpose]);
+        await db.query(query, [cleanEmail, otpCode, purpose, userDataPayload]);
 
         // 5. Send OTP Email via Nodemailer asynchronously in background to prevent HTTP timeouts
         sendOTPEmail({ to: cleanEmail, otpCode, purpose })
@@ -73,7 +84,7 @@ exports.sendOTP = async (req, res) => {
 
 /**
  * Endpoint: POST /api/auth/verify-otp
- * Verifies submitted OTP against database records and expiration.
+ * Verifies submitted OTP against database records and creates user account upon successful signup verification.
  */
 exports.verifyOTP = async (req, res) => {
     try {
@@ -103,14 +114,41 @@ exports.verifyOTP = async (req, res) => {
 
         const matchedRecord = rows[0];
 
+        // Create user account in main users table ONLY AFTER OTP is verified!
+        if (purpose === 'signup') {
+            let userData = null;
+            if (matchedRecord.user_data) {
+                try {
+                    userData = typeof matchedRecord.user_data === 'string'
+                        ? JSON.parse(matchedRecord.user_data)
+                        : matchedRecord.user_data;
+                } catch (e) {
+                    console.error('Failed to parse user_data JSON in verifyOTP:', e.message);
+                }
+            }
+
+            if (userData) {
+                const existingUser = await userModel.findUserByEmail(cleanEmail);
+                if (!existingUser) {
+                    await userModel.createUser({
+                        ...userData,
+                        is_verified: true
+                    });
+                    console.log(`[OTP Verification] Created new verified user record in main users table for: ${cleanEmail}`);
+                } else {
+                    await db.query('UPDATE users SET is_verified = TRUE WHERE LOWER(email) = LOWER(?)', [cleanEmail]);
+                }
+            }
+        }
+
         // Mark OTP as used
         await db.query('UPDATE otps SET is_used = TRUE WHERE id = ?', [matchedRecord.id]);
 
-        // If user already exists in database, mark account as is_verified = TRUE
+        // Ensure user is_verified = TRUE in users table if user exists
         await db.query('UPDATE users SET is_verified = TRUE WHERE LOWER(email) = LOWER(?)', [cleanEmail]);
 
         res.status(200).json({
-            message: 'OTP verified successfully!',
+            message: 'OTP verified successfully! Your account has been created and activated.',
             verified: true,
             email: cleanEmail
         });

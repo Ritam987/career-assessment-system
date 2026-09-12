@@ -32,82 +32,63 @@ exports.registerUser = async (req, res) => {
             city, state, pincode, education_level, preferred_field, career_goal 
         } = req.body;
 
-        // Check if mandatory email is provided
-        if (!email) {
-            return res.status(400).json({ message: 'Email address is required!' });
+        // Check if mandatory email and password are provided
+        if (!email || !password || !name) {
+            return res.status(400).json({ message: 'Name, email, and password are required!' });
         }
 
         // Normalize email to lowercase to prevent duplicate registrations with different cases
         const cleanEmail = email.trim().toLowerCase();
 
-        // Check if account already exists in database with this email
+        // 1. Check if account ALREADY exists in main users table
         const existingUser = await userModel.findUserByEmail(cleanEmail);
         if (existingUser) {
-            if (existingUser.is_verified === 1 || existingUser.is_verified === true) {
-                return res.status(400).json({ message: 'This email address is already registered and verified! Please log in.' });
-            }
-
-            // If existing user is unverified, update their profile with new details
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-            await db.query(
-                `UPDATE users SET 
-                    name = ?, password_hash = ?, phone = ?, age = ?, gender = ?, dob = ?, 
-                    city = ?, state = ?, pincode = ?, education_level = ?, preferred_field = ?, career_goal = ?, 
-                    updated_at = CURRENT_TIMESTAMP 
-                 WHERE id = ?`,
-                [
-                    name, hashedPassword, phone || null, age || null, gender || null, dob || null, 
-                    city || null, state || null, pincode || null, education_level || null, 
-                    preferred_field || null, career_goal || null, existingUser.id
-                ]
-            );
-        } else {
-            // Securely hash password using bcrypt with 10 salt rounds
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-            // Save new user profile into MySQL database with is_verified = false
-            await userModel.createUser({ 
-                name, 
-                email: cleanEmail, 
-                hashedPassword, 
-                phone,
-                age, 
-                gender, 
-                dob, 
-                city, 
-                state, 
-                pincode,
-                education_level, 
-                preferred_field, 
-                career_goal,
-                is_verified: false
-            });
+            return res.status(400).json({ message: 'This email address is already registered! Please log in.' });
         }
 
-        // Invalidate any previous unverified signup OTPs for this email
+        // 2. Securely hash password using bcrypt with 10 salt rounds
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // 3. Prepare registration data payload (Users table remains UNTOUCHED until OTP is verified)
+        const registrationData = {
+            name: name.trim(),
+            email: cleanEmail,
+            hashedPassword,
+            phone: phone ? phone.trim() : null,
+            age: age ? parseInt(age, 10) : null,
+            gender: gender || null,
+            dob: dob || null,
+            city: city ? city.trim() : null,
+            state: state ? state.trim() : null,
+            pincode: pincode ? pincode.trim() : null,
+            education_level: education_level || null,
+            preferred_field: preferred_field || null,
+            career_goal: career_goal || null
+        };
+
+        // 4. Invalidate any previous unverified signup OTPs for this email
         await db.query(
             'UPDATE otps SET is_used = TRUE WHERE LOWER(email) = LOWER(?) AND purpose = "signup" AND is_used = FALSE',
             [cleanEmail]
         );
 
-        // Automatically dispatch 6-digit OTP to user's email for sign-up verification
+        // 5. Generate cryptographically secure 6-digit OTP code for sign-up verification
         const crypto = require('crypto');
         const { sendOTPEmail } = require('../utils/mailer');
         const otpCode = crypto.randomInt(100000, 999999).toString();
 
+        // 6. Save OTP code and registration payload into otps table
         await db.query(
-            'INSERT INTO otps (email, otp_code, purpose, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))',
-            [cleanEmail, otpCode, 'signup']
+            'INSERT INTO otps (email, otp_code, purpose, user_data, expires_at) VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))',
+            [cleanEmail, otpCode, 'signup', JSON.stringify(registrationData)]
         );
 
-        // Non-blocking background email dispatch to prevent HTTP response timeout
+        // 7. Non-blocking background email dispatch via Nodemailer SSL Port 465 IPv4
         sendOTPEmail({ to: cleanEmail, otpCode, purpose: 'signup' })
             .catch(err => console.error(`[Background Mailer Error for ${cleanEmail}]:`, err?.message || err));
 
-        // Return HTTP 201 Created response immediately
+        // 8. Return HTTP 201 Created response immediately
         res.status(201).json({ 
             message: 'Registration details saved! A 6-digit OTP code has been sent to your email address.',
             email: cleanEmail,
@@ -144,7 +125,21 @@ exports.loginUser = async (req, res) => {
         // Query database for user matching given email
         const user = await userModel.findUserByEmail(cleanEmail);
         if (!user) {
-            return res.status(404).json({ message: 'No user found with this email! Please check for typos or register first.' });
+            // Check if there is an unverified signup OTP for this email in otps table
+            const [unverifiedOtp] = await db.query(
+                `SELECT id FROM otps WHERE LOWER(email) = LOWER(?) AND purpose = 'signup' AND is_used = FALSE AND expires_at > NOW() ORDER BY id DESC LIMIT 1`,
+                [cleanEmail]
+            );
+
+            if (unverifiedOtp.length > 0) {
+                return res.status(403).json({ 
+                    message: 'Your account registration is incomplete. Please enter the OTP sent to your email address.',
+                    unverified: true,
+                    email: cleanEmail
+                });
+            }
+
+            return res.status(404).json({ message: 'No registered user found with this email! Please check for typos or register first.' });
         }
 
         // Verify password against salted hash stored in database
