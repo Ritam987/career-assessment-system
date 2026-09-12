@@ -10,23 +10,18 @@
 
 const nodemailer = require('nodemailer');
 
-// Initialize Nodemailer transporter instance based on environment configuration
+// Initialize Nodemailer transporter instance using built-in Gmail service
 const createTransporter = () => {
-    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
     const smtpUser = process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
 
     if (smtpUser && smtpPass) {
         return nodemailer.createTransport({
-            host: smtpHost,
-            port: smtpPort,
-            secure: smtpPort === 465, // true for SSL port 465
+            service: 'gmail',
             auth: {
                 user: smtpUser,
                 pass: smtpPass
-            },
-            family: 4 // Force IPv4 resolution to prevent ENETUNREACH IPv6 errors on cloud servers
+            }
         });
     }
 
