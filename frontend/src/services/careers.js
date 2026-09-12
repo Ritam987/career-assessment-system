@@ -1,6 +1,4 @@
-import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:5000/api';
-axios.defaults.withCredentials = true;
+import axios from '../config/axios';
 
 const authHeader = () => {
   const token = localStorage.getItem('adminToken') || localStorage.getItem('token');

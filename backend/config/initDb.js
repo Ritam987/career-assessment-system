@@ -57,7 +57,19 @@ async function initDb() {
             )
         `);
 
-        // D. Seed Default System Configuration Data if Row 1 is empty
+        // D. Create Admins Table if not exists
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS admins (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                role VARCHAR(50) DEFAULT 'Admin',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // E. Seed Default System Configuration Data if Row 1 is empty
         const [rows] = await db.query('SELECT id FROM system_settings WHERE id = 1');
         if (rows.length === 0) {
             await db.query(`
@@ -65,6 +77,40 @@ async function initDb() {
                 VALUES (1, 'Career Assessment System', 'support@careerassessment.com', '+91 98765 43210', 30, 50)
             `);
             console.log('✅ Default system settings row seeded successfully.');
+        }
+
+        // F. Seed Default Super Admin if Admins table is empty
+        const [adminRows] = await db.query('SELECT id FROM admins LIMIT 1');
+        if (adminRows.length === 0) {
+            const bcrypt = require('bcryptjs');
+            const defaultHashedPassword = await bcrypt.hash('admin123', 10);
+            await db.query(
+                "INSERT INTO admins (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
+                ['Super Admin', 'admin@example.com', defaultHashedPassword, 'SuperAdmin']
+            );
+            console.log('✅ Default Super Admin account (admin@example.com / admin123) seeded successfully.');
+        }
+
+        // G. Create OTPs Table if not exists
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS otps (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                otp_code VARCHAR(10) NOT NULL,
+                purpose VARCHAR(50) DEFAULT 'verification',
+                expires_at DATETIME NOT NULL,
+                is_used BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_email_purpose (email, purpose)
+            )
+        `);
+
+        // H. Ensure is_verified column exists on users table
+        try {
+            await db.query(`ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT TRUE;`);
+            console.log('✅ Added is_verified column to users table.');
+        } catch (e) {
+            // Ignore duplicate column error if already exists
         }
 
         console.log('✅ Automatic Database tables check & initialization complete.');

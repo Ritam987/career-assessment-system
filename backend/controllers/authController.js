@@ -2,9 +2,15 @@
  * ============================================================================
  * AUTHENTICATION CONTROLLER (authController.js)
  * ============================================================================
- * Purpose: Handles user registration, user authentication login, JWT token
- * generation, cookie setting, logout, user profile retrieval, and user profile updates.
- * Includes email normalization (.trim().toLowerCase()) and password hashing using bcrypt.
+ * Purpose: Handles user authentication operations including registration,
+ * login with JWT token generation, and logout with session clearing.
+ * Includes email normalization (.trim().toLowerCase()) and secure password 
+ * hashing using bcrypt with salt rounds.
+ * 
+ * NOTE: User profile management (GET/UPDATE profile) has been moved to
+ * userController.js to maintain separation of concerns:
+ * - authController: Authentication (register, login, logout)
+ * - userController: Profile Management (view, update, stats, delete)
  * ============================================================================
  */
 
@@ -37,35 +43,76 @@ exports.registerUser = async (req, res) => {
         // Check if account already exists in database with this email
         const existingUser = await userModel.findUserByEmail(cleanEmail);
         if (existingUser) {
-            return res.status(400).json({ message: 'User with this email already exists!' });
+            if (existingUser.is_verified === 1 || existingUser.is_verified === true) {
+                return res.status(400).json({ message: 'This email address is already registered and verified! Please log in.' });
+            }
+
+            // If existing user is unverified, update their profile with new details
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+            await db.query(
+                `UPDATE users SET 
+                    name = ?, password_hash = ?, phone = ?, age = ?, gender = ?, dob = ?, 
+                    city = ?, state = ?, pincode = ?, education_level = ?, preferred_field = ?, career_goal = ?, 
+                    updated_at = CURRENT_TIMESTAMP 
+                 WHERE id = ?`,
+                [
+                    name, hashedPassword, phone || null, age || null, gender || null, dob || null, 
+                    city || null, state || null, pincode || null, education_level || null, 
+                    preferred_field || null, career_goal || null, existingUser.id
+                ]
+            );
+        } else {
+            // Securely hash password using bcrypt with 10 salt rounds
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+            // Save new user profile into MySQL database with is_verified = false
+            await userModel.createUser({ 
+                name, 
+                email: cleanEmail, 
+                hashedPassword, 
+                phone,
+                age, 
+                gender, 
+                dob, 
+                city, 
+                state, 
+                pincode,
+                education_level, 
+                preferred_field, 
+                career_goal,
+                is_verified: false
+            });
         }
 
-        // Securely hash password using bcrypt with 10 salt rounds
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        // Invalidate any previous unverified signup OTPs for this email
+        await db.query(
+            'UPDATE otps SET is_used = TRUE WHERE LOWER(email) = LOWER(?) AND purpose = "signup" AND is_used = FALSE',
+            [cleanEmail]
+        );
 
-        // Save new user profile into MySQL database via model
-        await userModel.createUser({ 
-            name, 
-            email: cleanEmail, 
-            hashedPassword, 
-            phone,
-            age, 
-            gender, 
-            dob, 
-            city, 
-            state, 
-            pincode,
-            education_level, 
-            preferred_field, 
-            career_goal
-        });
+        // Automatically dispatch 6-digit OTP to user's email for sign-up verification
+        const crypto = require('crypto');
+        const { sendOTPEmail } = require('../utils/mailer');
+        const otpCode = crypto.randomInt(100000, 999999).toString();
+
+        await db.query(
+            'INSERT INTO otps (email, otp_code, purpose, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))',
+            [cleanEmail, otpCode, 'signup']
+        );
+
+        await sendOTPEmail({ to: cleanEmail, otpCode, purpose: 'signup' });
 
         // Return HTTP 201 Created response
-        res.status(201).json({ message: 'User registered successfully!' });
+        res.status(201).json({ 
+            message: 'Registration details saved! A 6-digit OTP code has been sent to your email address.',
+            email: cleanEmail,
+            requiresVerification: true
+        });
 
     } catch (error) {
-        // Log detailed error stack with request ID for audit traceability
         console.error(`[Req ID: ${req.requestId}] Register Error:`, error);
         
         res.status(500).json({ 
@@ -104,6 +151,15 @@ exports.loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Invalid password!' });
         }
 
+        // Check if user account email has been verified
+        if (user.is_verified === 0 || user.is_verified === false) {
+            return res.status(403).json({ 
+                message: 'Your email address is not verified yet. Please verify your account with OTP first.',
+                unverified: true,
+                email: user.email 
+            });
+        }
+
         // Generate signed JWT token valid for 1 day (24 hours)
         const token = jwt.sign(
             { id: user.id, email: user.email }, 
@@ -112,10 +168,11 @@ exports.loginUser = async (req, res) => {
         );
 
         // Set JWT in secure HTTP-Only cookie header
+        // Using 'lax' for sameSite to allow mobile device access via LAN IP
         res.cookie('token', token, {
             httpOnly: true, 
-            secure: process.env.NODE_ENV === 'production', 
-            sameSite: 'strict', 
+            secure: false, // Set to false for development to work with http:// (not https://)
+            sameSite: 'lax', // Changed from 'strict' to 'lax' for mobile device compatibility
             maxAge: 24 * 60 * 60 * 1000 // 1 Day in milliseconds
         });
 
@@ -146,88 +203,11 @@ exports.loginUser = async (req, res) => {
 // Endpoint: POST /api/auth/logout
 // ============================================================================
 exports.logoutUser = (req, res) => {
-    // Clear JWT cookie by setting expiration
+    // Clear JWT cookie by setting expiration to force immediate removal
     res.clearCookie('token', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        secure: false,
+        sameSite: 'lax'
     });
     res.status(200).json({ message: 'Logged out successfully!' });
-};
-
-// ============================================================================
-// 4. FETCH LOGGED-IN USER PROFILE CONTROLLER
-// Endpoint: GET /api/auth/profile
-// ============================================================================
-exports.getUserProfile = async (req, res) => {
-    try {
-        // req.user is set by authMiddleware from the verified JWT token payload
-        const userId = req.user.id;
-
-        // Fetch detailed profile fields for the user
-        const query = `
-            SELECT id, name, email, phone, created_at, age, gender, dob, city, state, pincode,
-                   education_level, preferred_field, career_goal, profile_completed 
-            FROM users WHERE id = ?
-        `;
-        
-        const [users] = await db.query(query, [userId]);
-
-        if (users.length === 0) {
-            return res.status(404).json({ message: 'User profile not found.' });
-        }
-
-        res.status(200).json({ user: users[0] });
-    } catch (error) {
-        console.error('Fetch Profile Error:', error);
-        res.status(500).json({ message: 'Server error while fetching profile.', error: error.message });
-    }
-};
-
-// ============================================================================
-// 5. UPDATE USER PROFILE CONTROLLER
-// Endpoint: PUT /api/auth/profile
-// ============================================================================
-exports.updateUserProfile = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const {
-            name, phone, education_level, age, preferred_field,
-            career_goal, city, state, pincode, gender, dob
-        } = req.body;
-
-        // Clean & sanitize null/empty values
-        const cleanDob = dob && dob.trim() !== '' ? dob : null;
-        const cleanAge = age !== undefined && age !== '' && !isNaN(parseInt(age)) ? parseInt(age) : null;
-        const cleanPhone = phone || null;
-        const cleanEducation = education_level || null;
-        const cleanPreferredField = preferred_field || null;
-        const cleanCareerGoal = career_goal || null;
-        const cleanCity = city || null;
-        const cleanState = state || null;
-        const cleanPincode = pincode || null;
-        const cleanGender = gender || null;
-
-        const query = `
-            UPDATE users SET name = ?, phone = ?, education_level = ?, age = ?, preferred_field = ?,
-            career_goal = ?, city = ?, state = ?, pincode = ?, gender = ?, dob = ?, profile_completed = 1, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        `;
-
-        await db.query(query, [
-            name, cleanPhone, cleanEducation, cleanAge, cleanPreferredField, 
-            cleanCareerGoal, cleanCity, cleanState, cleanPincode, cleanGender, cleanDob, userId
-        ]);
-
-        // Return updated profile details
-        const [rows] = await db.query(
-            'SELECT id, name, email, phone, created_at, age, gender, dob, city, state, pincode, education_level, preferred_field, career_goal, profile_completed FROM users WHERE id = ?', 
-            [userId]
-        );
-        
-        res.status(200).json({ user: rows[0] });
-    } catch (error) {
-        console.error('Update Profile Error:', error);
-        res.status(500).json({ message: 'Server error while updating profile.', error: error.message });
-    }
 };

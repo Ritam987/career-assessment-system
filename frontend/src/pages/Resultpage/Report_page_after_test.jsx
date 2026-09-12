@@ -3,6 +3,7 @@ import { getLatestResult } from '../../services/assessment';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { FaDownload, FaTrophy, FaChartLine, FaCheckCircle, FaStar, FaBriefcase } from 'react-icons/fa';
+import { apiUrl } from '../../config/api';
 import './report.css';
 
 const ReportPage = () => {
@@ -35,7 +36,7 @@ const ReportPage = () => {
     try {
       const token = localStorage.getItem('token');
       const assessmentId = result.assessment_id;
-      const downloadUrl = `http://localhost:5000/api/assessments/download-report/${assessmentId}`;
+      const downloadUrl = apiUrl(`/api/assessments/download-report/${assessmentId}`);
 
       const res = await fetch(downloadUrl, {
         headers: { Authorization: token ? `Bearer ${token}` : '' }
@@ -57,7 +58,7 @@ const ReportPage = () => {
       // Fallback static PDF link if available
       if (result.pdf_report_path) {
         const fileName = result.pdf_report_path.split('/').pop();
-        window.open(`http://localhost:5000/reports/${fileName}`, '_blank');
+        window.open(apiUrl(`/reports/${fileName}`), '_blank');
       } else {
         alert('Failed to download PDF report. Please try again.');
       }

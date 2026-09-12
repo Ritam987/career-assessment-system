@@ -63,7 +63,10 @@ export const AuthProvider = ({ children }) => {
    */
   const loginUser = (token, userObj) => {
     if (token) localStorage.setItem('token', token);
-    if (userObj) setUser(userObj);
+    if (userObj) {
+      localStorage.setItem('user', JSON.stringify(userObj));
+      setUser(userObj);
+    }
   };
 
   /**

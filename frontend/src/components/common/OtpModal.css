@@ -1,0 +1,223 @@
+.otp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1200;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.otp-modal-card {
+  position: relative;
+  width: min(100%, 460px);
+  background: var(--card, #ffffff);
+  border: 1px solid var(--glass-border, rgba(148, 163, 184, 0.25));
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
+  color: var(--text-primary);
+}
+
+.otp-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border, rgba(148, 163, 184, 0.2));
+  background: var(--nav-button-soft, rgba(148, 163, 184, 0.1));
+  color: var(--muted, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.otp-modal-close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.otp-modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.otp-header-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(37, 99, 235, 0.15));
+  color: #4f46e5;
+  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.otp-modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+
+.otp-modal-header p {
+  font-size: 0.9rem;
+  color: var(--muted, #64748b);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.otp-alert {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.otp-alert-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+}
+
+.otp-alert-success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+.otp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.otp-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.otp-field-group label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.otp-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.otp-field-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--muted, #64748b);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.otp-input-wrap input {
+  width: 100%;
+  height: 50px;
+  padding-left: 44px;
+  padding-right: 14px;
+  border: 1.5px solid var(--glass-border, #dfe6f2);
+  border-radius: 12px;
+  background: var(--card, #ffffff);
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.otp-input-wrap input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+}
+
+.otp-digit-input {
+  letter-spacing: 0.3em;
+  font-weight: 700;
+  font-size: 1.2rem !important;
+}
+
+.otp-primary-btn {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.22);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.otp-primary-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.otp-primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.otp-resend-row {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.otp-timer-text {
+  font-size: 0.88rem;
+  color: var(--muted, #64748b);
+}
+
+.otp-timer-text strong {
+  color: #4f46e5;
+}
+
+.otp-resend-btn {
+  border: none;
+  background: transparent;
+  color: #4f46e5;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}

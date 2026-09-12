@@ -9,11 +9,7 @@
  */
 
 // 1. Import Axios library
-import axios from 'axios';
-
-// Configure Axios global defaults
-axios.defaults.baseURL = 'http://localhost:5000/api';
-axios.defaults.withCredentials = true;
+import axios from '../config/axios';
 
 /**
  * Constructs Authorization header containing JWT Bearer token

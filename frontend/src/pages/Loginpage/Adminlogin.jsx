@@ -1,58 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import "./adminlogin.css"
+import "./adminlogin.css";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+
+import axios from '../../config/axios';
 
 const Adminlogin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState('');
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { isAdmin, loginAdmin } = useAuth();
+
+  useEffect(() => {
+    if (isAdmin || localStorage.getItem('adminToken')) {
+      navigate('/admin-dashboard', { replace: true });
+    }
+  }, [isAdmin, navigate]);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
- const { loginAdmin } = useAuth();
+  const onSubmit = async (data) => {
+    setServerError('');
+    const cleanEmail = (data.identifier || '').trim();
+    const cleanPassword = (data.password || '').trim();
 
- const onSubmit = async (data) => {
     try {
-      console.log("Sending Admin Login Data:", data);
-
-      // request to the backend for admin login
-      const response = await fetch("http://localhost:5000/api/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include',
-        // if your backend expects the identifier to be named differently (like "email" or "username"), you should map it accordingly. For now, I'm sending it as is:
-        body: JSON.stringify({
-          email: data.identifier, 
-          password: data.password
-        }),
+      const res = await axios.post('/admin/login', {
+        email: cleanEmail,
+        password: cleanPassword,
       });
+      const responseData = res.data;
 
-      const responseData = await response.json();
-
-      if (response.ok) {
-        alert("Admin Login Successful!");
-        
-        // Save the token and admin data in localStorage
-        loginAdmin(responseData.token, responseData.admin);
-
-        // Navigate to the admin dashboard or any other page after successful login
-        navigate("/admin-dashboard"); 
-      } else {
-        alert(`Login Failed: ${responseData.message || 'Invalid admin credentials'}`);
-      }
+      loginAdmin(responseData.token, responseData.admin);
+      navigate("/admin-dashboard");
     } catch (error) {
       console.error("Admin Login Error:", error);
-      const msg = error && error.message ? error.message : JSON.stringify(error);
-      alert(`❌ Server error: ${msg}`);
+      if (error.response && error.response.data && error.response.data.message) {
+        setServerError(error.response.data.message);
+      } else if (error.code === 'ECONNABORTED') {
+        setServerError('Login timed out. Make sure the backend is running and you opened this site via the laptop LAN IP (not localhost on the phone).');
+      } else {
+        setServerError('Unable to connect to server. Open the site as http://LAPTOP_IP:5173 on the same Wi-Fi.');
+      }
     }
   };
 
@@ -73,12 +70,20 @@ const Adminlogin = () => {
             <p>{t('admin.subtitle')}</p>
           </div>
 
+          {serverError && (
+            <div className="login-error-banner" role="alert">
+              <span>❌ {serverError}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-group">
               <label htmlFor="identifier">{t('admin.label')}</label>
 
               <div className="input-wrapper">
-                <span className="input-icon" aria-hidden="true">E</span>
+                <span className="input-icon" aria-hidden="true">
+                  <FaEnvelope />
+                </span>
 
                 <input
                   id="identifier"
@@ -99,7 +104,9 @@ const Adminlogin = () => {
               <label htmlFor="password">{t('admin.password')}</label>
 
               <div className="input-wrapper">
-                <span className="input-icon" aria-hidden="true">P</span>
+                <span className="input-icon" aria-hidden="true">
+                  <FaLock />
+                </span>
 
                 <input
                   id="password"
@@ -118,8 +125,9 @@ const Adminlogin = () => {
                   type="button"
                   className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? t('admin.hide') : t('admin.show')}
                 >
-                  {showPassword ? t('admin.hide') : t('admin.show')}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
 
@@ -139,8 +147,8 @@ const Adminlogin = () => {
               </button>
             </div>
 
-            <button type="submit" className="login-button">
-              {t('admin.login')}
+            <button type="submit" className="login-button" disabled={isSubmitting}>
+              {isSubmitting ? 'Logging in...' : t('admin.login')}
             </button>
           </form>
 

@@ -1,11 +1,16 @@
+import React, { useState } from "react";
 import { useForm } from "react-hook-form"; 
 import "./Registration.css"; 
 import { useNavigate } from "react-router-dom"; 
 import { useLanguage } from '../../context/LanguageContext';
+import { register as registerUserAPI } from '../../services/auth';
+import OtpModal from '../../components/common/OtpModal';
 
 function Registration() { 
   const navigate = useNavigate(); 
   const { t } = useLanguage();
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
   
   const {
     register,
@@ -55,25 +60,14 @@ function Registration() {
     try {
       console.log("Submitting Registration data:", data);
 
-      const response = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data), 
-      });
+      const responseData = await registerUserAPI(data);
 
-      const responseData = await response.json();
+      setRegisteredEmail(data.email);
+      setIsOtpModalOpen(true);
 
-      if (response.ok) {
-        alert("Registration successful!");
-        navigate("/login"); 
-      } else {
-        alert(`Error: ${responseData.message || 'Registration failed'}`);
-      }
     } catch (error) {
       console.error("Registration error:", error);
-      alert("Something went wrong. Check if backend is running.");
+      alert(error.message || "Something went wrong during registration.");
     }
   };
 
@@ -192,6 +186,17 @@ function Registration() {
 
         </form>
       </div>
+
+      <OtpModal
+        isOpen={isOtpModalOpen}
+        onClose={() => setIsOtpModalOpen(false)}
+        initialEmail={registeredEmail}
+        purpose="signup"
+        onSuccess={() => {
+          alert('Email verified and account activated successfully! You can now log in.');
+          navigate('/login');
+        }}
+      />
     </div>
   );
 }

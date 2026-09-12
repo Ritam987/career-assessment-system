@@ -419,37 +419,65 @@ img {
 
 .hamburger-btn {
   display: none;
-  width: 46px;
+  width: 42px;
   height: 42px;
-  border: 1px solid var(--nav-button-border);
-  border-radius: 0;
-  background: transparent;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border, rgba(148, 163, 184, 0.25));
+  background: var(--nav-button-soft, rgba(148, 163, 184, 0.12));
+  color: var(--text-primary);
   align-items: center;
   justify-content: center;
   cursor: pointer;
   box-shadow: none;
-  color: var(--accent2);
-  transition: all 0.14s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  margin-right: 14px;
 }
 
 .hamburger-btn:hover {
-  border-color: rgba(15,23,42,0.2);
-  background: rgba(15,23,42,0.03);
+  background: var(--nav-button-soft-hover, rgba(148, 163, 184, 0.22));
+  border-color: var(--brand-600, #4f46e5);
+  color: var(--brand-600, #4f46e5);
+}
+
+.hamburger-btn:active {
+  transform: scale(0.96);
 }
 
 .hamburger-btn svg {
   width: 22px;
   height: 22px;
+  color: currentColor;
+  fill: none;
   stroke: currentColor;
-  stroke-width: 2.1;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  fill: none;
+  transition: transform 0.2s ease;
 }
 
 .hamburger-btn.active {
-  background: rgba(15,23,42,0.04);
-  color: var(--accent1);
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+}
+
+[data-theme='dark'] .hamburger-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+[data-theme='dark'] .hamburger-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+[data-theme='dark'] .hamburger-btn.active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
 }
 
 @media (max-width: 980px) {
@@ -461,7 +489,7 @@ img {
 
   .hamburger-btn {
     display: flex;
-    margin-right: 0;
+    margin-right: 14px;
   }
 
   .nav-menu {

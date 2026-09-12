@@ -3,6 +3,7 @@ import { addQuestion, getAllQuestions, deleteQuestion } from '../../services/fet
 import { addCareer, getCareers } from '../../services/careers';
 import './admin.css';
 import { FaPlus, FaTrash, FaDatabase, FaUsers, FaClipboardList } from 'react-icons/fa';
+import { apiUrl } from '../../config/api';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -48,7 +49,7 @@ const Admindashboard = () => {
 
     const fetchAnalytics = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/admin/analytics', { credentials: 'include' });
+            const res = await fetch(apiUrl('/api/admin/analytics'), { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to fetch analytics');
             const json = await res.json();
             setStats({

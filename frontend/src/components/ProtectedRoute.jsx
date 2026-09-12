@@ -26,14 +26,21 @@ const ProtectedRoute = ({ children, adminOnly = false, blockAdmin = false }) => 
   // A. Return null while session check is loading on initial render
   if (loading) return null;
 
+  // Derive effective auth status checking both React state and localStorage to prevent navigation race condition
+  const hasAdminToken = Boolean(localStorage.getItem('adminToken') || localStorage.getItem('adminData'));
+  const hasUserToken = Boolean(localStorage.getItem('token') || localStorage.getItem('user'));
+
+  const effectiveIsAdmin = isAdmin || hasAdminToken;
+  const effectiveUser = user || hasUserToken;
+
   // B. Redirect non-admins attempting to access admin-only routes
-  if (adminOnly && !isAdmin) return <Navigate to="/admin" replace />;
+  if (adminOnly && !effectiveIsAdmin) return <Navigate to="/admin" replace />;
 
   // C. Redirect unauthenticated guests attempting to access protected user routes
-  if (!user && !isAdmin && !adminOnly) return <Navigate to="/login" replace />;
+  if (!effectiveUser && !effectiveIsAdmin && !adminOnly) return <Navigate to="/login" replace />;
 
   // D. Redirect admins attempting to take user assessment tests back to homepage
-  if (blockAdmin && isAdmin) return <Navigate to="/" replace />;
+  if (blockAdmin && effectiveIsAdmin) return <Navigate to="/" replace />;
 
   // E. Render target protected page component if all security checks pass
   return children;

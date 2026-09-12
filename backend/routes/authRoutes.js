@@ -2,9 +2,12 @@
  * ============================================================================
  * AUTHENTICATION ROUTES ROUTER (authRoutes.js)
  * ============================================================================
- * Purpose: Defines HTTP route endpoints for user registration, user login,
- * user logout, profile fetching, and profile updating under `/api/auth`.
- * Uses `authMiddleware` to guard protected profile endpoints.
+ * Purpose: Defines HTTP route endpoints for user authentication operations
+ * under `/api/auth`. Handles registration, login, and logout.
+ * 
+ * BACKWARD COMPATIBILITY: Profile routes are maintained here for legacy
+ * frontend compatibility but delegate to userController. New implementations
+ * should use `/api/user/profile` instead of `/api/auth/profile`.
  * ============================================================================
  */
 
@@ -14,7 +17,9 @@ const router = express.Router();
 
 // 2. Middleware & Controller Imports
 const authMiddleware = require('../middlewares/authMiddleware');
-const { registerUser, loginUser, logoutUser, getUserProfile, updateUserProfile } = require('../controllers/authController');
+const { registerUser, loginUser, logoutUser } = require('../controllers/authController');
+const { getUserProfile, updateUserProfile } = require('../controllers/userController');
+const { sendOTP, verifyOTP, resetPasswordWithOTP } = require('../controllers/otpController');
 
 // ============================================================================
 // ROUTE ENDPOINTS
@@ -29,10 +34,20 @@ router.post('/login', loginUser);
 // C. User Logout: POST /api/auth/logout
 router.post('/logout', logoutUser);
 
-// D. Fetch Current User Profile (Protected): GET /api/auth/profile
+// D. OTP Authentication & Self-Service Password Reset Routes
+router.post('/send-otp', sendOTP);
+router.post('/verify-otp', verifyOTP);
+router.post('/reset-password-otp', resetPasswordWithOTP);
+
+// ============================================================================
+// BACKWARD COMPATIBILITY ROUTES (Delegate to userController)
+// New code should use /api/user/profile instead
+// ============================================================================
+
+// D. Fetch User Profile (Legacy): GET /api/auth/profile
 router.get('/profile', authMiddleware, getUserProfile);
 
-// E. Update Current User Profile (Protected): PUT /api/auth/profile
+// E. Update User Profile (Legacy): PUT /api/auth/profile
 router.put('/profile', authMiddleware, updateUserProfile);
 
 // Export router instance for mounting in server.js

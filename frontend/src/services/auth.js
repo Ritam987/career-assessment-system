@@ -3,17 +3,13 @@
  * AUTHENTICATION API SERVICE (auth.js)
  * ============================================================================
  * Purpose: Axios HTTP client wrapper service for user authentication APIs
- * (User Registration, Login, and Logout). Sets global base URL defaults and
- * manages localStorage token storage.
+ * (User Registration, Login, and Logout). Uses centralized axios instance
+ * for consistent configuration.
  * ============================================================================
  */
 
-// 1. Import Axios HTTP client library
-import axios from 'axios';
-
-// Set global base URL for all API calls
-axios.defaults.baseURL = 'http://localhost:5000/api';
-axios.defaults.withCredentials = true; // Send credentials/cookies with requests
+// Import centralized axios instance
+import axios from '../config/axios';
 
 /**
  * Sends user registration payload to backend endpoint
@@ -25,7 +21,8 @@ export const register = async (payload) => {
 		const res = await axios.post('/auth/register', payload);
 		return res.data;
 	} catch (err) {
-		throw err.response ? err.response.data : new Error('Registration failed');
+		if (err.response?.data) throw err.response.data;
+		throw err;
 	}
 };
 
@@ -43,7 +40,8 @@ export const login = async (payload) => {
 		}
 		return res.data;
 	} catch (err) {
-		throw err.response ? err.response.data : new Error('Login failed');
+		if (err.response?.data) throw err.response.data;
+		throw err;
 	}
 };
 
@@ -58,5 +56,47 @@ export const logout = async () => {
 		return res.data;
 	} catch (err) {
 		throw err.response ? err.response.data : new Error('Logout failed');
+	}
+};
+
+/**
+ * Requests a 6-digit OTP code to be sent to user's email
+ * @param {Object} payload - { email, purpose }
+ */
+export const sendOTP = async (payload) => {
+	try {
+		const res = await axios.post('/auth/send-otp', payload);
+		return res.data;
+	} catch (err) {
+		if (err.response?.data) throw err.response.data;
+		throw err;
+	}
+};
+
+/**
+ * Verifies submitted 6-digit OTP code
+ * @param {Object} payload - { email, otp, purpose }
+ */
+export const verifyOTP = async (payload) => {
+	try {
+		const res = await axios.post('/auth/verify-otp', payload);
+		return res.data;
+	} catch (err) {
+		if (err.response?.data) throw err.response.data;
+		throw err;
+	}
+};
+
+/**
+ * Resets user password using 6-digit OTP code
+ * @param {Object} payload - { email, otp, newPassword }
+ */
+export const resetPasswordWithOTP = async (payload) => {
+	try {
+		const res = await axios.post('/auth/reset-password-otp', payload);
+		return res.data;
+	} catch (err) {
+		if (err.response?.data) throw err.response.data;
+		throw err;
 	}
 };

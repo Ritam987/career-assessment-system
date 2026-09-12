@@ -15,6 +15,7 @@ const cors = require('cors');                // Middleware to enable Cross-Origi
 const cookieParser = require('cookie-parser'); // Middleware to parse incoming HTTP cookie headers
 const dotenv = require('dotenv');            // Utility to load environment variables from a .env file
 const path = require('path');                // Core Node.js path module for cross-platform file paths
+const os = require('os');
 
 // 2. Load Environment Variables from .env file located in backend directory
 require('dotenv').config({ path: path.join(__dirname, '.env') });
@@ -24,7 +25,8 @@ const db = require('./config/db');           // MySQL Database Connection Pool i
 const initDb = require('./config/initDb');   // Database auto-schema migration & table initializer script
 
 // 4. API Route Handlers Imports
-const authRoutes = require('./routes/authRoutes');                 // Authentication routes (Register, Login, Profile)
+const authRoutes = require('./routes/authRoutes');                 // Authentication routes (Register, Login, Logout)
+const userRoutes = require('./routes/userRoutes');                 // User profile management routes (Profile CRUD, Stats)
 const assessmentRoutes = require('./routes/assessmentRoutes');     // Assessment lifecycle routes (Start, Answer, Complete, Report)
 const adminRoutes = require('./routes/adminRoutes');               // Admin panel routes (Users, Careers, Questions, Settings)
 const questionRoutes = require('./routes/questionRoutes');         // Question bank management routes
@@ -39,36 +41,13 @@ const app = express();
 // ============================================================================
 
 // A. Dynamic CORS (Cross-Origin Resource Sharing) Configuration
-// Allows frontend development servers (Vite/React on localhost ports 5173, 5174, etc.)
+// Allows frontend development servers (Vite/React on localhost, LAN IP, or mobile devices)
 // to securely communicate with this Express backend API using credentials/cookies.
 app.use(cors({
     origin: function(origin, callback) {
-        // Allow non-browser requests (e.g. cURL, Postman, server-to-server) without an origin header
+        // Allow requests with no origin (mobile apps, curl, etc.) or any origin during development
         if (!origin) return callback(null, true);
-
-        try {
-            const url = new URL(origin);
-            // Dynamically permit any request originating from localhost or 127.0.0.1 loopback interfaces
-            if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-                return callback(null, true);
-            }
-        } catch (e) {
-            // Ignore URL parsing failure and fall back to explicit whitelist below
-        }
-
-        // Fallback explicit whitelist of permitted frontend origins
-        const allowedOrigins = [
-            'http://localhost:5173',
-            'http://localhost:5174',
-            'http://localhost:5175'
-        ];
-
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            return callback(null, true);
-        }
-
-        // Reject request if origin is not permitted
-        return callback(new Error('CORS policy: This origin is not allowed by backend CORS.'));
+        return callback(null, true);
     },
     credentials: true // Allow sending cookies and authorization headers cross-origin
 }));
@@ -105,7 +84,8 @@ app.get('/', (req, res) => {
 // ============================================================================
 // MOUNT API ROUTE ENDPOINTS
 // ============================================================================
-app.use('/api/auth', authRoutes);                   // User & Admin Authentication & Profile routes
+app.use('/api/auth', authRoutes);                   // User authentication routes (Register, Login, Logout)
+app.use('/api/user', userRoutes);                   // User profile management routes (Profile, Stats, Account)
 app.use('/api/assessments', assessmentRoutes);     // Assessment test taking, autosaving, scoring & reports
 app.use('/api/admin', adminRoutes);                 // Admin management panel endpoints
 app.use('/api/questions', questionRoutes);         // Question bank endpoints
@@ -119,9 +99,27 @@ app.use('/reports', express.static(path.join(__dirname, 'reports')));
 // START EXPRESS HTTP SERVER
 // ============================================================================
 const PORT = process.env.PORT || 5000; // Read server port from environment variable or default to 5000
-app.listen(PORT, () => {
+const HOST = process.env.HOST || '0.0.0.0';
+
+function lanIPv4Addresses() {
+    const nets = os.networkInterfaces();
+    const ips = [];
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name] || []) {
+            const family = net.family === 'IPv4' || net.family === 4;
+            if (family && !net.internal) ips.push(net.address);
+        }
+    }
+    return ips;
+}
+
+app.listen(PORT, HOST, () => {
+    const lanIps = lanIPv4Addresses();
     console.log(`===========================================================`);
-    console.log(`🚀 Career Assessment Backend Server running on port ${PORT}`);
-    console.log(`🔗 API Base URL: http://localhost:${PORT}`);
+    console.log(`🚀 Career Assessment Backend Server running on ${HOST}:${PORT}`);
+    console.log(`🔗 Laptop:     http://localhost:${PORT}`);
+    lanIps.forEach((ip) => {
+        console.log(`📱 Phone: open http://${ip}:5173  (Vite proxies /api to this backend)`);
+    });
     console.log(`===========================================================`);
 });
