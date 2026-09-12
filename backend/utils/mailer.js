@@ -1,35 +1,22 @@
 /**
  * ============================================================================
- * NODEMAILER EMAIL SERVICE UTILITY (mailer.js)
+ * RESEND EMAIL SERVICE UTILITY (mailer.js)
  * ============================================================================
- * Purpose: Configures Nodemailer transporter for sending 6-digit OTP codes via
- * HTML emails over SSL Port 465 with forced IPv4 (family: 4) resolution to prevent
- * ENETUNREACH IPv6 connection errors on cloud hosts like Railway.
+ * Purpose: Sends 6-digit OTP codes via HTML emails using Resend REST API (HTTPS Port 443).
+ * Bypasses custom SMTP port blocks (465/587) on cloud platforms like Railway.
  * ============================================================================
  */
 
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// Initialize Nodemailer transporter instance using built-in Gmail service
-const createTransporter = () => {
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
-
-    if (smtpUser && smtpPass) {
-        return nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: smtpUser,
-                pass: smtpPass
-            }
-        });
+// Initialize Resend instance if API key is present
+const getResendClient = () => {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (apiKey) {
+        return new Resend(apiKey);
     }
-
-    // Fallback: Return null to trigger console log delivery in dev mode
     return null;
 };
-
-const transporter = createTransporter();
 
 /**
  * Sends a 6-digit OTP verification email to specified recipient address.
@@ -86,20 +73,27 @@ exports.sendOTPEmail = async ({ to, otpCode, purpose = 'signup' }) => {
         </html>
     `;
 
-    const mailOptions = {
-        from: process.env.EMAIL_FROM || '"REACH INDIA Portal" <no-reply@reachindia.org>',
-        to: to,
-        subject: emailSubject,
-        html: htmlTemplate
-    };
+    const resend = getResendClient();
 
-    if (transporter) {
+    if (resend) {
         try {
-            await transporter.sendMail(mailOptions);
-            console.log(`[Mailer] OTP Email dispatched via SSL SMTP (Port 465 IPv4) to ${to}`);
+            const fromAddress = process.env.EMAIL_FROM || 'REACH INDIA Portal <onboarding@resend.dev>';
+            const response = await resend.emails.send({
+                from: fromAddress,
+                to: [to],
+                subject: emailSubject,
+                html: htmlTemplate
+            });
+
+            if (response.error) {
+                console.error(`[Mailer] Resend API Error for ${to}:`, response.error);
+                return false;
+            }
+
+            console.log(`[Mailer] OTP Email dispatched via Resend API to ${to} (ID: ${response.data?.id})`);
             return true;
         } catch (err) {
-            console.error(`[Mailer] SMTP Delivery Error for ${to}:`, err.message);
+            console.error(`[Mailer] Resend Exception for ${to}:`, err.message);
         }
     }
 
