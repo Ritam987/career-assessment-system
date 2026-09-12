@@ -9,6 +9,12 @@
  * ============================================================================
  */
 
+// 0. Force Node.js DNS Resolution Order to IPv4 first (fixes Railway Nodemailer ENETUNREACH IPv6 errors)
+const dns = require('node:dns');
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+
 // 1. Core Node.js & Third-Party Package Imports
 const express = require('express');          // Core Web Application Framework for Node.js
 const cors = require('cors');                // Middleware to enable Cross-Origin Resource Sharing
