@@ -2,15 +2,10 @@
  * ============================================================================
  * AUTHENTICATION CONTROLLER (authController.js)
  * ============================================================================
- * Purpose: Handles user authentication operations including registration,
+ * Purpose: Handles direct user authentication operations including registration,
  * login with JWT token generation, and logout with session clearing.
  * Includes email normalization (.trim().toLowerCase()) and secure password 
  * hashing using bcrypt with salt rounds.
- * 
- * NOTE: User profile management (GET/UPDATE profile) has been moved to
- * userController.js to maintain separation of concerns:
- * - authController: Authentication (register, login, logout)
- * - userController: Profile Management (view, update, stats, delete)
  * ============================================================================
  */
 
@@ -21,7 +16,7 @@ const userModel = require('../models/userModel'); // Database access abstraction
 const db = require('../config/db');     // MySQL database connection pool instance
 
 // ============================================================================
-// 1. REGISTER USER CONTROLLER
+// 1. REGISTER USER CONTROLLER (Direct Registration without mandatory OTP)
 // Endpoint: POST /api/auth/register
 // ============================================================================
 exports.registerUser = async (req, res) => {
@@ -50,8 +45,8 @@ exports.registerUser = async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // 3. Prepare registration data payload (Users table remains UNTOUCHED until OTP is verified)
-        const registrationData = {
+        // 3. Directly create user record in users database table
+        const result = await userModel.createUser({
             name: name.trim(),
             email: cleanEmail,
             hashedPassword,
@@ -64,35 +59,38 @@ exports.registerUser = async (req, res) => {
             pincode: pincode ? pincode.trim() : null,
             education_level: education_level || null,
             preferred_field: preferred_field || null,
-            career_goal: career_goal || null
-        };
+            career_goal: career_goal || null,
+            is_verified: true
+        });
 
-        // 4. Invalidate any previous unverified signup OTPs for this email
-        await db.query(
-            'UPDATE otps SET is_used = TRUE WHERE LOWER(email) = LOWER(?) AND purpose = "signup" AND is_used = FALSE',
-            [cleanEmail]
+        const userId = result.insertId;
+
+        // 4. Generate signed JWT token valid for 1 day (24 hours)
+        const token = jwt.sign(
+            { id: userId, email: cleanEmail }, 
+            process.env.JWT_SECRET || 'super_secret_key', 
+            { expiresIn: '1d' }
         );
 
-        // 5. Generate cryptographically secure 6-digit OTP code for sign-up verification
-        const crypto = require('crypto');
-        const { sendOTPEmail } = require('../utils/mailer');
-        const otpCode = crypto.randomInt(100000, 999999).toString();
+        // 5. Set JWT in secure cookie
+        res.cookie('token', token, {
+            httpOnly: true, 
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000
+        });
 
-        // 6. Save OTP code and registration payload into otps table
-        await db.query(
-            'INSERT INTO otps (email, otp_code, purpose, user_data, expires_at) VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))',
-            [cleanEmail, otpCode, 'signup', JSON.stringify(registrationData)]
-        );
-
-        // 7. Non-blocking background email dispatch via Nodemailer SSL Port 465 IPv4
-        sendOTPEmail({ to: cleanEmail, otpCode, purpose: 'signup' })
-            .catch(err => console.error(`[Background Mailer Error for ${cleanEmail}]:`, err?.message || err));
-
-        // 8. Return HTTP 201 Created response immediately
+        // 6. Return HTTP 201 Created response with token & user details
         res.status(201).json({ 
-            message: 'Registration details saved! A 6-digit OTP code has been sent to your email address.',
-            email: cleanEmail,
-            requiresVerification: true
+            message: 'Registration successful! Welcome to REACH INDIA Portal.',
+            token: token,
+            requiresVerification: false,
+            user: {
+                id: userId,
+                name: name.trim(),
+                email: cleanEmail,
+                preferred_field: preferred_field || null
+            }
         });
 
     } catch (error) {
@@ -125,20 +123,6 @@ exports.loginUser = async (req, res) => {
         // Query database for user matching given email
         const user = await userModel.findUserByEmail(cleanEmail);
         if (!user) {
-            // Check if there is an unverified signup OTP for this email in otps table
-            const [unverifiedOtp] = await db.query(
-                `SELECT id FROM otps WHERE LOWER(email) = LOWER(?) AND purpose = 'signup' AND is_used = FALSE AND expires_at > NOW() ORDER BY id DESC LIMIT 1`,
-                [cleanEmail]
-            );
-
-            if (unverifiedOtp.length > 0) {
-                return res.status(403).json({ 
-                    message: 'Your account registration is incomplete. Please enter the OTP sent to your email address.',
-                    unverified: true,
-                    email: cleanEmail
-                });
-            }
-
             return res.status(404).json({ message: 'No registered user found with this email! Please check for typos or register first.' });
         }
 
@@ -148,29 +132,19 @@ exports.loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Invalid password!' });
         }
 
-        // Check if user account email has been verified
-        if (user.is_verified === 0 || user.is_verified === false) {
-            return res.status(403).json({ 
-                message: 'Your email address is not verified yet. Please verify your account with OTP first.',
-                unverified: true,
-                email: user.email 
-            });
-        }
-
         // Generate signed JWT token valid for 1 day (24 hours)
         const token = jwt.sign(
             { id: user.id, email: user.email }, 
-            process.env.JWT_SECRET, 
+            process.env.JWT_SECRET || 'super_secret_key', 
             { expiresIn: '1d' }
         );
 
         // Set JWT in secure HTTP-Only cookie header
-        // Using 'lax' for sameSite to allow mobile device access via LAN IP
         res.cookie('token', token, {
             httpOnly: true, 
-            secure: false, // Set to false for development to work with http:// (not https://)
-            sameSite: 'lax', // Changed from 'strict' to 'lax' for mobile device compatibility
-            maxAge: 24 * 60 * 60 * 1000 // 1 Day in milliseconds
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000
         });
 
         // Return token and sanitized user details payload
@@ -200,7 +174,6 @@ exports.loginUser = async (req, res) => {
 // Endpoint: POST /api/auth/logout
 // ============================================================================
 exports.logoutUser = (req, res) => {
-    // Clear JWT cookie by setting expiration to force immediate removal
     res.clearCookie('token', {
         httpOnly: true,
         secure: false,

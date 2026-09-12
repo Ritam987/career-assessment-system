@@ -62,8 +62,8 @@ function Registration() {
 
       const responseData = await registerUserAPI(data);
 
-      setRegisteredEmail(data.email);
-      setIsOtpModalOpen(true);
+      alert(responseData.message || "Registration successful! You can now log in.");
+      navigate('/login');
 
     } catch (error) {
       console.error("Registration error:", error);
@@ -186,17 +186,6 @@ function Registration() {
 
         </form>
       </div>
-
-      <OtpModal
-        isOpen={isOtpModalOpen}
-        onClose={() => setIsOtpModalOpen(false)}
-        initialEmail={registeredEmail}
-        purpose="signup"
-        onSuccess={() => {
-          alert('Email verified and account activated successfully! You can now log in.');
-          navigate('/login');
-        }}
-      />
     </div>
   );
 }

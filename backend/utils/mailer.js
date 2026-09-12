@@ -1,22 +1,12 @@
 /**
  * ============================================================================
- * RESEND EMAIL SERVICE UTILITY (mailer.js)
+ * BREVO (SENDINBLUE) EMAIL SERVICE UTILITY (mailer.js)
  * ============================================================================
- * Purpose: Sends 6-digit OTP codes via HTML emails using Resend REST API (HTTPS Port 443).
- * Bypasses custom SMTP port blocks (465/587) on cloud platforms like Railway.
+ * Purpose: Sends 6-digit OTP codes via HTML emails using Brevo Transactional REST API
+ * (HTTPS Port 443). Bypasses custom SMTP port blocks (465/587) on cloud platforms like Railway.
+ * Allows sending emails to ANY recipient email address without requiring a custom domain.
  * ============================================================================
  */
-
-const { Resend } = require('resend');
-
-// Initialize Resend instance if API key is present
-const getResendClient = () => {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (apiKey) {
-        return new Resend(apiKey);
-    }
-    return null;
-};
 
 /**
  * Sends a 6-digit OTP verification email to specified recipient address.
@@ -73,27 +63,39 @@ exports.sendOTPEmail = async ({ to, otpCode, purpose = 'signup' }) => {
         </html>
     `;
 
-    const resend = getResendClient();
+    const brevoApiKey = process.env.BREVO_API_KEY;
 
-    if (resend) {
+    if (brevoApiKey && brevoApiKey !== 'your_brevo_api_key_here') {
         try {
-            const fromAddress = process.env.EMAIL_FROM || 'REACH INDIA Portal <onboarding@resend.dev>';
-            const response = await resend.emails.send({
-                from: fromAddress,
-                to: [to],
-                subject: emailSubject,
-                html: htmlTemplate
+            const senderEmail = process.env.SENDER_EMAIL || 'ritamchatterjee987@gmail.com';
+            const senderName = process.env.SENDER_NAME || 'REACH INDIA Portal';
+
+            const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': brevoApiKey,
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: { name: senderName, email: senderEmail },
+                    to: [{ email: to }],
+                    subject: emailSubject,
+                    htmlContent: htmlTemplate
+                })
             });
 
-            if (response.error) {
-                console.error(`[Mailer] Resend API Error for ${to}:`, response.error);
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error(`[Mailer] Brevo API Error for ${to}:`, data);
                 return false;
             }
 
-            console.log(`[Mailer] OTP Email dispatched via Resend API to ${to} (ID: ${response.data?.id})`);
+            console.log(`[Mailer] OTP Email dispatched via Brevo API to ${to} (Message ID: ${data.messageId})`);
             return true;
         } catch (err) {
-            console.error(`[Mailer] Resend Exception for ${to}:`, err.message);
+            console.error(`[Mailer] Brevo Exception for ${to}:`, err.message);
         }
     }
 

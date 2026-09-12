@@ -15,6 +15,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@getbrevo/brevo": "^6.0.3",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "chart.js": "^3.9.1",
@@ -27,7 +28,6 @@
     "mysql2": "^3.23.3",
     "parser": "^0.1.4",
     "pdfkit": "^0.13.0",
-    "resend": "^6.28.0",
     "uuid": "^14.0.2"
   },
   "allowScripts": {
