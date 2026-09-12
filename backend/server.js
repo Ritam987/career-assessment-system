@@ -41,15 +41,31 @@ const app = express();
 // ============================================================================
 
 // A. Dynamic CORS (Cross-Origin Resource Sharing) Configuration
-// Allows frontend development servers (Vite/React on localhost, LAN IP, or mobile devices)
-// to securely communicate with this Express backend API using credentials/cookies.
+// Explicitly allows Netlify deployment (https://career-assessment-system-reach-india.netlify.app),
+// localhost, and mobile device origins with credentials & preflight support.
+const allowedOrigins = [
+    'https://career-assessment-system-reach-india.netlify.app',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
     origin: function(origin, callback) {
-        // Allow requests with no origin (mobile apps, curl, etc.) or any origin during development
+        // Allow requests with no origin (mobile apps, curl, etc.)
         if (!origin) return callback(null, true);
-        return callback(null, true);
+        
+        // Return origin if matched or allowed
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.netlify.app') || process.env.NODE_ENV !== 'production') {
+            return callback(null, origin);
+        }
+        
+        return callback(null, origin);
     },
-    credentials: true // Allow sending cookies and authorization headers cross-origin
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID']
 }));
 
 // B. Request Body & Cookie Parsing Middlewares
