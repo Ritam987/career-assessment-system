@@ -83,12 +83,12 @@ async function initDb() {
         const [adminRows] = await db.query('SELECT id FROM admins LIMIT 1');
         if (adminRows.length === 0) {
             const bcrypt = require('bcryptjs');
-            const defaultHashedPassword = await bcrypt.hash('admin123', 10);
+            const defaultHashedPassword = await bcrypt.hash('Admin@1234', 10);
             await db.query(
                 "INSERT INTO admins (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
-                ['Super Admin', 'admin@example.com', defaultHashedPassword, 'SuperAdmin']
+                ['Super admin', 'admin@example.com', defaultHashedPassword, 'SuperAdmin']
             );
-            console.log('✅ Default Super Admin account (admin@example.com / admin123) seeded successfully.');
+            console.log('✅ Default Super Admin account (admin@example.com / Admin@1234) seeded successfully.');
         }
 
         // G. Create OTPs Table if not exists
