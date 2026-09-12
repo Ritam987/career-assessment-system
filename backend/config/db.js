@@ -13,8 +13,8 @@
 const mysql = require('mysql2/promise');
 const path = require('path');
 
-// Explicitly load environment variables from backend/.env
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+// Explicitly load environment variables from backend/.env (override pre-existing shell vars)
+require('dotenv').config({ path: path.join(__dirname, '..', '.env'), override: true });
 
 // Extract connection URL if provided by Railway / PaaS
 const connectionUrl = (process.env.MYSQL_URL || process.env.DATABASE_URL || process.env.MYSQL_PRIVATE_URL || '').trim();
@@ -31,7 +31,7 @@ if (connectionUrl) {
     const password = process.env.MYSQLPASSWORD !== undefined 
         ? process.env.MYSQLPASSWORD 
         : (process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : '');
-    const database = process.env.MYSQLDATABASE || process.env.DB_NAME || 'career_assessment';
+    const database = process.env.MYSQLDATABASE || process.env.DB_NAME || 'career_assessment_db';
     const port = Number(process.env.MYSQLPORT || process.env.DB_PORT || 3306);
 
     pool = mysql.createPool({
@@ -49,7 +49,7 @@ if (connectionUrl) {
 // Test initial database connectivity on startup
 pool.getConnection()
     .then((connection) => {
-        const activeDb = process.env.MYSQLDATABASE || process.env.DB_NAME || 'career_assessment';
+        const activeDb = process.env.MYSQLDATABASE || process.env.DB_NAME || 'career_assessment_db';
         const activeHost = process.env.MYSQLHOST || process.env.DB_HOST || 'localhost';
         console.log(`✅ MySQL Connection Pool initialized & connected successfully to database [${activeDb}] on host [${activeHost}]`);
         connection.release();

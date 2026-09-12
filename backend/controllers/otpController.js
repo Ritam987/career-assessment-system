@@ -56,8 +56,9 @@ exports.sendOTP = async (req, res) => {
         `;
         await db.query(query, [cleanEmail, otpCode, purpose]);
 
-        // 5. Send OTP Email via Nodemailer
-        await sendOTPEmail({ to: cleanEmail, otpCode, purpose });
+        // 5. Send OTP Email via Nodemailer asynchronously in background to prevent HTTP timeouts
+        sendOTPEmail({ to: cleanEmail, otpCode, purpose })
+            .catch(err => console.error(`[Background Mailer Error for ${cleanEmail}]:`, err?.message || err));
 
         res.status(200).json({
             message: `OTP sent successfully to ${cleanEmail}! Please check your email inbox.`,

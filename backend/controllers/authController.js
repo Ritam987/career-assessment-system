@@ -103,9 +103,11 @@ exports.registerUser = async (req, res) => {
             [cleanEmail, otpCode, 'signup']
         );
 
-        await sendOTPEmail({ to: cleanEmail, otpCode, purpose: 'signup' });
+        // Non-blocking background email dispatch to prevent HTTP response timeout
+        sendOTPEmail({ to: cleanEmail, otpCode, purpose: 'signup' })
+            .catch(err => console.error(`[Background Mailer Error for ${cleanEmail}]:`, err?.message || err));
 
-        // Return HTTP 201 Created response
+        // Return HTTP 201 Created response immediately
         res.status(201).json({ 
             message: 'Registration details saved! A 6-digit OTP code has been sent to your email address.',
             email: cleanEmail,
