@@ -114,7 +114,7 @@ app.use('/reports', express.static(path.join(__dirname, 'reports')));
 // ============================================================================
 // START EXPRESS HTTP SERVER
 // ============================================================================
-const PORT = process.env.PORT || 5000; // Read server port from environment variable or default to 5000
+const PORT = process.env.PORT || 8080; // Read server port from environment variable or default to 8080 for Railway PaaS
 const HOST = process.env.HOST || '0.0.0.0';
 
 function lanIPv4Addresses() {
