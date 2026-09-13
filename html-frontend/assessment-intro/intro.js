@@ -1,7 +1,7 @@
-// =============================================================
-// intro.js — Assessment Introduction page
-// Start button is an <a> tag (line 151) — override it with JS
-// No named IDs on topbar name span — use querySelector
+﻿// =============================================================
+// intro.js â€” Assessment Introduction page
+// Start button is an <a> tag (line 151) â€” override it with JS
+// No named IDs on topbar name span â€” use querySelector
 // =============================================================
 
 function toggleSidebar() {
@@ -21,15 +21,15 @@ async function logoutUser() {
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // ── 1. Auth guard ────────────────────────────────────────
+    // â”€â”€ 1. Auth guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const user = await requireAuth();
     if (!user) return;
 
-    // ── 2. Fill topbar user chip name (no id, use user-chip span) ──
+    // â”€â”€ 2. Fill topbar user chip name (no id, use user-chip span) â”€â”€
     const chipSpan = document.querySelector('.user-chip span');
     if (chipSpan) chipSpan.textContent = user.full_name || 'User';
 
-    // ── 3. Check progress and update start button ────────────
+    // â”€â”€ 3. Check progress and update start button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const startBtn = document.querySelector('.start-btn');
     if (!startBtn) return;
 
@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const d = res.data;
 
     if (d.status === 'Completed') {
-        // Already done — redirect to results
-        startBtn.textContent = '✓ View My Results';
+        // Already done â€” redirect to results
+        startBtn.textContent = 'âœ“ View My Results';
         startBtn.href        = '../results/results.html';
         // Show info banner
         insertStatusBanner('You have already completed the assessment. Click below to view your career results.', 'success');
@@ -53,9 +53,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             'warning'
         );
     }
-    // else 'Not-Started' — default href to assessment.html works fine,
+    // else 'Not-Started' â€” default href to assessment.html works fine,
     // but we intercept click to call POST /start first
     startBtn.addEventListener('click', async (e) => {
+        if (d.status === 'Completed') {
+            e.preventDefault();
+            window.location.href = '../results/results.html';
+            return;
+        }
         e.preventDefault();
         const dest = startBtn.href;
         startBtn.style.opacity = '0.7';
@@ -86,3 +91,4 @@ function insertStatusBanner(html, type) {
     banner.innerHTML = `<i class="bi bi-info-circle me-2" style="color:${colors[type]}"></i>${html}`;
     actionRow.insertAdjacentElement('beforebegin', banner);
 }
+

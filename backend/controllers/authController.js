@@ -95,7 +95,102 @@ exports.loginUser = async (req, res) => {
 };
 
 // ============================================================
-// 3. LOGOUT USER
+// 3. GOOGLE LOGIN / REGISTER
+// ============================================================
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+exports.googleLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) return res.status(400).json({ message: 'No token provided' });
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        const { email, name, picture } = payload;
+
+        const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        let user = rows[0];
+
+        if (!user) {
+            // User does not exist! Instead of auto-creating, return 202 to prompt frontend for missing details.
+            return res.status(202).json({
+                message: 'Account not found. Please complete registration.',
+                needs_info: true,
+                google_info: { name, email }
+            });
+        }
+
+        // Generate JWT Token
+        const jwtToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+        res.cookie('token', jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        res.status(200).json({
+            message: 'Google Login successful',
+            user: { id: user.id, full_name: user.full_name, email: user.email }
+        });
+
+    } catch (error) {
+        console.error(`[${req.requestId}] Google Auth Error:`, error);
+        res.status(401).json({ message: 'Invalid Google token or configuration.' });
+    }
+};
+
+exports.googleRegister = async (req, res) => {
+    try {
+        const { token, education_level, age, phone_number } = req.body;
+        if (!token) return res.status(400).json({ message: 'No token provided' });
+        if (!education_level) return res.status(400).json({ message: 'Education level is required' });
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        const { email, name } = payload;
+
+        const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (rows[0]) return res.status(400).json({ message: 'User already exists. Please log in.' });
+
+        const [result] = await db.query(
+            'INSERT INTO users (full_name, email, password_hash, education_level, age, phone_number) VALUES (?, ?, ?, ?, ?, ?)',
+            [name, email, 'GOOGLE_AUTH_USER', education_level, age || null, phone_number || null]
+        );
+        
+        const [newRows] = await db.query('SELECT * FROM users WHERE id = ?', [result.insertId]);
+        const user = newRows[0];
+
+        const jwtToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+        res.cookie('token', jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        res.status(200).json({
+            message: 'Google Registration successful',
+            user: { id: user.id, full_name: user.full_name, email: user.email }
+        });
+
+    } catch (error) {
+        console.error(`[${req.requestId}] Google Register Error:`, error);
+        res.status(401).json({ message: 'Invalid Google token or configuration.' });
+    }
+};
+
+// ============================================================
+// 4. LOGOUT
 // ============================================================
 exports.logoutUser = (req, res) => {
     res.clearCookie('token', {

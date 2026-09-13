@@ -1,5 +1,5 @@
-// =============================================================
-// results.js — My Results page
+﻿// =============================================================
+// results.js â€” My Results page
 // Exact HTML IDs:
 //   #topCareer, #topCareerDesc, #matchScore, #altCareersList
 //   #scorePersonality, #scoreInterest, #scoreSkills, #scoreWork
@@ -25,15 +25,15 @@ async function logoutUser() {
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // ── 1. Auth guard ────────────────────────────────────────
+    // â”€â”€ 1. Auth guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const user = await requireAuth();
     if (!user) return;
 
-    // ── 2. Topbar name (no id — use .user-chip span) ─────────
+    // â”€â”€ 2. Topbar name (no id â€” use .user-chip span) â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const chipSpan = document.querySelector('.user-chip span');
     if (chipSpan) chipSpan.textContent = user.full_name || 'User';
 
-    // ── 3. Load results ──────────────────────────────────────
+    // â”€â”€ 3. Load results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     await loadResults();
 });
 
@@ -41,27 +41,27 @@ async function loadResults() {
     const res = await apiGet('/assessments/results');
 
     if (!res || !res.ok || !res.data.hasResults) {
-        // No results yet — show prompt to take assessment
+        // No results yet â€” show prompt to take assessment
         showNoResultsState();
         return;
     }
 
     const d = res.data;
 
-    // ── Primary career card ───────────────────────────────────
+    // â”€â”€ Primary career card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const primary = d.primaryCareer;
     if (primary) {
         const topCareerEl     = document.getElementById('topCareer');
         const topCareerDescEl = document.getElementById('topCareerDesc');
         const matchScoreEl    = document.getElementById('matchScore');
 
-        if (topCareerEl)     topCareerEl.textContent     = primary.name || '—';
+        if (topCareerEl)     topCareerEl.textContent     = primary.name || 'â€”';
         if (matchScoreEl)    matchScoreEl.textContent     = `${primary.match_pct}%`;
         if (topCareerDescEl) topCareerDescEl.textContent  =
             d.careerMatches[0]?.description || `Your profile matches best with ${primary.name}.`;
     }
 
-    // ── Alternate careers list ────────────────────────────────
+    // â”€â”€ Alternate careers list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const altEl = document.getElementById('altCareersList');
     if (altEl) {
         const alts = (d.careerMatches || []).slice(1, 6); // positions 2-6
@@ -80,7 +80,7 @@ async function loadResults() {
         }
     }
 
-    // ── Category score bars (animated) ───────────────────────
+    // â”€â”€ Category score bars (animated) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Reset bars to 0 first, then animate to real values
     const barIds = {
         barPersonality: 0,
@@ -101,7 +101,7 @@ async function loadResults() {
         setBar('barWork',        'scoreWork',        d.workStyleScore);
     }, 300);
 
-    // ── Summary text ──────────────────────────────────────────
+    // â”€â”€ Summary text â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const summaryEl = document.getElementById('traitSummaryText');
     if (summaryEl) summaryEl.textContent = buildSummary(d);
 }
@@ -138,7 +138,7 @@ function showNoResultsState() {
     if (!layout) return;
     layout.innerHTML = `
         <div style="text-align:center;padding:60px 20px;width:100%;">
-            <div style="font-size:56px;margin-bottom:16px;">📋</div>
+            <div style="font-size:56px;margin-bottom:16px;">ðŸ“‹</div>
             <h4 style="font-weight:700;margin-bottom:8px;">No Results Yet</h4>
             <p style="color:#6b7280;margin-bottom:24px;">You haven't completed the assessment yet. Take the assessment to see your career recommendations.</p>
             <a href="../assessment-intro/intro.html"
@@ -148,3 +148,50 @@ function showNoResultsState() {
         </div>
     `;
 }
+// PDF Generation
+async function downloadPDF() {
+    const originalContent = document.getElementById('reportContent');
+    const btn = document.querySelector('.btn-download');
+    
+    if(!btn || !originalContent) return;
+    
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+    btn.disabled = true;
+    
+    // Create a pristine clone for html2pdf to process internally
+    const clone = originalContent.cloneNode(true);
+    const cloneBtn = clone.querySelector('.btn-download');
+    if(cloneBtn) cloneBtn.remove();
+    
+    // Add the specific class for styling the PDF clone
+    clone.classList.add('pdf-export-mode');
+    
+    const opt = {
+        margin:       0.5,
+        filename:     'Career_Assessment_Report.pdf',
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 2, useCORS: true, windowWidth: 1000 },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    
+    try {
+        await html2pdf().set(opt).from(clone).save();
+    } catch (err) {
+        console.error("PDF generation error:", err);
+    }
+    
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+}
+
+
+
+
+
+
+
+
+
+
+

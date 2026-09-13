@@ -3,6 +3,7 @@ const router         = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
 const upload         = require('../middlewares/upload');
 
+const authController = require('../controllers/authController');
 const {
     registerUser,
     loginUser,
@@ -10,13 +11,17 @@ const {
     getUserProfile,
     updateProfile,
     changePassword,
-    uploadProfilePhoto
-} = require('../controllers/authController');
+    uploadProfilePhoto,
+    googleLogin
+} = authController;
 
 // Public routes
 router.post('/register', registerUser);
-router.post('/login',    loginUser);
-router.post('/logout',   logoutUser);
+router.post('/login', loginUser);
+router.post('/google', googleLogin);
+router.post('/google-register', authController.googleRegister);
+router.get('/google-client-id', (req, res) => res.json({ clientId: process.env.GOOGLE_CLIENT_ID }));
+router.post('/logout', logoutUser);
 
 // Protected routes (require JWT cookie)
 router.get('/profile',               authMiddleware, getUserProfile);

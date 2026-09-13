@@ -349,10 +349,8 @@ async function submitAssessment() {
     const total    = allQuestions.length;
 
     if (answered < total) {
-        const ok = confirm(
-            `You have ${total - answered} unanswered question(s) out of ${total}.\n\nUnanswered questions will score 0.\n\nSubmit anyway?`
-        );
-        if (!ok) return;
+        showToast(`Please answer all ${total} questions before submitting. You have ${total - answered} left.`, 'error');
+        return;
     }
 
     const nextBtn = document.getElementById('nextBtn');

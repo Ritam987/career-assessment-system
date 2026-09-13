@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings — Career Assessment System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../profile/profile.css"> <!-- Reusing profile css for consistent card styling -->
+</head>
+<body style="background-color: #f8fafc; font-family: 'Inter', sans-serif;">
+
+<div class="app-shell">
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ─── Sidebar ──────────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="../index.html">
+                <img src="../assets/images/logo.jpg" alt="Career Assessment" class="brand-logo">
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../dashboard/dashboard.html" class="nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+            <a href="../assessment-intro/intro.html" class="nav-item"><i class="bi bi-pencil-square"></i><span>Take Assessment</span></a>
+            <a href="../results/results.html" class="nav-item"><i class="bi bi-bar-chart-line"></i><span>My Results</span></a>
+            <a href="../notifications/notifications.html" class="nav-item"><i class="bi bi-bell"></i><span>Notifications</span><span class="nav-badge" id="sidebarBadge">3</span></a>
+            <a href="../profile/profile.html" class="nav-item"><i class="bi bi-person"></i><span>My Profile</span></a>
+            <a href="../settings/settings.html" class="nav-item active"><i class="bi bi-gear"></i><span>Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="lang-switcher">
+                <i class="bi bi-globe2"></i>
+                <div class="lang-switcher-wrapper">
+                    <select id="langSelect" onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="bn">বাংলা</option>
+                    </select>
+                </div>
+            </div>
+            <a href="../help/help.html" class="nav-item"><i class="bi bi-question-circle"></i><span>Help & Support</span></a>
+            <a href="#" class="nav-item logout logout-btn"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+        </div>
+    </aside>
+
+    <!-- ─── Main ─────────────────────────────────────────────────────────── -->
+    <div class="main">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+                <h4 class="m-0" style="font-weight: 600; font-size: 1.1rem;">Settings</h4>
+            </div>
+            <div class="topbar-right">
+                <div class="user-chip dropdown" data-bs-toggle="dropdown">
+                    <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+                    <span id="headerName">Name</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-1 rounded-3">
+                    <li><a class="dropdown-item small py-2" href="../profile/profile.html"><i class="bi bi-person me-2"></i>Profile</a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item small py-2 text-danger logout-btn" href="#"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content" style="padding: 24px;">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Change Password Card -->
+                    <div class="card-base" style="background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-bottom: 24px;">
+                        <h5 style="font-weight: 600; margin-bottom: 20px;"><i class="bi bi-shield-lock me-2 text-primary"></i>Change Password</h5>
+                        
+                        <div class="mb-3">
+                            <label class="info-label text-muted small fw-semibold">CURRENT PASSWORD</label>
+                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+                        </div>
+                        <div class="mb-3">
+                            <label class="info-label text-muted small fw-semibold">NEW PASSWORD</label>
+                            <input type="password" id="newPassword" class="form-control" placeholder="Enter new password (min 6 chars)">
+                        </div>
+                        <div class="mb-4">
+                            <label class="info-label text-muted small fw-semibold">CONFIRM NEW PASSWORD</label>
+                            <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password">
+                        </div>
+                        <button class="btn btn-primary px-4" id="btnChangePassword" onclick="changePassword()" style="background:#6366f1; border:none; border-radius:8px;">Update Password</button>
+                    </div>
+
+                    <!-- App Preferences Card -->
+                    <div class="card-base" style="background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                        <h5 style="font-weight: 600; margin-bottom: 20px;"><i class="bi bi-sliders me-2 text-primary"></i>App Preferences</h5>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <div>
+                                <h6 class="m-0 fw-semibold">Language Preference</h6>
+                                <p class="text-muted small m-0">Choose your preferred language for the assessment.</p>
+                            </div>
+                            <select class="form-select w-auto" id="prefLang" onchange="changeLanguage(this.value)">
+                                <option value="en">English</option>
+                                <option value="hi">हिंदी</option>
+                                <option value="bn">বাংলা</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="m-0 fw-semibold">Email Notifications</h6>
+                                <p class="text-muted small m-0">Receive updates and career recommendations.</p>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="emailNotif" checked>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="settings.js"></script>
+
+<!-- Google Translate Integration -->
+<script src="../assets/js/translate.js"></script>
+</body>
+</html>

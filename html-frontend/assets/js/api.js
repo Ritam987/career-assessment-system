@@ -11,7 +11,11 @@ async function apiFetch(method, endpoint, body = null) {
     const options = {
         method,
         credentials: 'include',   // sends the JWT cookie automatically
-        headers: {}
+        cache: 'no-store',        // prevents aggressive browser caching
+        headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        }
     };
     if (body) {
         options.headers['Content-Type'] = 'application/json';
