@@ -1,104 +1,110 @@
+﻿/**
+ * login.js - Handles student and admin login + Google auth
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // Toggle Password Visibility
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    if(togglePassword && passwordInput) {
-        togglePassword.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            togglePassword.classList.toggle('bi-eye');
-            togglePassword.classList.toggle('bi-eye-slash');
-        });
+    // Show expired message if redirected here
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('expired')) {
+        showToast('Session expired. Please log in again.', 'error');
     }
 
-    // Initialize Google Login
     initGoogleLogin();
 
-    // Regular Email/Password Login
-    const loginForm = document.getElementById('loginForm');
-    loginForm.addEventListener('submit', async (e) => {
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const email    = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const isAdmin  = document.getElementById('roleAdmin').checked;
+        const btn      = document.getElementById('loginBtn');
 
         if (!email || !password) {
             showToast('Please enter your email and password.', 'error');
             return;
         }
 
-        setLoading(submitBtn, true);
-
+        setLoading(btn, true);
         try {
-            const res = await apiPost('/auth/login', { email, password });
+            const endpoint = isAdmin ? '/admin/login' : '/auth/login';
+            const res = await apiFetch('POST', endpoint, { email, password });
 
             if (res && res.ok) {
-                localStorage.setItem('cas_user', JSON.stringify(res.data.user));
-                showToast('Login successful! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = '../dashboard/dashboard.html';
-                }, 800);
+                if (isAdmin) {
+                    localStorage.setItem('cas_admin', JSON.stringify(res.data.admin));
+                    showToast('Admin login successful! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/admin/dashboard/dashboard.html'; }, 800);
+                } else {
+                    localStorage.setItem('cas_user', JSON.stringify(res.data.user));
+                    showToast('Login successful! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/dashboard/dashboard.html'; }, 800);
+                }
             } else {
-                showToast(res?.data?.message || 'Login failed. Please check your credentials.', 'error');
-                setLoading(submitBtn, false);
+                showToast(res && res.data && res.data.message ? res.data.message : 'Login failed. Please check your credentials.', 'error');
+                setLoading(btn, false);
             }
-
         } catch (err) {
-            showToast('Could not connect to the server. Please try again.', 'error');
-            setLoading(submitBtn, false);
+            showToast('Could not connect to the server.', 'error');
+            setLoading(btn, false);
         }
     });
 });
 
-// ── Google Login Logic ───────────────────────────────────────
+// ── Google Login ──────────────────────────────────────────────
 async function initGoogleLogin() {
+    const container = document.getElementById('google-btn-container');
+    if (!container) return;
+
     try {
-        const res = await apiGet('/auth/google-client-id');
-        const clientId = res?.data?.clientId;
-        
-        const container = document.getElementById('google-btn-container');
-        if (!container) return;
+        const res = await apiFetch('GET', '/auth/google-client-id');
+        const clientId = res && res.data && res.data.clientId;
 
         if (!clientId || clientId.startsWith('YOUR_GOOGLE')) {
-            container.innerHTML = `<button type="button" class="btn btn-google w-100 rounded-3 shadow-sm py-2" onclick="alert('Google Login is not configured.\\nPlease configure GOOGLE_CLIENT_ID in the backend .env file.')" style="border: 1px solid #ccc; background: white;"><i class="bi bi-google text-danger me-2"></i>Sign in with Google (Not Configured)</button>`;
+            container.innerHTML = '';
             return;
         }
 
         window.handleGoogleLogin = async function(response) {
-            const result = await apiPost('/auth/google', { token: response.credential });
-            
-            if (result && result.status === 202 && result.data.needs_info) {
-                showToast('Account not found. Redirecting to registration...', 'info');
-                setTimeout(() => window.location.href = '../register.html', 1500);
-            } else if (result && result.ok) {
-                showToast('Google login successful!', 'success');
-                localStorage.setItem('cas_user', JSON.stringify(result.data.user));
-                setTimeout(() => window.location.href = '../dashboard/dashboard.html', 1000);
-            } else {
-                showToast(result?.data?.message || 'Google login failed.', 'error');
-            }
-        };
+            const isAdmin = document.getElementById('roleAdmin').checked;
+            // Admin Google login goes to /admin/google; student goes to /auth/google
+            const endpoint = isAdmin ? '/admin/google' : '/auth/google';
+            const result = await apiFetch('POST', endpoint, { token: response.credential });
 
-        const renderGoogleButton = () => {
-            if (typeof google === 'undefined' || !google.accounts) {
-                setTimeout(renderGoogleButton, 100);
+            if (!result) return; // redirect already happened
+
+            if (result.status === 202 && result.data && result.data.needs_info) {
+                // Student needs extra info — only relevant for student path
+                showToast('Account not found. Redirecting to registration...', 'info');
+                setTimeout(() => { window.location.href = '/register.html'; }, 1500);
                 return;
             }
-            google.accounts.id.initialize({
-                client_id: clientId,
-                callback: window.handleGoogleLogin
-            });
-            
-            google.accounts.id.renderButton(
-                container,
-                { theme: "outline", size: "large", width: container.offsetWidth || 300 }
-            );
+
+            if (result.ok) {
+                if (isAdmin) {
+                    localStorage.setItem('cas_admin', JSON.stringify(result.data.admin));
+                    showToast('Admin Google login successful!', 'success');
+                    setTimeout(() => { window.location.href = '/admin/dashboard/dashboard.html'; }, 800);
+                } else {
+                    localStorage.setItem('cas_user', JSON.stringify(result.data.user));
+                    showToast('Google login successful!', 'success');
+                    setTimeout(() => { window.location.href = '/dashboard/dashboard.html'; }, 800);
+                }
+            } else {
+                const msg = result.data && result.data.message ? result.data.message : 'Google login failed.';
+                showToast(msg, 'error');
+            }
         };
-        renderGoogleButton();
+
+        const render = () => {
+            if (typeof google === 'undefined' || !google.accounts) {
+                setTimeout(render, 200);
+                return;
+            }
+            google.accounts.id.initialize({ client_id: clientId, callback: window.handleGoogleLogin });
+            google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', width: container.offsetWidth || 300 });
+        };
+        render();
 
     } catch(err) {
-        console.error("Google Auth Init Error:", err);
+        console.error('Google init error:', err);
     }
 }

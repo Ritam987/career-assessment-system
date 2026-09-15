@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Assessment Redo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../dashboard/dashboard.css">
+    <style>
+        .content { display: flex; align-items: flex-start; justify-content: center; padding-top: 5vh; min-height: calc(100vh - 70px); background: #f8fafc; }
+        .redo-card { 
+            width: 100%; max-width: 580px; background: #fff; 
+            border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01); 
+            padding: 40px; border: 1px solid #f1f5f9;
+        }
+        .redo-header { text-align: center; margin-bottom: 30px; }
+        .icon-wrapper {
+            background: #fef3c7; color: #d97706;
+            width: 72px; height: 72px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; margin: 0 auto 20px;
+            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.15);
+        }
+        .redo-title { font-weight: 700; font-size: 1.5rem; color: #1e293b; margin-bottom: 8px; }
+        .redo-subtitle { color: #64748b; font-size: 0.95rem; line-height: 1.5; }
+        .alert-warning-custom {
+            background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+            border-radius: 10px; padding: 14px 16px; font-size: 0.9rem;
+            display: flex; gap: 12px; align-items: flex-start; margin-bottom: 24px;
+        }
+        .form-control:focus {
+            border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+        }
+        .btn-primary-custom {
+            background: #6366f1; border-color: #6366f1; color: white;
+            padding: 10px 24px; font-weight: 600; border-radius: 8px; transition: all 0.2s;
+        }
+        .btn-primary-custom:hover { background: #4f46e5; border-color: #4f46e5; transform: translateY(-1px); }
+        .btn-outline-custom {
+            border-color: #cbd5e1; color: #475569; padding: 10px 24px; font-weight: 600; border-radius: 8px; transition: all 0.2s;
+        }
+        .btn-outline-custom:hover { background: #f8fafc; border-color: #94a3b8; color: #1e293b; }
+        textarea { border-radius: 10px !important; resize: none; }
+    </style>
+</head>
+<body>
+
+<div class="app-shell">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="../index.html">
+                <img src="../assets/images/logo.jpg" alt="Career Assessment" class="brand-logo">
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../dashboard/dashboard.html" class="nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+            <a href="../assessment-intro/intro.html" class="nav-item"><i class="bi bi-pencil-square"></i><span>Take Assessment</span></a>
+            <a href="../results/results.html" class="nav-item"><i class="bi bi-bar-chart-line"></i><span>My Results</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-btn" onclick="openSidebar()"><i class="bi bi-list"></i></button>
+                <div class="greeting">
+                    <h5 class="mb-0 fw-bold" id="userGreeting">Request Redo</h5>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="notif-btn" onclick="window.location.href='../notifications/notifications.html'">
+                    <i class="bi bi-bell"></i>
+                </button>
+            </div>
+        </header>
+
+        
+        <div class="content">
+            <div class="redo-card">
+                <div class="redo-header">
+                    <div class="icon-wrapper">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </div>
+                    <h4 class="redo-title">Request to Retake Assessment</h4>
+                    <p class="redo-subtitle">You have already completed the assessment. To ensure data accuracy, retaking it requires admin approval.</p>
+                </div>
+
+                <div class="alert-warning-custom">
+                    <i class="bi bi-info-circle-fill fs-5 mt-1"></i>
+                    <div>
+                        <strong>Please note:</strong> Your previous results will be retained while you wait. Once approved, starting a new attempt will permanently clear your old scores.
+                    </div>
+                </div>
+
+                <form id="redoForm">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark mb-2">Why do you want to take the assessment again?</label>
+                        <textarea id="reason" class="form-control" rows="5" placeholder="Please explain why you need to retake the assessment (e.g., technical issues, interrupted session)..." required></textarea>
+                    </div>
+                    <div class="d-flex gap-3 justify-content-end mt-4">
+                        <button type="button" class="btn btn-outline-custom" onclick="window.location.href='../results/results.html'">Cancel</button>
+                        <button type="submit" class="btn btn-primary-custom" id="submitBtn">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../assets/js/api.js"></script>
+<script>
+    // Auth guard
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await requireAuth();
+        if (!user) return;
+        document.getElementById('userGreeting').textContent = 'Request Redo — ' + (user.full_name || user.email);
+    });
+
+    // Form submit
+    document.getElementById('redoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const reason = document.getElementById('reason').value.trim();
+        const btn    = document.getElementById('submitBtn');
+
+        if (!reason) { showToast('Please provide a reason.', 'error'); return; }
+
+        setLoading(btn, true);
+        try {
+            const res = await apiPost('/assessments/redo-request', { reason });
+            if (res && res.ok) {
+                showToast('Request submitted! Redirecting...', 'success');
+                setTimeout(() => { window.location.href = '../results/results.html'; }, 1500);
+            } else {
+                const msg = res && res.data && res.data.message ? res.data.message : 'Failed to submit request.';
+                showToast(msg, 'error');
+                setLoading(btn, false);
+            }
+        } catch (error) {
+            showToast('Network error. Please try again.', 'error');
+            setLoading(btn, false);
+        }
+    });
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+    }
+    function openSidebar() { toggleSidebar(); }
+</script>
+</body>
+</html>

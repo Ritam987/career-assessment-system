@@ -93,12 +93,9 @@
                     <h3 class="page-title">Assessment Results <i class="bi bi-patch-check-fill text-success ms-2"></i></h3>
                     <p class="page-sub">Based on your answers, here is your personalized career profile.</p>
                 </div>
-                <button class="btn-download" onclick="downloadPDF()">
+                <div class="d-flex gap-2"><button id="btnGiveTestAgain" class="btn btn-warning fw-medium" style="display: none;" onclick="window.location.href='../redo-request/redo-request.html'"><i class="bi bi-arrow-counterclockwise"></i> Give Test Again</button><button class="btn-download" onclick="downloadPDF()">
                     <i class="bi bi-download"></i> Download Report
-                </button>
-            </div>
-
-            <div class="results-layout">
+                </button></div></div><div class="results-layout">
                 
                 <!-- Left Column -->
                 <div class="left-col">
@@ -191,6 +188,7 @@
 <script src="../assets/js/translate.js"></script>
 </body>
 </html>
+
 
 
 

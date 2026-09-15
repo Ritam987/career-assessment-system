@@ -39,6 +39,8 @@ const ADMIN_NAV = [
       { label:'Search & Filter',    icon:'bi-funnel',           href:'../search/search.html' }
     ]
   },
+  { type:'link', label:'Redo Requests', icon:'bi-arrow-counterclockwise', href:'../redo-requests/redo-requests.html' },
+  { type:'link', label:'Notifications', icon:'bi-bell', href:'../notifications/notifications.html' },
   { type:'link', label:'Analytics', icon:'bi-graph-up', href:'../analytics/analytics.html' },
   { type:'link', label:'Settings',  icon:'bi-gear',     href:'../settings/settings.html' }
 ];
@@ -159,4 +161,38 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.innerWidth > 768 && localStorage.getItem('agy_col') === '1') {
     document.getElementById('sidebar')?.classList.add('collapsed');
   }
+});
+
+// ── GLOBAL NOTIFICATION POLLING ──
+let notificationPollInterval = null;
+
+async function updateNotificationBell() {
+    if (!window.adminApi) return;
+    try {
+        const data = await window.adminApi.get('/admin/notifications');
+        if (data && data.unreadCount !== undefined) {
+            const bells = document.querySelectorAll('.bi-bell');
+            bells.forEach(bell => {
+                if (data.unreadCount > 0) {
+                    bell.classList.add('bell-blink');
+                } else {
+                    bell.classList.remove('bell-blink');
+                }
+            });
+        }
+    } catch(e) {
+        // Stop polling if unauthorized (e.g. logged out)
+        if (e.message && e.message.includes('401')) {
+            if (notificationPollInterval) clearInterval(notificationPollInterval);
+        }
+    }
+}
+
+// Start polling every 30 seconds, plus an initial check
+document.addEventListener('DOMContentLoaded', () => {
+    // Small delay to ensure auth completes first
+    setTimeout(() => {
+        updateNotificationBell();
+        notificationPollInterval = setInterval(updateNotificationBell, 30000);
+    }, 1500);
 });

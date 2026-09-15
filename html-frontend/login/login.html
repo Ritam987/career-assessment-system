@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -31,6 +31,16 @@
                 </div>
 
                 <!-- Login Form -->
+                <div class="role-selector mb-4">
+                    <p class="role-label">I am a...</p>
+                    <div class="d-flex gap-3">
+                        <input type="radio" id="roleUser" name="role" value="user" checked>
+                        <label for="roleUser" class="role-btn"><i class="bi bi-person-fill me-1"></i> Student</label>
+                        
+                        <input type="radio" id="roleAdmin" name="role" value="admin">
+                        <label for="roleAdmin" class="role-btn"><i class="bi bi-shield-lock-fill me-1"></i> Admin</label>
+                    </div>
+                </div>
                 <form id="loginForm">
                     
                     <!-- Email Address -->
@@ -84,3 +94,4 @@
     <script src="../assets/js/translate.js"></script>
 </body>
 </html>
+

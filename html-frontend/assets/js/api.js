@@ -33,9 +33,11 @@ async function apiFetch(method, endpoint, body = null) {
     return { ok: res.ok, status: res.status, data };
 }
 
-const apiGet  = (endpoint)        => apiFetch('GET',  endpoint);
-const apiPost = (endpoint, body)  => apiFetch('POST', endpoint, body);
-const apiPut  = (endpoint, body)  => apiFetch('PUT',  endpoint, body);
+const apiGet    = (endpoint)        => apiFetch('GET',    endpoint);
+const apiPost   = (endpoint, body)  => apiFetch('POST',   endpoint, body);
+const apiPut    = (endpoint, body)  => apiFetch('PUT',    endpoint, body);
+const apiPatch  = (endpoint, body)  => apiFetch('PATCH',  endpoint, body || {});
+const apiDelete = (endpoint)        => apiFetch('DELETE', endpoint);
 
 // ── Auth guard: run on protected pages ────────────────────────
 async function requireAuth() {

@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // â”€â”€ 3. Load results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     await loadResults();
+    checkRedoStatus();
 });
 
 async function loadResults() {
@@ -195,3 +196,61 @@ async function downloadPDF() {
 
 
 
+
+async function checkRedoStatus() {
+    try {
+        const response = await apiGet('/assessments/redo-request/status');
+        const btn = document.getElementById('btnGiveTestAgain');
+        if (!btn) return;
+
+        const { completedAttempts, latestRequest } = response?.data || {};
+        
+        // Max 3 attempts
+        if (completedAttempts >= 3) {
+            btn.style.display = 'none';
+            return;
+        }
+
+        if (completedAttempts === 0) {
+            btn.style.display = 'none';
+            return;
+        }
+
+        if (latestRequest && latestRequest.status === 'PENDING') {
+            btn.style.display = 'inline-block';
+            btn.className = 'btn btn-secondary fw-medium';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Request Pending';
+        } else if (latestRequest && latestRequest.status === 'APPROVED' && !latestRequest.approval_used) {
+            btn.style.display = 'inline-block';
+            btn.className = 'btn btn-success fw-medium';
+            btn.onclick = async () => {
+                setLoading(btn, true);
+                try {
+                    const res = await apiPost('/assessments/start-new');
+                    if (res && res.ok) {
+                        // Clear frontend state (just to be thorough as requested)
+                        localStorage.removeItem('currentQuestionIndex');
+                        sessionStorage.removeItem('assessmentState');
+                        window.location.href = '../assessment/assessment.html';
+                    } else {
+                        const msg = res?.data?.message || 'Failed to start new attempt';
+                        showToast(msg, 'error');
+                        setLoading(btn, false);
+                    }
+                } catch (e) {
+                    showToast('Network error', 'error');
+                    setLoading(btn, false);
+                }
+            };
+            btn.innerHTML = '<i class="bi bi-play-circle"></i> Start New Attempt';
+        } else {
+            btn.style.display = 'inline-block';
+            btn.className = 'btn btn-warning fw-medium';
+            btn.onclick = () => window.location.href = '../redo-request/redo-request.html';
+            btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Give Test Again';
+        }
+    } catch (error) {
+        console.error('Error checking redo status:', error);
+    }
+}

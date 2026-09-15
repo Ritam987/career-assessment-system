@@ -1,49 +1,74 @@
-const express = require('express'); 
-const router = express.Router(); 
+﻿const express = require('express');
+const router = express.Router();
 const adminMiddleware = require('../middlewares/adminMiddleware');
 
-const { 
-    registerAdmin, 
-    adminLogin, 
-    addQuestion, 
+const {
+    registerAdmin,
+    adminLogin,
+    adminLogout,
+    adminGoogleLogin,
+    addQuestion,
     getAllQuestions,
     updateQuestion,
-    deleteQuestion, 
-    addCareer,       
+    deleteQuestion,
+    addCareer,
     getAllCareers,
     updateCareer,
-    deleteCareer,    
+    deleteCareer,
     getAllUsers,
     getAdminAnalytics,
-    getAllCategories
-} = require('../controllers/adminController'); 
+    getAllCategories,
+    getAllRedoRequests,
+    approveRedoRequest,
+    rejectRedoRequest,
+    getAdminProfile
+} = require('../controllers/adminController');
 
-// 1. Setup & Login
-router.post('/register', registerAdmin);  // POST /api/admin/register
-router.post('/login',    adminLogin);
+const {
+    getAdminNotifications,
+    markAdminRead,
+    markAdminAllRead
+} = require('../controllers/notificationController');
 
+// ─── Public ────────────────────────────────────────────
+router.post('/register',      registerAdmin);
+router.post('/login',         adminLogin);
+router.post('/logout',        adminLogout);
+router.post('/google',        adminGoogleLogin);
+router.get('/google-client-id', (req, res) =>
+    res.json({ clientId: process.env.GOOGLE_CLIENT_ID })
+);
 
-// 2. Dashboard Analytics Route
-// Fetch overall statistics for the admin dashboard
-router.get('/analytics', adminMiddleware, getAdminAnalytics);
+// ─── Protected (admin_token cookie required) ───────────
+router.get('/profile',        adminMiddleware, getAdminProfile);
+router.get('/analytics',      adminMiddleware, getAdminAnalytics);
 
-// 3. Question Management Routes
-router.post('/questions', adminMiddleware, addQuestion);
-router.get('/questions', adminMiddleware, getAllQuestions);
-router.put('/questions/:id', adminMiddleware, updateQuestion); // Update specific question
-router.delete('/questions/:id', adminMiddleware, deleteQuestion); // Delete specific question
+// Questions
+router.post('/questions',         adminMiddleware, addQuestion);
+router.get('/questions',          adminMiddleware, getAllQuestions);
+router.put('/questions/:id',      adminMiddleware, updateQuestion);
+router.delete('/questions/:id',   adminMiddleware, deleteQuestion);
 
-// 4. Career Management Routes (Protected by Admin Middleware)
-// Routes for adding, retrieving, updating, and deleting career entries
-router.post('/careers', adminMiddleware, addCareer);
-router.get('/careers', adminMiddleware, getAllCareers);
-router.put('/careers/:id', adminMiddleware, updateCareer); // Update specific career
-router.delete('/careers/:id', adminMiddleware, deleteCareer); // Delete specific career
+// Careers
+router.post('/careers',           adminMiddleware, addCareer);
+router.get('/careers',            adminMiddleware, getAllCareers);
+router.put('/careers/:id',        adminMiddleware, updateCareer);
+router.delete('/careers/:id',     adminMiddleware, deleteCareer);
 
-// 5. User Management Route (Protected by Admin Middleware)
-router.get('/users', adminMiddleware, getAllUsers);
+// Users
+router.get('/users',              adminMiddleware, getAllUsers);
 
-// 6. Category Management Route (Protected by Admin Middleware)
-router.get('/categories', adminMiddleware, getAllCategories);
+// Categories
+router.get('/categories',         adminMiddleware, getAllCategories);
+
+// Redo requests
+router.get('/redo-requests',                    adminMiddleware, getAllRedoRequests);
+router.post('/redo-requests/:id/approve',       adminMiddleware, approveRedoRequest);
+router.post('/redo-requests/:id/reject',        adminMiddleware, rejectRedoRequest);
+
+// Notifications
+router.get('/notifications',                    adminMiddleware, getAdminNotifications);
+router.patch('/notifications/read-all',         adminMiddleware, markAdminAllRead);
+router.patch('/notifications/:id/read',         adminMiddleware, markAdminRead);
 
 module.exports = router;

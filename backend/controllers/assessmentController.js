@@ -5,6 +5,7 @@ const { calculateResults } = require('../utils/scoreCalculator');
 // 1. START OR RESUME ASSESSMENT
 // ============================================================
 exports.startAssessment = async (req, res) => {
+    let connection;
     try {
         const userId = req.user.id;
 
@@ -28,11 +29,45 @@ exports.startAssessment = async (req, res) => {
             });
         }
 
+        // --- ENFORCE 3 ATTEMPT LIMIT & ADMIN APPROVAL ---
+        const [completed] = await db.query(
+            "SELECT COUNT(*) as count FROM assessments WHERE user_id = ? AND status = 'Completed'",
+            [userId]
+        );
+        const completedCount = completed[0].count;
+
+        if (completedCount >= 3) {
+            return res.status(403).json({ message: 'You have reached the maximum of 3 assessment attempts.' });
+        }
+
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        // If not first attempt, user needs an un-used approved redo request
+        if (completedCount > 0) {
+            const [approvals] = await connection.query(
+                "SELECT id FROM redo_requests WHERE user_id = ? AND status = 'APPROVED' AND approval_used = 0 FOR UPDATE",
+                [userId]
+            );
+
+            if (approvals.length === 0) {
+                await connection.rollback();
+                connection.release();
+                return res.status(403).json({ message: 'You need admin approval to take the assessment again.' });
+            }
+
+            // Consume the approval atomically
+            await connection.query("UPDATE redo_requests SET approval_used = 1 WHERE id = ?", [approvals[0].id]);
+        }
+
         // Start a fresh assessment
-        const [result] = await db.query(
+        const [result] = await connection.query(
             'INSERT INTO assessments (user_id, status, scoring_version) VALUES (?, ?, ?)',
             [userId, 'In-Progress', process.env.SCORING_VERSION || 'v1.0']
         );
+
+        await connection.commit();
+        connection.release();
 
         res.status(201).json({
             message:      'New assessment started!',
@@ -42,6 +77,10 @@ exports.startAssessment = async (req, res) => {
         });
 
     } catch (error) {
+        if (connection) {
+            await connection.rollback();
+            connection.release();
+        }
         console.error(`[${req.requestId}] Start Assessment Error:`, error);
         res.status(500).json({ message: 'Error starting assessment', error: error.message });
     }
@@ -299,7 +338,7 @@ exports.getProgress = async (req, res) => {
 
         // Check for completed assessment first
         const [completed] = await db.query(
-            'SELECT id, completed_at FROM assessments WHERE user_id = ? AND status = ? ORDER BY completed_at DESC LIMIT 1',
+            'SELECT id, completed_at FROM assessments WHERE user_id = ? AND status = ? ORDER BY completed_at DESC',
             [userId, 'Completed']
         );
 
@@ -310,6 +349,7 @@ exports.getProgress = async (req, res) => {
             );
             return res.status(200).json({
                 status:            'Completed',
+                completedAttempts: completed.length,
                 completedAt:       completed[0].completed_at,
                 primaryCareerName: result[0] ? result[0].primary_career_name : null,
                 primaryMatchPct:   result[0] ? result[0].primary_match_pct   : null
@@ -368,5 +408,188 @@ exports.getAssessmentHistory = async (req, res) => {
     } catch (error) {
         console.error(`[${req.requestId}] History Error:`, error);
         res.status(500).json({ message: 'Error fetching history', error: error.message });
+    }
+};// ============================================================
+// 8. CREATE REDO REQUEST
+// ============================================================
+exports.createRedoRequest = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { reason } = req.body;
+
+        if (!reason || reason.trim() === '') {
+            return res.status(400).json({ message: 'A reason must be provided.' });
+        }
+
+        // Count all redo requests ever submitted (max 3 allowed)
+        const [allRequests] = await db.query(
+            "SELECT COUNT(*) as count FROM redo_requests WHERE user_id = ?",
+            [userId]
+        );
+        if (allRequests[0].count >= 3) {
+            return res.status(403).json({ message: 'You have reached the maximum limit of 3 redo requests.' });
+        }
+
+        // Check if there is already a PENDING request
+        const [pending] = await db.query(
+            "SELECT id FROM redo_requests WHERE user_id = ? AND status = 'PENDING'",
+            [userId]
+        );
+        if (pending.length > 0) {
+            return res.status(409).json({ message: 'You already have a pending request.' });
+        }
+
+        // Get current completed attempts and current score
+        const [completed] = await db.query(
+            "SELECT COUNT(*) as count FROM assessments WHERE user_id = ? AND status = 'Completed'",
+            [userId]
+        );
+        const completedCount = completed[0].count;
+
+        if (completedCount >= 3) {
+            return res.status(403).json({ message: 'You have already completed the maximum of 3 assessments.' });
+        }
+        if (completedCount === 0) {
+            return res.status(400).json({ message: 'You have not completed the assessment yet.' });
+        }
+
+        const [latestResult] = await db.query(
+            "SELECT primary_match_pct, primary_career_name FROM assessment_results WHERE user_id = ? ORDER BY created_at DESC LIMIT 1",
+            [userId]
+        );
+        const currentScore = latestResult[0] ? latestResult[0].primary_match_pct : null;
+        const currentCareer = latestResult[0] ? latestResult[0].primary_career_name : null;
+
+        const [result] = await db.query(
+            "INSERT INTO redo_requests (user_id, reason, completed_attempts_at_request, current_score, current_career) VALUES (?, ?, ?, ?, ?)",
+            [userId, reason.trim(), completedCount, currentScore, currentCareer]
+        );
+
+        // Create notification for all admins
+        const [admins] = await db.query("SELECT id FROM admins");
+        if (admins.length > 0) {
+            const notifValues = admins.map(a => [
+                'admin', a.id, 'REDO_REQUEST', 'New Redo Request', 
+                'User (ID: ' + userId + ') requested to retake the assessment.', result.insertId
+            ]);
+            await db.query(
+                "INSERT INTO notifications (recipient_type, recipient_id, type, title, message, related_id) VALUES ?",
+                [notifValues]
+            );
+        }
+
+        res.status(201).json({ message: 'Redo request submitted successfully!', requestId: result.insertId });
+
+    } catch (error) {
+        console.error('[' + req.requestId + '] Create Redo Request Error:', error);
+        res.status(500).json({ message: 'Error submitting redo request.', error: error.message });
+    }
+};
+
+// ============================================================
+// 9. GET REDO REQUEST STATUS
+// ============================================================
+exports.getRedoRequestStatus = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Find latest request
+        const [requests] = await db.query(
+            "SELECT status, admin_comment, requested_at, reviewed_at, approval_used FROM redo_requests WHERE user_id = ? ORDER BY requested_at DESC LIMIT 1",
+            [userId]
+        );
+        
+        // Count total requests submitted
+        const [allRequests] = await db.query(
+            "SELECT COUNT(*) as count FROM redo_requests WHERE user_id = ?",
+            [userId]
+        );
+        
+        // Count total completed assessments
+        const [completed] = await db.query(
+            "SELECT COUNT(*) as count FROM assessments WHERE user_id = ? AND status = 'Completed'",
+            [userId]
+        );
+
+        res.status(200).json({
+            completedAttempts: completed[0].count,
+            totalRequestsSubmitted: allRequests[0].count,
+            latestRequest: requests[0] || null
+        });
+
+    } catch (error) {
+        console.error('[' + req.requestId + '] Get Redo Request Status Error:', error);
+        res.status(500).json({ message: 'Error fetching redo request status.', error: error.message });
+    }
+};
+
+
+// ============================================================
+// X. START NEW ATTEMPT (Deletes old and starts fresh)
+// ============================================================
+exports.startNewAttempt = async (req, res) => {
+    let connection;
+    try {
+        const userId = req.user.id;
+
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        // 1. Verify user has an approved, unused redo request
+        const [approvals] = await connection.query(
+            "SELECT id FROM redo_requests WHERE user_id = ? AND status = 'APPROVED' AND approval_used = 0 FOR UPDATE",
+            [userId]
+        );
+
+        if (approvals.length === 0) {
+            await connection.rollback();
+            connection.release();
+            return res.status(403).json({ message: 'You need admin approval to take the assessment again.' });
+        }
+
+        const redoId = approvals[0].id;
+
+        // 2. Identify old assessment attempts
+        const [oldAssessments] = await connection.query(
+            "SELECT id FROM assessments WHERE user_id = ?",
+            [userId]
+        );
+
+        if (oldAssessments.length > 0) {
+            const oldIds = oldAssessments.map(a => a.id);
+            
+            // 3. Delete dependent data safely (Foreign keys require specific order)
+            await connection.query("DELETE FROM assessment_results WHERE assessment_id IN (?)", [oldIds]);
+            await connection.query("DELETE FROM user_responses WHERE assessment_id IN (?)", [oldIds]);
+            
+            // 4. Delete old assessments
+            await connection.query("DELETE FROM assessments WHERE id IN (?)", [oldIds]);
+        }
+
+        // 5. Consume the approval
+        await connection.query("UPDATE redo_requests SET approval_used = 1 WHERE id = ?", [redoId]);
+
+        // 6. Start a brand new assessment attempt
+        const [result] = await connection.query(
+            'INSERT INTO assessments (user_id, status, scoring_version) VALUES (?, ?, ?)',
+            [userId, 'In-Progress', process.env.SCORING_VERSION || 'v1.0']
+        );
+
+        await connection.commit();
+        connection.release();
+
+        res.status(201).json({
+            message: 'Old assessment data cleared and new assessment started!',
+            assessmentId: result.insertId,
+            started: true
+        });
+
+    } catch (error) {
+        if (connection) {
+            await connection.rollback();
+            connection.release();
+        }
+        console.error('Error starting new attempt:', error);
+        res.status(500).json({ message: 'Failed to start new attempt. Server error.' });
     }
 };

@@ -82,3 +82,31 @@ body {
 
 
 
+
+/* Role Toggle */
+.role-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+input[type="radio"][name="role"] {
+    display: none;
+}
+.role-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+}
+input[type="radio"]:checked + .role-btn {
+    background: #eef2ff;
+    border-color: var(--primary);
+    color: var(--primary);
+}

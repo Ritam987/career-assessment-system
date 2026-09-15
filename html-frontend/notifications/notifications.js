@@ -1,190 +1,88 @@
-// ===================================================
-// Notifications Page — Mock Data & Logic
-// ===================================================
+﻿/**
+ * notifications/notifications.js — User notification page
+ */
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = await requireAuth();
+    if (!user) return;
 
-// Sidebar toggle
-function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("open");
-    document.getElementById("sidebarOverlay").classList.toggle("active");
-}
-function closeSidebar() {
-    document.getElementById("sidebar").classList.remove("open");
-    document.getElementById("sidebarOverlay").classList.remove("active");
-}
+    // Show name
+    document.querySelectorAll('.user-name, #headerName, #bannerName').forEach(el => el.textContent = user.full_name || user.email);
 
-// ─── Mock Notifications Data ────────────────────────
-// Backend dev: replace this array with GET /api/notifications
-const mockNotifications = [
-    {
-        id: 1,
-        type: "assessment",
-        icon: "bi-clipboard-check-fill",
-        iconClass: "icon-purple",
-        title: "Assessment Reminder",
-        message: "You have not completed your Personality Assessment yet. Resume where you left off.",
-        time: "2 minutes ago",
-        tag: "Assessment",
-        tagClass: "tag-assessment",
-        read: false
-    },
-    {
-        id: 2,
-        type: "result",
-        icon: "bi-bar-chart-fill",
-        iconClass: "icon-green",
-        title: "Your Results are Ready!",
-        message: "Your Career Assessment report has been generated. View your personalized career recommendations now.",
-        time: "1 hour ago",
-        tag: "Result",
-        tagClass: "tag-result",
-        read: false
-    },
-    {
-        id: 3,
-        type: "profile",
-        icon: "bi-person-fill",
-        iconClass: "icon-blue",
-        title: "Profile Incomplete",
-        message: "Your profile is missing some information. Complete your profile to get better career recommendations.",
-        time: "3 hours ago",
-        tag: "Profile",
-        tagClass: "tag-profile",
-        read: false
-    },
-    {
-        id: 4,
-        type: "system",
-        icon: "bi-shield-check-fill",
-        iconClass: "icon-orange",
-        title: "Welcome to Career Assessment!",
-        message: "Thank you for joining Reach India Trust's Career Assessment System. Start your assessment to discover the best career for you.",
-        time: "Yesterday",
-        tag: "System",
-        tagClass: "tag-system",
-        read: true
-    },
-    {
-        id: 5,
-        type: "reminder",
-        icon: "bi-bell-fill",
-        iconClass: "icon-orange",
-        title: "Weekly Progress Reminder",
-        message: "Don't forget! Completing your assessment brings you one step closer to your dream career.",
-        time: "2 days ago",
-        tag: "Reminder",
-        tagClass: "tag-reminder",
-        read: true
-    },
-    {
-        id: 6,
-        type: "system",
-        icon: "bi-check-circle-fill",
-        iconClass: "icon-green",
-        title: "Account Verified Successfully",
-        message: "Your account has been verified. You now have full access to all features of the Career Assessment System.",
-        time: "3 days ago",
-        tag: "System",
-        tagClass: "tag-system",
-        read: true
+    loadNotifications();
+});
+
+async function loadNotifications() {
+    try {
+        const res = await apiGet('/assessments/notifications');
+        const notifs = res && res.data && res.data.notifications ? res.data.notifications : [];
+
+        // Update sidebar badge
+        const badge = document.getElementById('sidebarBadge');
+        if (badge) {
+            const unread = notifs.filter(n => !n.is_read).length;
+            badge.textContent = unread;
+            badge.style.display = unread > 0 ? 'inline-block' : 'none';
+        }
+
+        renderNotifications(notifs);
+    } catch(e) {
+        console.error('Notification load error:', e);
     }
-];
+}
 
-let currentFilter = "all";
+function renderNotifications(notifs) {
+    const list = document.getElementById('notifList') || document.querySelector('.notif-list');
+    if (!list) return;
 
-// ─── Render Notifications ───────────────────────────
-function renderNotifications(filter) {
-    const list = document.getElementById("notifList");
-    const empty = document.getElementById("emptyState");
-
-    const filtered = mockNotifications.filter(n => {
-        if (filter === "unread") return !n.read;
-        if (filter === "read")   return n.read;
-        return true;
-    });
-
-    if (filtered.length === 0) {
-        list.innerHTML = "";
-        empty.classList.remove("d-none");
+    if (!notifs.length) {
+        list.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-bell-slash fs-1"></i><p class="mt-2">You are all caught up!</p></div>';
         return;
     }
-    empty.classList.add("d-none");
 
-    list.innerHTML = filtered.map(n => `
-        <div class="notif-card ${n.read ? '' : 'unread'}" id="notif-${n.id}" onclick="markRead(${n.id})">
-            ${!n.read ? '<div class="unread-dot"></div>' : ''}
-            <div class="notif-icon-box ${n.iconClass}">
-                <i class="bi ${n.icon}"></i>
+    list.innerHTML = notifs.map(n => {
+        let icon = 'bi-info-circle text-primary';
+        if (n.type === 'REDO_APPROVED') icon = 'bi-check-circle text-success';
+        if (n.type === 'REDO_REJECTED') icon = 'bi-x-circle text-danger';
+
+        return `<div class="notif-card ${n.is_read ? '' : 'unread'} d-flex align-items-start gap-3 p-3 border-bottom" data-id="${n.id}">
+            <i class="bi ${icon} fs-5 mt-1"></i>
+            <div class="flex-grow-1">
+                <div class="fw-semibold">${n.title}</div>
+                <div class="text-muted small">${n.message}</div>
+                <div class="text-muted" style="font-size:11px;margin-top:4px;">${new Date(n.created_at).toLocaleString('en-IN')}</div>
             </div>
-            <div class="notif-body">
-                <p class="notif-title">${n.title}</p>
-                <p class="notif-message">${n.message}</p>
-                <div class="notif-meta">
-                    <span class="notif-time"><i class="bi bi-clock"></i> ${n.time}</span>
-                    <span class="notif-tag ${n.tagClass}">${n.tag}</span>
-                </div>
-            </div>
-            <div class="notif-action">
-                <button class="btn-view" onclick="event.stopPropagation()">View</button>
-                <button class="btn-dismiss" onclick="event.stopPropagation(); dismissNotif(${n.id})">Dismiss</button>
-            </div>
-        </div>
-    `).join("");
-
-    updateCounts();
+            ${!n.is_read ? `<button class="btn btn-sm btn-outline-secondary" onclick="markOneRead(${n.id})">Mark read</button>` : ''}
+        </div>`;
+    }).join('');
 }
 
-// ─── Mark Single as Read ────────────────────────────
-function markRead(id) {
-    const notif = mockNotifications.find(n => n.id === id);
-    if (notif) notif.read = true;
-    renderNotifications(currentFilter);
+window.markOneRead = async (id) => {
+    try {
+        await apiPatch('/assessments/notifications/' + id + '/read');
+        const card = document.querySelector('.notif-card[data-id="' + id + '"]');
+        if (card) { card.classList.remove('unread'); const btn = card.querySelector('button'); if (btn) btn.remove(); }
+    } catch(e) { showToast('Error marking read', 'error'); }
+};
+
+window.markAllRead = async () => {
+    try {
+        await apiPatch('/assessments/notifications/read-all');
+        loadNotifications();
+    } catch(e) { showToast('Error', 'error'); }
+};
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    const ov = document.getElementById('sidebarOverlay');
+    if (ov) ov.classList.toggle('active');
 }
-
-// ─── Dismiss Notification ───────────────────────────
-function dismissNotif(id) {
-    const index = mockNotifications.findIndex(n => n.id === id);
-    if (index > -1) mockNotifications.splice(index, 1);
-    renderNotifications(currentFilter);
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    const ov = document.getElementById('sidebarOverlay');
+    if (ov) ov.classList.remove('active');
 }
-
-// ─── Mark All as Read ───────────────────────────────
-function markAllRead() {
-    mockNotifications.forEach(n => n.read = true);
-    renderNotifications(currentFilter);
+async function logoutUser() {
+    await apiPost('/auth/logout');
+    localStorage.removeItem('cas_user');
+    window.location.href = '/login/login.html';
 }
-
-// ─── Filter Tabs ────────────────────────────────────
-function filterNotifs(filter, btn) {
-    currentFilter = filter;
-    document.querySelectorAll(".filter-tab").forEach(t => t.classList.remove("active"));
-    btn.classList.add("active");
-    renderNotifications(filter);
-}
-
-// ─── Update Counts ──────────────────────────────────
-function updateCounts() {
-    const unread = mockNotifications.filter(n => !n.read).length;
-    const read   = mockNotifications.filter(n => n.read).length;
-
-    document.getElementById("countAll").textContent    = mockNotifications.length;
-    document.getElementById("countUnread").textContent = unread;
-    document.getElementById("countRead").textContent   = read;
-
-    // Sidebar badge
-    const badge = document.getElementById("sidebarBadge");
-    if (unread > 0) {
-        badge.textContent = unread;
-        badge.style.display = "inline-block";
-    } else {
-        badge.style.display = "none";
-    }
-
-    // Topbar dot
-    const dot = document.getElementById("topbarDot");
-    dot.style.display = unread > 0 ? "block" : "none";
-}
-
-// ─── Init ────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-    renderNotifications("all");
-});

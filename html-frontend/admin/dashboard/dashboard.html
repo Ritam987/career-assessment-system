@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -259,23 +259,23 @@
             <div class="kpi-row">
                 <div class="kc kc-p">
                     <div class="kc-hdr"><span class="kc-lbl">Total Users</span><div class="kc-ico"><i class="bi bi-people-fill"></i></div></div>
-                    <div class="kc-val">248</div>
-                    <div class="kc-ftr"><span class="badge-up"><i class="bi bi-arrow-up"></i>12</span><span class="kc-since">this week</span></div>
+                    <div class="kc-val">-</div>
+                    <div class="kc-ftr"><span class="kc-since">Updated just now</span></div>
                 </div>
                 <div class="kc kc-g">
                     <div class="kc-hdr"><span class="kc-lbl">Assessments Done</span><div class="kc-ico"><i class="bi bi-check-circle-fill"></i></div></div>
-                    <div class="kc-val">142</div>
-                    <div class="kc-ftr"><span class="badge-up"><i class="bi bi-arrow-up"></i>20</span><span class="kc-since">this week</span></div>
+                    <div class="kc-val">-</div>
+                    <div class="kc-ftr"><span class="kc-since">Updated just now</span></div>
                 </div>
                 <div class="kc kc-b">
                     <div class="kc-hdr"><span class="kc-lbl">Active Questions</span><div class="kc-ico"><i class="bi bi-patch-question-fill"></i></div></div>
-                    <div class="kc-val">80</div>
-                    <div class="kc-ftr"><span class="badge-flat"><i class="bi bi-dash"></i>0</span><span class="kc-since">no change</span></div>
+                    <div class="kc-val">-</div>
+                    <div class="kc-ftr"><span class="kc-since">Updated just now</span></div>
                 </div>
                 <div class="kc kc-a">
                     <div class="kc-hdr"><span class="kc-lbl">Careers Mapped</span><div class="kc-ico"><i class="bi bi-briefcase-fill"></i></div></div>
-                    <div class="kc-val">42</div>
-                    <div class="kc-ftr"><span class="badge-up"><i class="bi bi-arrow-up"></i>3</span><span class="kc-since">this month</span></div>
+                    <div class="kc-val">-</div>
+                    <div class="kc-ftr"><span class="kc-since">Updated just now</span></div>
                 </div>
             </div>
 
@@ -325,12 +325,12 @@
                             <div class="donut-row">
                                 <div class="donut-wrap">
                                     <canvas id="donutChart" width="88" height="88"></canvas>
-                                    <div class="donut-center"><b>248</b><br><small>Users</small></div>
+                                    <div class="donut-center"><b>-</b><br><small>Users</small></div>
                                 </div>
                                 <div class="donut-legend">
-                                    <div class="dl"><span><span class="dl-dot" style="background:#5b21b6;"></span>Class 10/12</span><strong>42%</strong></div>
+                                    <div class="dl"><span><span class="dl-dot" style="background:#5b21b6;"></span>Class 10/12</span><strong>-</strong></div>
                                     <div class="dl"><span><span class="dl-dot" style="background:#3b82f6;"></span>Diploma</span><strong>23%</strong></div>
-                                    <div class="dl"><span><span class="dl-dot" style="background:#10b981;"></span>Bachelor's</span><strong>28%</strong></div>
+                                    <div class="dl"><span><span class="dl-dot" style="background:#10b981;"></span>Bachelor's</span><strong>-</strong></div>
                                     <div class="dl"><span><span class="dl-dot" style="background:#f59e0b;"></span>Other</span><strong>7%</strong></div>
                                 </div>
                             </div>
@@ -383,72 +383,135 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/admin-api.js"></script>
 <script src="../assets/js/admin-shared.js"></script>
 <script>
-    document.getElementById('todayDate').textContent =
-        new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+    // ── Auth guard + load real data ──────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+        const admin = await window.adminApi.requireAuth();
+        if (!admin) return; // redirect triggered inside requireAuth
 
-    // Bar chart — fills panel height
-    const barCtx = document.getElementById('barChart').getContext('2d');
-    new Chart(barCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Completed', 'In Progress', 'Not Started'],
-            datasets: [{
-                data: [142, 32, 74],
-                backgroundColor: ['#10b981','#7c3aed','#f59e0b'],
-                borderRadius: 7,
-                maxBarThickness: 56,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#111827',
-                    cornerRadius: 8,
-                    padding: 10,
-                    titleFont: { family: 'Inter', weight: '600', size: 13 },
-                    bodyFont:  { family: 'Inter', size: 12 },
-                    callbacks: {
-                        label: ctx => ` ${ctx.parsed.y} assessments`
+        // Set admin name in topbar
+        document.querySelectorAll('.admin-name').forEach(el => el.textContent = admin.name);
+
+        // Set today date
+        document.getElementById('todayDate').textContent =
+            new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+
+        // Load analytics
+        try {
+            const data = await window.adminApi.get('/admin/analytics');
+            if (data) {
+                const vals = document.querySelectorAll('.kc-val');
+                if (vals[0]) vals[0].textContent = data.totalUsers || 0;
+                if (vals[1]) vals[1].textContent = data.totalAssessments || 0;
+                if (vals[2]) vals[2].textContent = data.totalQuestions || 0; // Active Questions
+                if (vals[3]) vals[3].textContent = data.totalCareers || 0;    // Careers Mapped
+                
+                const donutCenter = document.querySelector('.donut-center b');
+                if (donutCenter) donutCenter.textContent = data.totalUsers || 0;
+
+                // Render recent users
+                if (data.recentUsers && Array.isArray(data.recentUsers)) {
+                    const tbody = document.querySelector('.dtbl tbody');
+                    if (tbody) {
+                        tbody.innerHTML = data.recentUsers.map(u => {
+                            let badgeClass = 'bdg-am';
+                            if (u.status === 'Completed') badgeClass = 'bdg-g';
+                            else if (u.status === 'In-Progress') badgeClass = 'bdg-b';
+                            
+                            const avatar = (u.full_name || u.email).charAt(0).toUpperCase();
+                            
+                            return `
+                            <tr>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div class="av" style="background:#f3e8ff;color:#7c3aed;">${avatar}</div>
+                                        <div>
+                                            <div class="nm">${u.full_name || '—'}</div>
+                                            <div class="em">${u.education_level || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="bdg ${badgeClass}">${u.status}</span></td>
+                            </tr>`;
+                        }).join('');
                     }
                 }
-            },
-            scales: {
-                x: { grid:{display:false}, border:{display:false}, ticks:{color:'#9ca3af',font:{family:'Inter',size:11}} },
-                y: { grid:{color:'#f3f4f6'}, border:{display:false}, ticks:{color:'#9ca3af',font:{family:'Inter',size:11},maxTicksLimit:5}, beginAtZero:true }
             }
-        }
+        
+                // Initialize Charts with dynamic data
+                const barCtx = document.getElementById('barChart').getContext('2d');
+                new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Completed', 'In Progress', 'Not Started'],
+                        datasets: [{
+                            data: [data.assessmentStats.completed, data.assessmentStats.in_progress, data.assessmentStats.not_started],
+                            backgroundColor: ['#10b981','#7c3aed','#f59e0b'],
+                            borderRadius: 7,
+                            maxBarThickness: 56,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#111827',
+                                cornerRadius: 8,
+                                padding: 10,
+                                callbacks: {
+                                    label: function(ctx) { return ' ' + ctx.raw + ' Users'; }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { grid:{display:false}, border:{display:false}, ticks:{color:'#6b7280',font:{family:'Inter',size:12,weight:500}} },
+                            y: { grid:{color:'#f3f4f6'}, border:{display:false}, ticks:{color:'#9ca3af',font:{family:'Inter',size:11},maxTicksLimit:5}, beginAtZero:true }
+                        }
+                    }
+                });
+
+                const totalEdu = data.totalUsers || 1;
+                const edu = data.educationStats || { class10_12:0, diploma:0, bachelors:0, other:0 };
+                
+                const dLegend = document.querySelectorAll('.dl strong');
+                if (dLegend.length >= 4) {
+                    dLegend[0].textContent = Math.round((edu.class10_12 / totalEdu) * 100) + '%';
+                    dLegend[1].textContent = Math.round((edu.diploma / totalEdu) * 100) + '%';
+                    dLegend[2].textContent = Math.round((edu.bachelors / totalEdu) * 100) + '%';
+                    dLegend[3].textContent = Math.round((edu.other / totalEdu) * 100) + '%';
+                }
+
+                new Chart(document.getElementById('donutChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Class 10/12', 'Diploma', "Bachelor's", 'Other'],
+                        datasets: [{
+                            data: [edu.class10_12, edu.diploma, edu.bachelors, edu.other],
+                            backgroundColor: ['#5b21b6','#3b82f6','#10b981','#f59e0b'],
+                            borderWidth: 0, hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: false, cutout: '70%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { backgroundColor:'#111827', cornerRadius:8, padding:10,
+                                callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw}` } }
+                        }
+                    }
+                });
+
+            } catch(e) { console.warn('Analytics load failed', e.message); }
     });
 
-    // Donut
-    new Chart(document.getElementById('donutChart').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Class 10/12','Diploma',"Bachelor's",'Other'],
-            datasets: [{
-                data: [42,23,28,7],
-                backgroundColor: ['#5b21b6','#3b82f6','#10b981','#f59e0b'],
-                borderWidth: 0, hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: false, cutout: '70%',
-            plugins: {
-                legend: { display: false },
-                tooltip: { backgroundColor:'#111827', cornerRadius:8, padding:10,
-                    callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw}%` } }
-            }
-        }
-    });
-</script>
+    function logout() { window.adminApi.logout(); }
 
-<!-- Google Translate Integration -->
-<script src="../../assets/js/translate.js"></script>
+    </script>
 </body>
 </html>
 

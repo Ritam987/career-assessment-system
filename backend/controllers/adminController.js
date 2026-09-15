@@ -200,7 +200,7 @@ exports.getAllUsers = async (req, res) => {
     try {
         // Fetch all registered users excluding passwords, ordered by newest first
         const [users] = await db.query(
-            'SELECT id, name, email, created_at FROM users ORDER BY created_at DESC'
+            'SELECT id, full_name, email, created_at FROM users ORDER BY created_at DESC'
         );
 
         res.status(200).json({ 
@@ -210,29 +210,6 @@ exports.getAllUsers = async (req, res) => {
     } catch (error) {
         console.error('Fetch All Users Error:', error);
         res.status(500).json({ message: 'Failed to fetch users.', error: error.message });
-    }
-};
-
-// ==========================================
-// 8. GET ADMIN ANALYTICS (Dashboard Overview)
-// ==========================================
-exports.getAdminAnalytics = async (req, res) => {
-    try {
-        // Fetch total counts from respective tables using Promise.all for parallel execution
-        const [userResult] = await db.query('SELECT COUNT(*) as count FROM users');
-        const [questionResult] = await db.query('SELECT COUNT(*) as count FROM questions');
-        const [careerResult] = await db.query('SELECT COUNT(*) as count FROM careers');
-        const [assessmentResult] = await db.query('SELECT COUNT(*) as count FROM assessments WHERE status = ?', ['Completed']);
-
-        res.status(200).json({
-            totalUsers: userResult[0].count,
-            totalQuestions: questionResult[0].count,
-            totalCareers: careerResult[0].count,
-            completedAssessments: assessmentResult[0].count
-        });
-    } catch (error) {
-        console.error('Analytics Error:', error);
-        res.status(500).json({ message: 'Failed to fetch analytics.', error: error.message });
     }
 };
 
@@ -359,5 +336,254 @@ exports.getAllCategories = async (req, res) => {
     } catch (error) {
         console.error('Fetch Categories Error:', error);
         res.status(500).json({ message: 'Failed to fetch categories.', error: error.message });
+    }
+};// ==========================================
+// 14. GET REDO REQUESTS (Admin)
+// ==========================================
+exports.getAllRedoRequests = async (req, res) => {
+    try {
+        const [requests] = await db.query(
+            "SELECT r.*, u.full_name, u.email FROM redo_requests r JOIN users u ON r.user_id = u.id ORDER BY r.requested_at DESC"
+        );
+        res.status(200).json({ requests });
+    } catch (error) {
+        console.error('[' + req.requestId + '] Get All Redo Requests Error:', error);
+        res.status(500).json({ message: 'Failed to fetch redo requests.', error: error.message });
+    }
+};
+
+// ==========================================
+// 15. APPROVE REDO REQUEST (Admin)
+// ==========================================
+exports.approveRedoRequest = async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        const adminId = req.admin.id;
+        const { admin_comment } = req.body;
+
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        const [requests] = await connection.query("SELECT * FROM redo_requests WHERE id = ? FOR UPDATE", [id]);
+        
+        if (requests.length === 0) {
+            await connection.rollback(); connection.release();
+            return res.status(404).json({ message: 'Request not found.' });
+        }
+
+        const request = requests[0];
+        if (request.status !== 'PENDING') {
+            await connection.rollback(); connection.release();
+            return res.status(409).json({ message: 'Request has already been processed.' });
+        }
+
+        const [completed] = await connection.query(
+            "SELECT COUNT(*) as count FROM assessments WHERE user_id = ? AND status = 'Completed'",
+            [request.user_id]
+        );
+
+        if (completed[0].count >= 3) {
+            await connection.rollback(); connection.release();
+            return res.status(409).json({ message: 'User already has the maximum of 3 completed assessments.' });
+        }
+
+        await connection.query(
+            "UPDATE redo_requests SET status = 'APPROVED', reviewed_by = ?, admin_comment = ?, reviewed_at = NOW() WHERE id = ?",
+            [adminId, admin_comment || '', id]
+        );
+
+        await connection.query(
+            "INSERT INTO notifications (recipient_type, recipient_id, type, title, message, related_id) VALUES (?, ?, ?, ?, ?, ?)",
+            ['user', request.user_id, 'REDO_APPROVED', 'Assessment Redo Approved', 'Your request to retake the career assessment has been approved. You can now start the assessment again.', id]
+        );
+
+        await connection.commit();
+        connection.release();
+
+        res.status(200).json({ message: 'Request approved successfully.' });
+
+    } catch (error) {
+        if (connection) { await connection.rollback(); connection.release(); }
+        console.error('[' + req.requestId + '] Approve Redo Request Error:', error);
+        res.status(500).json({ message: 'Failed to approve request.', error: error.message });
+    }
+};
+
+// ==========================================
+// 16. REJECT REDO REQUEST (Admin)
+// ==========================================
+exports.rejectRedoRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const adminId = req.admin.id;
+        const { admin_comment } = req.body;
+
+        if (!admin_comment || admin_comment.trim() === '') {
+            return res.status(400).json({ message: 'A comment/reason is required for rejection.' });
+        }
+
+        const [result] = await db.query(
+            "UPDATE redo_requests SET status = 'REJECTED', reviewed_by = ?, admin_comment = ?, reviewed_at = NOW() WHERE id = ? AND status = 'PENDING'",
+            [adminId, admin_comment.trim(), id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Pending request not found or already processed.' });
+        }
+
+        // Notify user
+        const [requests] = await db.query("SELECT user_id FROM redo_requests WHERE id = ?", [id]);
+        if (requests.length > 0) {
+            await db.query(
+                "INSERT INTO notifications (recipient_type, recipient_id, type, title, message, related_id) VALUES (?, ?, ?, ?, ?, ?)",
+                ['user', requests[0].user_id, 'REDO_REJECTED', 'Assessment Redo Request Declined', 'Your request to retake the assessment was declined: ' + admin_comment, id]
+            );
+        }
+
+        res.status(200).json({ message: 'Request rejected successfully.' });
+
+    } catch (error) {
+        console.error('[' + req.requestId + '] Reject Redo Request Error:', error);
+        res.status(500).json({ message: 'Failed to reject request.', error: error.message });
+    }
+};
+
+// ==========================================
+// 17. GET ADMIN PROFILE
+// ==========================================
+exports.getAdminProfile = async (req, res) => {
+    try {
+        const [admin] = await db.query('SELECT id, name, email, role, company_id, profile_picture FROM admins WHERE id = ?', [req.admin.id]);
+        if (admin.length === 0) return res.status(404).json({ message: 'Admin not found' });
+        res.status(200).json({ admin: admin[0] });
+    } catch(err) {
+        res.status(500).json({ message: 'Error fetching profile', error: err.message });
+    }
+};
+// ==========================================
+// 18. ADMIN LOGOUT
+// ==========================================
+exports.adminLogout = (req, res) => {
+    res.clearCookie('admin_token', { httpOnly: true, sameSite: 'strict' });
+    res.status(200).json({ message: 'Logged out successfully.' });
+};
+
+// ==========================================
+// 19. ADMIN GOOGLE LOGIN
+// ==========================================
+const { OAuth2Client } = require('google-auth-library');
+
+exports.adminGoogleLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) return res.status(400).json({ message: 'No token provided' });
+
+        const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        const { email } = payload;
+
+        // Admin must already be registered with this email
+        const [admins] = await db.query('SELECT * FROM admins WHERE email = ?', [email]);
+        if (admins.length === 0) {
+            return res.status(403).json({ message: 'No admin account found for this Google email. Please register first.' });
+        }
+
+        const admin = admins[0];
+        const jwtToken = require('jsonwebtoken').sign(
+            { id: admin.id, email: admin.email, role: admin.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.cookie('admin_token', jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000
+        });
+
+        res.status(200).json({
+            message: 'Admin Google login successful!',
+            admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role }
+        });
+
+    } catch (error) {
+        console.error('Admin Google Auth Error:', error);
+        res.status(401).json({ message: 'Invalid Google token or account not authorized.' });
+    }
+};
+// ==========================================
+// 8. GET ADMIN ANALYTICS (Dashboard Overview)
+// ==========================================
+exports.getAdminAnalytics = async (req, res) => {
+    try {
+        const [userResult] = await db.query('SELECT COUNT(*) as count FROM users');
+        const [questionResult] = await db.query("SELECT COUNT(*) as count FROM questions WHERE status = 'Active'");
+        const [careerResult] = await db.query('SELECT COUNT(*) as count FROM careers');
+        const [assessmentResult] = await db.query('SELECT COUNT(*) as count FROM assessments WHERE status = ?', ['Completed']);
+        
+        // Get breakdown of users by their latest assessment status
+        const [statusBreakdown] = await db.query(`
+            SELECT 
+              SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+              SUM(CASE WHEN status = 'In-Progress' THEN 1 ELSE 0 END) as in_progress,
+              SUM(CASE WHEN status = 'Not Started' THEN 1 ELSE 0 END) as not_started
+            FROM (
+              SELECT 
+                u.id, 
+                IFNULL(
+                    (SELECT status FROM assessments WHERE user_id = u.id ORDER BY started_at DESC LIMIT 1), 
+                    'Not Started'
+                ) as status
+              FROM users u
+            ) as user_status
+        `);
+
+        // Get breakdown of users by education
+        const [eduBreakdown] = await db.query(`
+            SELECT 
+              SUM(CASE WHEN education_level IN ('Class 10', 'Class 12', '10th', '12th') THEN 1 ELSE 0 END) as class10_12,
+              SUM(CASE WHEN education_level = 'Diploma' THEN 1 ELSE 0 END) as diploma,
+              SUM(CASE WHEN education_level LIKE '%Bachelor%' OR education_level = 'BA' OR education_level = 'BSc' OR education_level = 'BCom' OR education_level = 'B.Tech' OR education_level = 'BBA' THEN 1 ELSE 0 END) as bachelors,
+              SUM(CASE WHEN education_level NOT IN ('Class 10', 'Class 12', '10th', '12th', 'Diploma', 'BA', 'BSc', 'BCom', 'B.Tech', 'BBA') AND education_level NOT LIKE '%Bachelor%' THEN 1 ELSE 0 END) as other
+            FROM users
+        `);
+
+        // Get recent users
+        const [recentUsers] = await db.query(`
+            SELECT u.id, u.full_name, u.email, u.education_level, 
+                   IFNULL((SELECT status FROM assessments WHERE user_id = u.id ORDER BY started_at DESC LIMIT 1), 'Not Started') as status
+            FROM users u
+            ORDER BY u.created_at DESC 
+            LIMIT 5
+        `);
+
+        res.status(200).json({
+            totalUsers: userResult[0].count,
+            totalQuestions: questionResult[0].count,
+            totalCareers: careerResult[0].count,
+            totalAssessments: assessmentResult[0].count,
+            assessmentStats: {
+                completed: parseInt(statusBreakdown[0].completed) || 0,
+                in_progress: parseInt(statusBreakdown[0].in_progress) || 0,
+                not_started: parseInt(statusBreakdown[0].not_started) || 0
+            },
+            educationStats: {
+                class10_12: parseInt(eduBreakdown[0].class10_12) || 0,
+                diploma: parseInt(eduBreakdown[0].diploma) || 0,
+                bachelors: parseInt(eduBreakdown[0].bachelors) || 0,
+                other: parseInt(eduBreakdown[0].other) || 0
+            },
+            recentUsers: recentUsers
+        });
+
+    } catch (error) {
+        console.error('Admin Analytics Error:', error);
+        res.status(500).json({ message: 'Server error while fetching analytics', error: error.message });
     }
 };
