@@ -1,1 +1,0 @@
-﻿/* Skill Configuration page logic */

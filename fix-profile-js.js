@@ -1,4 +1,7 @@
+﻿const fs = require('fs');
 
+let jsFile = 'html-frontend/admin/profile/profile.js';
+let jsContent = `
 /**
  * admin/profile/profile.js
  */
@@ -64,7 +67,7 @@ async function loadProfile() {
             document.querySelectorAll('.user-avatar').forEach(el => {
                 if (el.id !== 'profileAvatarFallback') {
                     if (p.profile_picture) {
-                        el.innerHTML = `<img src="${p.profile_picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                        el.innerHTML = \`<img src="\${p.profile_picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">\`;
                     } else {
                         el.innerHTML = (p.name || 'A').charAt(0).toUpperCase();
                     }
@@ -141,3 +144,7 @@ async function savePassword() {
 }
 
 window.logout = function() { window.adminApi.logout(); }
+`;
+
+fs.writeFileSync(jsFile, jsContent);
+console.log("Wrote profile.js");

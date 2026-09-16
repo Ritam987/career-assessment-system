@@ -15,28 +15,19 @@ const ADMIN_NAV = [
   { type:'group', id:'g-assessment', label:'Assessment', icon:'bi-clipboard-check',
     items:[
       { label:'Questions',        icon:'bi-patch-question', href:'../questions/questions.html' },
-      { label:'Categories',       icon:'bi-grid-3x3-gap',   href:'../categories/categories.html' },
-      { label:'Score Management', icon:'bi-sliders',        href:'../scoring/scoring.html' }
+      { label:'Categories',       icon:'bi-grid-3x3-gap',   href:'../categories/categories.html' }
     ]
   },
-  { type:'group', id:'g-config', label:'Configuration', icon:'bi-sliders2',
-    items:[
-      { label:'Personality',  icon:'bi-emoji-smile', href:'../personality/personality.html' },
-      { label:'Interests',    icon:'bi-heart',       href:'../interests/interests.html' },
-      { label:'Skills',       icon:'bi-tools',       href:'../skills/skills.html' }
-    ]
-  },
+  
   { type:'group', id:'g-careers', label:'Careers', icon:'bi-briefcase',
     items:[
-      { label:'Career Management', icon:'bi-briefcase', href:'../careers/careers.html' },
-      { label:'Career Mapping',    icon:'bi-diagram-3', href:'../mapping/mapping.html' }
+      { label:'Career Management', icon:'bi-briefcase', href:'../careers/careers.html' }
     ]
   },
   { type:'group', id:'g-reports', label:'Reports', icon:'bi-bar-chart-line',
     items:[
       { label:'Assessment Results', icon:'bi-clipboard2-data',  href:'../results/results.html' },
-      { label:'PDF Reports',        icon:'bi-file-earmark-pdf', href:'../reports/reports.html' },
-      { label:'Search & Filter',    icon:'bi-funnel',           href:'../search/search.html' }
+      { label:'PDF Reports',        icon:'bi-file-earmark-pdf', href:'../reports/reports.html' }
     ]
   },
   { type:'link', label:'Redo Requests', icon:'bi-arrow-counterclockwise', href:'../redo-requests/redo-requests.html' },

@@ -27,7 +27,7 @@ exports.registerAdmin = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         await db.query(
-            'INSERT INTO admins (name, email, password_hash, role, company_id) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO admins (name, email, password_hash, role, company_id) VALUES (?, ?, ?, ?, ?, ?)',
             [name, email, hashedPassword, 'SuperAdmin', company_id]
         );
 
@@ -146,7 +146,7 @@ exports.getAllQuestions = async (req, res) => {
 // ==========================================
 exports.addCareer = async (req, res) => {
     try {
-        const { career_name, skill_domain, course_training, description, required_traits } = req.body;
+        const { career_name, skill_domain, course_training, description, required_traits, job_roles } = req.body;
 
         // Validation: Ensure career_name and skill_domain are provided
         if (!career_name || !skill_domain) {
@@ -155,17 +155,12 @@ exports.addCareer = async (req, res) => {
 
         const query = `
             INSERT INTO careers 
-            (career_name, skill_domain, course_training, description, required_traits) 
-            VALUES (?, ?, ?, ?, ?)
+            (career_name, skill_domain, course_training, description, required_traits, job_roles) 
+            VALUES (?, ?, ?, ?, ?, ?)
         `;
         
         const values = [
-            career_name, 
-            skill_domain, 
-            course_training || null, 
-            description || null, 
-            required_traits || null
-        ];
+            career_name, skill_domain, course_training || null, description || null, JSON.stringify(required_traits || []), JSON.stringify(job_roles || [])];
 
         const [result] = await db.query(query, values);
 
@@ -281,7 +276,7 @@ exports.deleteQuestion = async (req, res) => {
 exports.updateCareer = async (req, res) => {
     try {
         const { id } = req.params; // Extract career ID from URL
-        const { career_name, skill_domain, course_training, description, required_traits } = req.body;
+        const { career_name, skill_domain, course_training, description, required_traits, job_roles } = req.body;
 
         const query = `
             UPDATE careers 
@@ -585,5 +580,94 @@ exports.getAdminAnalytics = async (req, res) => {
     } catch (error) {
         console.error('Admin Analytics Error:', error);
         res.status(500).json({ message: 'Server error while fetching analytics', error: error.message });
+    }
+};
+
+
+
+// ==========================================
+// ADMIN PROFILE ROUTES
+// ==========================================
+exports.getProfile = async (req, res) => {
+    try {
+        const adminId = req.admin.id;
+        const [admins] = await db.query('SELECT id, name, email, role, profile_picture FROM admins WHERE id = ?', [adminId]);
+        if (admins.length === 0) return res.status(404).json({ message: 'Admin not found' });
+        res.status(200).json({ profile: admins[0] });
+    } catch (e) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const adminId = req.admin.id;
+        const { name, email } = req.body;
+        if (!name || !email) return res.status(400).json({ message: 'Name and email required' });
+        
+        await db.query('UPDATE admins SET name = ?, email = ? WHERE id = ?', [name, email, adminId]);
+        res.status(200).json({ message: 'Profile updated' });
+    } catch (e) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.updateAvatar = async (req, res) => {
+    try {
+        const adminId = req.admin.id;
+        const { avatar } = req.body;
+        if (!avatar) return res.status(400).json({ message: 'Avatar data required' });
+        
+        await db.query('UPDATE admins SET profile_picture = ? WHERE id = ?', [avatar, adminId]);
+        res.status(200).json({ message: 'Avatar updated' });
+    } catch (e) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.updatePassword = async (req, res) => {
+    try {
+        const adminId = req.admin.id;
+        const { currentPassword, newPassword } = req.body;
+        
+        const [admins] = await db.query('SELECT password_hash FROM admins WHERE id = ?', [adminId]);
+        if (admins.length === 0) return res.status(404).json({ message: 'Admin not found' });
+        
+        const admin = admins[0];
+        
+        if (admin.password_hash) {
+            const isMatch = await bcrypt.compare(currentPassword, admin.password_hash);
+            if (!isMatch) return res.status(400).json({ message: 'Incorrect current password' });
+        }
+        
+        const salt = await bcrypt.genSalt(10);
+        const newHash = await bcrypt.hash(newPassword, salt);
+        
+        await db.query('UPDATE admins SET password_hash = ? WHERE id = ?', [newHash, adminId]);
+        res.status(200).json({ message: 'Password updated' });
+    } catch (e) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// ==========================================
+// 19. GET ALL ASSESSMENT RESULTS
+// ==========================================
+exports.getAllResults = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                u.full_name, u.email, u.education_level,
+                ar.primary_career_name, ar.primary_match_pct, ar.created_at as completed_at
+            FROM assessment_results ar
+            JOIN users u ON ar.user_id = u.id
+            JOIN assessments a ON ar.assessment_id = a.id
+            WHERE a.status = 'Completed'
+            ORDER BY ar.created_at DESC
+        `;
+        const [results] = await db.query(query);
+        res.status(200).json({ results });
+    } catch (e) {
+        res.status(500).json({ message: 'Server error fetching results' });
     }
 };

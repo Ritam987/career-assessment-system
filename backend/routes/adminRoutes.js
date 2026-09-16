@@ -21,7 +21,12 @@ const {
     getAllRedoRequests,
     approveRedoRequest,
     rejectRedoRequest,
-    getAdminProfile
+    getAdminProfile,
+
+    updateProfile,
+    updateAvatar,
+    updatePassword,
+    getAllResults
 } = require('../controllers/adminController');
 
 const {
@@ -41,7 +46,12 @@ router.get('/google-client-id', (req, res) =>
 
 // ─── Protected (admin_token cookie required) ───────────
 router.get('/profile',        adminMiddleware, getAdminProfile);
+
+router.put('/profile',            adminMiddleware, updateProfile);
+router.post('/profile/avatar',    adminMiddleware, updateAvatar);
+router.put('/profile/password',   adminMiddleware, updatePassword);
 router.get('/analytics',      adminMiddleware, getAdminAnalytics);
+router.get('/results',        adminMiddleware, getAllResults);
 
 // Questions
 router.post('/questions',         adminMiddleware, addQuestion);

@@ -71,13 +71,29 @@
             <div class="page-header">
                 <div><h2>Assessment Results</h2><p>View and export all student assessment results.</p></div>
             </div>
+            
             <div class="panel">
-                <div class="panel-body" style="min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-muted);">
-                    <i class="bi bi-clipboard2-data" style="font-size:2rem;opacity:.18;"></i>
-                    <p style="font-size:.82rem;color:var(--text-sub);font-weight:600;margin:0;">Assessment Results</p>
-                    <p style="font-size:.75rem;text-align:center;max-width:260px;margin:0;">Connect your backend API to render data here.</p>
+                <div class="panel-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="resultsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User Name</th>
+                                    <th>Email</th>
+                                    <th>Education</th>
+                                    <th>Top Career Match</th>
+                                    <th>Match %</th>
+                                    <th>Completed At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="6" class="text-center py-4">Loading results...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
