@@ -1,0 +1,8 @@
+{
+  "invalid_json": "लक्षण या भूमिकाओं के लिए अमान्य JSON प्रारूप",
+  "career_name_required": "करियर का नाम आवश्यक है",
+  "name_email_required": "नाम और ईमेल आवश्यक हैं",
+  "all_passwords_required": "सभी पासवर्ड फ़ील्ड आवश्यक हैं",
+  "password_min_length": "नया पासवर्ड कम से कम 8 वर्णों का होना चाहिए",
+  "rejection_reason_required": "कृपया अस्वीकृति का कारण दें।"
+}

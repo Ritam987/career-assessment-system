@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderUsers(users);
     } catch(e) {
         console.error('Failed to load users:', e.message);
-        window.adminApi.showToast('Failed to load users', 'error');
+        window.adminApi.showToast(i18next.t('messages:failed_users'), 'error');
     }
 });
 
@@ -22,7 +22,7 @@ function renderUsers(users) {
     if (!tbody) return;
 
     if (users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No users registered yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4" data-i18n="admin:users.no_users">No users registered yet.</td></tr>';
         return;
     }
 
@@ -41,6 +41,7 @@ function renderUsers(users) {
             <td><span class="badge bg-success-subtle text-success border border-success-subtle">Active</span></td>
         </tr>
     `).join('');
+    if (window.translateAll) window.translateAll();
 }
 
 function logout() { window.adminApi.logout(); }

@@ -1,4 +1,4 @@
-
+﻿
 /**
  * admin/profile/profile.js
  */
@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const base64Str = ev.target.result;
             try {
                 await window.adminApi.post('/admin/profile/avatar', { avatar: base64Str });
-                window.adminApi.showToast('Avatar updated successfully');
+                window.adminApi.showToast(i18next.t('admin:profile.update_success'));
                 loadProfile(); // Reload to reflect changes
             } catch (err) {
-                window.adminApi.showToast(err.message || 'Failed to upload avatar', 'error');
+                window.adminApi.showToast(err.message || i18next.t('messages:failed_avatar_upload'), 'error');
             }
         };
         reader.readAsDataURL(file);
@@ -72,7 +72,7 @@ async function loadProfile() {
             });
         }
     } catch (e) {
-        window.adminApi.showToast('Failed to load profile', 'error');
+        window.adminApi.showToast(i18next.t('common:error'), 'error');
     }
 }
 
@@ -81,7 +81,7 @@ async function saveProfile() {
     const email = document.getElementById('pEmail').value.trim();
     
     if (!name || !email) {
-        window.adminApi.showToast('Name and Email are required', 'error');
+        window.adminApi.showToast(i18next.t('validation:name_email_required'), 'error');
         return;
     }
     
@@ -91,10 +91,10 @@ async function saveProfile() {
     
     try {
         await window.adminApi.put('/admin/profile', { name, email });
-        window.adminApi.showToast('Profile updated successfully');
+        window.adminApi.showToast(i18next.t('admin:profile.update_success'));
         loadProfile();
     } catch (e) {
-        window.adminApi.showToast(e.message || 'Failed to update profile', 'error');
+        window.adminApi.showToast(e.message || i18next.t('messages:failed_profile_update'), 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
@@ -107,17 +107,17 @@ async function savePassword() {
     const confirmPassword = document.getElementById('pConfirmPass').value;
     
     if (!currentPassword || !newPassword || !confirmPassword) {
-        window.adminApi.showToast('All password fields are required', 'error');
+        window.adminApi.showToast(i18next.t('validation:all_passwords_required'), 'error');
         return;
     }
     
     if (newPassword !== confirmPassword) {
-        window.adminApi.showToast('New passwords do not match', 'error');
+        window.adminApi.showToast(i18next.t('admin:profile.password_mismatch'), 'error');
         return;
     }
     
     if (newPassword.length < 8) {
-        window.adminApi.showToast('New password must be at least 8 characters', 'error');
+        window.adminApi.showToast(i18next.t('validation:password_min_length'), 'error');
         return;
     }
     
@@ -127,13 +127,13 @@ async function savePassword() {
     
     try {
         await window.adminApi.put('/admin/profile/password', { currentPassword, newPassword });
-        window.adminApi.showToast('Password updated successfully');
+        window.adminApi.showToast(i18next.t('admin:profile.password_success'));
         
         document.getElementById('pOldPass').value = '';
         document.getElementById('pNewPass').value = '';
         document.getElementById('pConfirmPass').value = '';
     } catch (e) {
-        window.adminApi.showToast(e.message || 'Failed to update password', 'error');
+        window.adminApi.showToast(e.message || i18next.t('messages:failed_password_update'), 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-shield-lock me-1"></i> Update Password';

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show expired message if redirected here
     const params = new URLSearchParams(window.location.search);
     if (params.get('expired')) {
-        showToast('Session expired. Please log in again.', 'error');
+        showToast(i18next.t('messages:session_expired'), 'error');
     }
 
     initGoogleLogin();
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn      = document.getElementById('loginBtn');
 
         if (!email || !password) {
-            showToast('Please enter your email and password.', 'error');
+            showToast(i18next.t('messages:enter_email_pass'), 'error');
             return;
         }
 
@@ -31,19 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res && res.ok) {
                 if (isAdmin) {
                     localStorage.setItem('cas_admin', JSON.stringify(res.data.admin));
-                    showToast('Admin login successful! Redirecting...', 'success');
+                    showToast(i18next.t('messages:admin_login_success'), 'success');
                     setTimeout(() => { window.location.href = '/admin/dashboard/dashboard.html'; }, 800);
                 } else {
                     localStorage.setItem('cas_user', JSON.stringify(res.data.user));
-                    showToast('Login successful! Redirecting...', 'success');
+                    showToast(i18next.t('messages:login_success'), 'success');
                     setTimeout(() => { window.location.href = '/dashboard/dashboard.html'; }, 800);
                 }
             } else {
-                showToast(res && res.data && res.data.message ? res.data.message : 'Login failed. Please check your credentials.', 'error');
+                showToast(res && res.data && res.data.message ? res.data.message : i18next.t('messages:login_failed'), 'error');
                 setLoading(btn, false);
             }
         } catch (err) {
-            showToast('Could not connect to the server.', 'error');
+            showToast(i18next.t('messages:cannot_connect'), 'error');
             setLoading(btn, false);
         }
     });
@@ -73,7 +73,7 @@ async function initGoogleLogin() {
 
             if (result.status === 202 && result.data && result.data.needs_info) {
                 // Student needs extra info — only relevant for student path
-                showToast('Account not found. Redirecting to registration...', 'info');
+                showToast(i18next.t('messages:account_not_found'), 'info');
                 setTimeout(() => { window.location.href = '/register.html'; }, 1500);
                 return;
             }
@@ -81,15 +81,15 @@ async function initGoogleLogin() {
             if (result.ok) {
                 if (isAdmin) {
                     localStorage.setItem('cas_admin', JSON.stringify(result.data.admin));
-                    showToast('Admin Google login successful!', 'success');
+                    showToast(i18next.t('messages:google_login_success'), 'success');
                     setTimeout(() => { window.location.href = '/admin/dashboard/dashboard.html'; }, 800);
                 } else {
                     localStorage.setItem('cas_user', JSON.stringify(result.data.user));
-                    showToast('Google login successful!', 'success');
+                    showToast(i18next.t('messages:google_login_success'), 'success');
                     setTimeout(() => { window.location.href = '/dashboard/dashboard.html'; }, 800);
                 }
             } else {
-                const msg = result.data && result.data.message ? result.data.message : 'Google login failed.';
+                const msg = result.data && result.data.message ? result.data.message : 'Google '+(window.i18n ? i18next.t('common:error') : 'Login failed.')+'';
                 showToast(msg, 'error');
             }
         };

@@ -57,7 +57,7 @@ function renderRequests(filterStatus) {
     document.getElementById('requestCount').textContent = `${filtered.length} Requests`;
 
     if (filtered.length === 0) {
-        container.innerHTML = '<div class="text-center text-muted py-5 border rounded bg-white">No requests found.</div>';
+        container.innerHTML = '<div class="text-center text-muted py-5 border rounded bg-white" data-i18n="admin:redo.no_requests">No requests found.</div>';
         return;
     }
 
@@ -118,6 +118,8 @@ function renderRequests(filterStatus) {
             </div>
         `;
     }).join('');
+
+    if (window.translateAll) window.translateAll();
 }
 
 function openActionModal(id, action) {
@@ -125,10 +127,8 @@ function openActionModal(id, action) {
     currentAction = action;
     const req = allRequests.find(r => r.id === id);
     
-    document.getElementById('modalTitle').textContent = action === 'approve' ? 'Approve Request' : 'Reject Request';
-    document.getElementById('modalConfirmText').textContent = action === 'approve' 
-        ? `Approve redo request for ${req.full_name}? They will be allowed one additional attempt.`
-        : `Reject redo request for ${req.full_name}?`;
+    document.getElementById('modalTitle').textContent = action === 'approve' ? i18next.t('messages:approve_request_title') : i18next.t('messages:reject_request_title');
+    document.getElementById('modalConfirmText').textContent = action === 'approve' ? i18next.t('messages:approve_confirm_text', {name: req.full_name}) : i18next.t('messages:reject_confirm_text', {name: req.full_name});
     
     document.getElementById('adminComment').value = '';
     
@@ -148,7 +148,7 @@ async function submitAction() {
     const comment = document.getElementById('adminComment').value;
     
     if (currentAction === 'reject' && !comment.trim()) {
-        window.adminApi.showToast('Please provide a reason for rejection.', 'error');
+        window.adminApi.showToast(i18next.t('validation:rejection_reason_required'), 'error');
         return;
     }
 
@@ -162,7 +162,7 @@ async function submitAction() {
             admin_comment: comment.trim()
         });
         
-        window.adminApi.showToast(`Request ${currentAction}d successfully!`);
+        window.adminApi.showToast(i18next.t('messages:action_success', {action: currentAction}));
         actionModal.hide();
         loadRequests(); // refresh data
     } catch (e) {

@@ -27,7 +27,7 @@ exports.registerAdmin = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         await db.query(
-            'INSERT INTO admins (name, email, password_hash, role, company_id) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO admins (name, email, password_hash, role, company_id) VALUES (?, ?, ?, ?, ?)',
             [name, email, hashedPassword, 'SuperAdmin', company_id]
         );
 

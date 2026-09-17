@@ -1,4 +1,4 @@
-/**
+﻿/**
  * admin/questions/questions.js
  */
 
@@ -20,7 +20,7 @@ async function loadQuestions() {
         allQuestions = data && data.questions ? data.questions : [];
         renderTable();
     } catch (e) {
-        window.adminApi.showToast('Failed to load questions', 'error');
+        window.adminApi.showToast(''+i18next.t('common:error')+'', 'error');
     }
 }
 
@@ -29,7 +29,7 @@ function renderTable() {
     if (!tbody) return;
 
     if (allQuestions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No questions found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">'+i18next.t('admin:questions.no_questions')+'</td></tr>';
         return;
     }
 
@@ -37,11 +37,12 @@ function renderTable() {
         <tr>
             <td>${q.id}</td>
             <td style="max-width: 300px;" class="text-truncate" title="${q.question_text}">${q.question_text}</td>
-            <td><span class="badge bg-secondary">${q.category_id}</span></td>
+            <td><span class="badge bg-secondary">${q.category_name || q.category_id}</span></td>
             <td>${q.question_type}</td>
             <td><span class="badge ${q.status === 'Active' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary'}">${q.status}</span></td>
-            
         </tr>
     `).join('');
+
+    if (window.translateAll) window.translateAll();
 }
 

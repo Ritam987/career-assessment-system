@@ -1,4 +1,4 @@
-/**
+﻿/**
  * admin/careers/careers.js
  */
 
@@ -20,7 +20,7 @@ async function loadCareers() {
         allCareers = data && data.careers ? data.careers : [];
         renderTable();
     } catch (e) {
-        window.adminApi.showToast('Failed to load careers', 'error');
+        window.adminApi.showToast(''+i18next.t('common:error')+'', 'error');
     }
 }
 
@@ -45,6 +45,8 @@ function renderTable() {
             </td>
         </tr>
     `).join('');
+
+    if (window.translateAll) window.translateAll();
 }
 
 function openAddModal() {
@@ -71,7 +73,7 @@ function openEditModal(id) {
     document.getElementById('cTraits').value = traits !== '[]' ? traits : '';
     document.getElementById('cRoles').value = roles !== '[]' ? roles : '';
 
-    document.getElementById('modalTitle').textContent = 'Edit Career';
+    document.getElementById('modalTitle').textContent = ''+i18next.t('admin:careers.modal_edit_title')+'';
     careerModal.show();
 }
 
@@ -87,7 +89,7 @@ async function saveCareer() {
         if (tVal) traits = JSON.parse(tVal);
         if (rVal) roles = JSON.parse(rVal);
     } catch(e) {
-        window.adminApi.showToast('Invalid JSON format for Traits or Roles', 'error');
+        window.adminApi.showToast(i18next.t('validation:invalid_json'), 'error');
         return;
     }
 
@@ -101,7 +103,7 @@ async function saveCareer() {
     };
 
     if (!payload.career_name) {
-        window.adminApi.showToast('Career name is required', 'error');
+        window.adminApi.showToast(i18next.t('validation:career_name_required'), 'error');
         return;
     }
 
@@ -111,15 +113,15 @@ async function saveCareer() {
     try {
         if (id) {
             await window.adminApi.put('/admin/careers/' + id, payload);
-            window.adminApi.showToast('Career updated successfully');
+            window.adminApi.showToast(i18next.t('admin:careers.update_success'));
         } else {
             await window.adminApi.post('/admin/careers', payload);
-            window.adminApi.showToast('Career added successfully');
+            window.adminApi.showToast(i18next.t('admin:careers.add_success'));
         }
         careerModal.hide();
         loadCareers();
     } catch (e) {
-        window.adminApi.showToast(e.message || 'Failed to save career', 'error');
+        window.adminApi.showToast(e.message || ''+i18next.t('common:error')+'', 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = 'Save Career';
@@ -127,14 +129,14 @@ async function saveCareer() {
 }
 
 async function deleteCareer(id) {
-    if (!confirm('Are you sure you want to delete this career profile?')) return;
+    if (!confirm(i18next.t('messages:confirm_delete_career'))) return;
     
     try {
         await window.adminApi.delete('/admin/careers/' + id);
-        window.adminApi.showToast('Career deleted');
+        window.adminApi.showToast(i18next.t('messages:career_deleted'));
         loadCareers();
     } catch (e) {
-        window.adminApi.showToast('Failed to delete career', 'error');
+        window.adminApi.showToast(''+i18next.t('common:error')+'', 'error');
     }
 }
 

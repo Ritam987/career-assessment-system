@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -17,15 +17,15 @@
         <div class="sidebar-brand">
             <img src="../../assets/images/logo.jpg" alt="Logo" class="brand-logo-sm">
             <div class="brand-text">
-                <div class="brand-name">Career Assessment</div>
-                <div class="brand-role"><span class="admin-dot"></span>Admin Portal</div>
+                <div class="brand-name" data-i18n="common:career_assessment">Career Assessment</div>
+                <div class="brand-role"><span class="admin-dot"></span><span data-i18n="admin:sidebar.admin_portal">Admin Portal</span></div>
             </div>
         </div>
         <div id="sidebarNav"></div>
         <div class="sidebar-footer">
             <a href="../../login/login.html" class="nav-item logout" data-tip="Logout">
                 <i class="bi bi-box-arrow-right"></i>
-                <span class="nav-lbl">Logout</span>
+                <span class="nav-lbl" data-i18n="admin:sidebar.logout">Logout</span>
             </a>
         </div>
     </aside>
@@ -34,14 +34,14 @@
             <div class="topbar-left">
                 <button class="hamburger" onclick="openSidebar()"><i class="bi bi-list"></i></button>
                 <button class="collapse-btn" onclick="toggleCollapse()"><i class="bi bi-layout-sidebar"></i></button>
-                <span class="topbar-title">Questions</span>
+                <span class="topbar-title" data-i18n="admin:sidebar.questions">Questions</span>
             </div>
             <div class="topbar-right">
                 <a href="../notifications/notifications.html" class="icon-btn text-decoration-none" title="Notifications"><i class="bi bi-bell"></i></a>
                 <div class="dropdown">
                     <div class="user-chip" data-bs-toggle="dropdown" style="cursor:pointer;">
                         <div class="user-avatar">A</div>
-                        <div class="user-info"><div class="u-name admin-name">Admin</div><div class="u-role">Super Admin</div></div>
+                        <div class="user-info"><div class="u-name admin-name">Admin</div><div class="u-role"><span data-i18n="admin:sidebar.super_admin">Super Admin</span></div></div>
                     </div>
                 </div>
             </div>
@@ -49,8 +49,8 @@
         <div class="content">
             <div class="page-header d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="mb-1">Question Management</h2>
-                    <p class="text-muted mb-0">View and organize assessment questions.</p>
+                    <h2 class="mb-1" data-i18n="admin:questions.title">Question Management</h2>
+                    <p class="text-muted mb-0" data-i18n="admin:questions.subtitle">View and organize assessment questions.</p>
                 </div>
                 
             </div>
@@ -62,15 +62,14 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Question</th>
-                                    <th>Category</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Actions</th>
+                                    <th data-i18n="admin:questions.table_question">Question</th>
+                                    <th data-i18n="admin:questions.table_category">Category</th>
+                                    <th data-i18n="admin:questions.table_type">Type</th>
+                                    <th data-i18n="common:status">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td colspan="6" class="text-center py-4">Loading...</td></tr>
+                                <tr><td colspan="5" class="text-center py-4"><span data-i18n="common:loading">Loading...</span></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -83,7 +82,14 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../assets/js/admin-api.js"></script>
+
+    <!-- i18next -->
+    <script src="/admin/assets/vendor/i18next/i18next.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/i18nextHttpBackend.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/i18nextBrowserLanguageDetector.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/loc-i18next.min.js"></script>
+    <script src="/admin/assets/js/i18n-config.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
 <script src="../assets/js/admin-shared.js"></script>
 <script src="questions.js"></script>
 </body>

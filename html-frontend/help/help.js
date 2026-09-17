@@ -1,3 +1,13 @@
+// Auth guard - must be logged in to access support
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = await requireAuth();
+    if (!user) return; // requireAuth redirects to login if not authenticated
+    
+    // Fill user name if element exists
+    const chipSpan = document.querySelector('.user-chip span');
+    if (chipSpan) chipSpan.textContent = user.full_name || 'User';
+});
+
 // ===================================================
 // Help & Support Page — Logic
 // ===================================================

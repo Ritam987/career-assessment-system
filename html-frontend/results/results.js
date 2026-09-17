@@ -8,6 +8,10 @@
 //   Topbar name: .user-chip span (no id)
 // =============================================================
 
+// Stores fetched results for PDF generation
+let _resultsDataForPdf = null;
+let _userDataForPdf = null;
+
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -28,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // â”€â”€ 1. Auth guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const user = await requireAuth();
     if (!user) return;
+    _userDataForPdf = user; // cache for PDF
 
     // â”€â”€ 2. Topbar name (no id â€” use .user-chip span) â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const chipSpan = document.querySelector('.user-chip span');
@@ -48,6 +53,7 @@ async function loadResults() {
     }
 
     const d = res.data;
+    _resultsDataForPdf = d; // cache for PDF
 
     // â”€â”€ Primary career card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const primary = d.primaryCareer;
@@ -139,7 +145,7 @@ function showNoResultsState() {
     if (!layout) return;
     layout.innerHTML = `
         <div style="text-align:center;padding:60px 20px;width:100%;">
-            <div style="font-size:56px;margin-bottom:16px;">ðŸ“‹</div>
+            <div style="font-size:56px;margin-bottom:16px;"><i class="bi bi-clipboard-x" style="color:#6366f1"></i></div>
             <h4 style="font-weight:700;margin-bottom:8px;">No Results Yet</h4>
             <p style="color:#6b7280;margin-bottom:24px;">You haven't completed the assessment yet. Take the assessment to see your career recommendations.</p>
             <a href="../assessment-intro/intro.html"
@@ -149,39 +155,219 @@ function showNoResultsState() {
         </div>
     `;
 }
-// PDF Generation
+// PDF Generation - Builds a dedicated A4 HTML report instead of cloning the webpage
 async function downloadPDF() {
-    const originalContent = document.getElementById('reportContent');
     const btn = document.querySelector('.btn-download');
-    
-    if(!btn || !originalContent) return;
-    
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
-    btn.disabled = true;
-    
-    // Create a pristine clone for html2pdf to process internally
-    const clone = originalContent.cloneNode(true);
-    const cloneBtn = clone.querySelector('.btn-download');
-    if(cloneBtn) cloneBtn.remove();
-    
-    // Add the specific class for styling the PDF clone
-    clone.classList.add('pdf-export-mode');
-    
-    const opt = {
-        margin:       0.5,
-        filename:     'Career_Assessment_Report.pdf',
-        image:        { type: 'jpeg', quality: 1 },
-        html2canvas:  { scale: 2, useCORS: true, windowWidth: 1000 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    
-    try {
-        await html2pdf().set(opt).from(clone).save();
-    } catch (err) {
-        console.error("PDF generation error:", err);
+    if (!btn) return;
+
+    if (!_resultsDataForPdf) {
+        alert('Results not loaded yet. Please wait a moment and try again.');
+        return;
     }
-    
+
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating PDF...';
+    btn.disabled = true;
+
+    try {
+        const d = _resultsDataForPdf;
+        const user = _userDataForPdf;
+        const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        // Build alternate careers rows
+        const alts = (d.careerMatches || []).slice(1, 6);
+        const altRows = alts.map((c, i) => `
+            <tr>
+                <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;">${i + 1}. ${c.career_name || c.name}</td>
+                <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#6b7280;">${c.skill_domain || ''}</td>
+                <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;color:#6366f1;">${c.match_pct}%</td>
+            </tr>
+        `).join('');
+
+        // Build profile bars
+        const bars = [
+            { label: 'Personality', val: parseFloat(d.personalityScore) || 0, color: '#7c3aed' },
+            { label: 'Interest', val: parseFloat(d.interestScore) || 0, color: '#10b981' },
+            { label: 'Skills', val: parseFloat(d.skillsScore) || 0, color: '#3b82f6' },
+            { label: 'Work Style', val: parseFloat(d.workStyleScore) || 0, color: '#f59e0b' }
+        ];
+
+        const barRows = bars.map(b => `
+            <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-weight:600;font-size:13px;color:#374151;">${b.label}</span>
+                    <span style="font-weight:700;font-size:13px;color:${b.color};">${b.val}%</span>
+                </div>
+                <div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;">
+                    <div style="background:${b.color};width:${b.val}%;height:100%;border-radius:6px;"></div>
+                </div>
+            </div>
+        `).join('');
+
+        const primary = d.primaryCareer || {};
+        const primaryDesc = (d.careerMatches && d.careerMatches[0]?.description)
+            || `Your profile matches best with ${primary.name}.`;
+        const summary = typeof buildSummary === 'function' ? buildSummary(d) : '';
+
+        // Build the full A4 HTML document
+        const reportHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size:13px; color:#1f2937; background:#fff; }
+
+  /* ── PAGE WRAPPER ── */
+  .page { width:794px; padding:32px 40px; }
+
+  /* ── COVER HEADER ── */
+  .report-header { background:linear-gradient(135deg,#4f46e5,#7c3aed); color:#fff; padding:24px 32px; border-radius:12px; margin-bottom:20px; }
+  .report-header h1 { font-size:24px; font-weight:700; margin-bottom:4px; }
+  .report-header .sub { font-size:13px; opacity:0.85; }
+  .header-meta { margin-top:14px; display:flex; gap:40px; flex-wrap:wrap; }
+  .header-meta .meta-item label { font-size:10px; opacity:0.75; text-transform:uppercase; letter-spacing:0.5px; }
+  .header-meta .meta-item p { font-size:14px; font-weight:600; margin-top:2px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom:16px; page-break-inside: avoid; }
+  .section-title { font-size:14px; font-weight:700; color:#4f46e5; text-transform:uppercase; letter-spacing:0.5px; padding-bottom:6px; border-bottom:2px solid #e0e7ff; margin-bottom:10px; }
+
+  /* ── TOP MATCH ── */
+  .top-match-box { background:#f5f3ff; border:2px solid #c4b5fd; border-radius:10px; padding:16px 20px; page-break-inside: avoid; }
+  .match-badge { display:inline-block; background:#4f46e5; color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:10px; }
+  .career-name { font-size:22px; font-weight:700; color:#1f2937; margin-bottom:8px; }
+  .career-desc { font-size:13px; color:#4b5563; line-height:1.5; margin-bottom:10px; }
+  .stats-row { display:flex; gap:24px; }
+  .stat-box { background:#fff; border:1px solid #ddd6fe; border-radius:8px; padding:10px 18px; text-align:center; }
+  .stat-val { font-size:22px; font-weight:800; color:#4f46e5; }
+  .stat-label { font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; }
+
+  /* ── TWO COLUMN ── */
+  .two-col { display:flex; gap:20px; margin-bottom:16px; page-break-inside: avoid; }
+  .col-left { flex:1.1; }
+  .col-right { flex:0.9; }
+
+  /* ── TABLE ── */
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead tr { background:#f3f4f6; }
+  th { padding:8px 10px; text-align:left; font-weight:600; font-size:12px; color:#374151; }
+  td { color:#4b5563; }
+
+  /* ── SUMMARY BOX ── */
+  .summary-box { background:#fffbeb; border:1px solid #fcd34d; border-radius:8px; padding:16px 20px; font-size:13px; color:#374151; line-height:1.7; page-break-inside: avoid; }
+
+  /* ── FOOTER ── */
+  .report-footer { margin-top:16px; border-top:1px solid #e5e7eb; padding-top:12px; display:flex; justify-content:space-between; font-size:11px; color:#9ca3af; }
+
+  /* ── PAGE BREAK ── */
+  .page-break { page-break-before: always; height:0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <div class="report-header">
+    <h1>Career Assessment Report</h1>
+    <div class="sub">Personalised Career Guidance by Reach India Trust</div>
+    <div class="header-meta">
+      <div class="meta-item"><label>Candidate Name</label><p>${user?.full_name || 'Candidate'}</p></div>
+      <div class="meta-item"><label>Email</label><p>${user?.email || '—'}</p></div>
+      <div class="meta-item"><label>Report Generated</label><p>${today}</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TOP MATCH ═══════════ -->
+  <div class="section">
+    <div class="section-title">Primary Career Recommendation</div>
+    <div class="top-match-box">
+      <div class="match-badge">Top Match</div>
+      <div class="career-name">${primary.name || '—'}</div>
+      <div class="career-desc">${primaryDesc}</div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-val">${primary.match_pct || 0}%</div>
+          <div class="stat-label">Match Score</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">High</div>
+          <div class="stat-label">Demand</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TWO-COLUMN: ALTERNATES + PROFILE BREAKDOWN ═══════════ -->
+  <div class="two-col">
+    <div class="col-left">
+      <div class="section">
+        <div class="section-title">Other Good Career Options</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Career</th>
+              <th>Domain</th>
+              <th style="text-align:right">Match</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${altRows || '<tr><td colspan="3" style="padding:10px;color:#9ca3af;">No alternate careers found.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="section">
+        <div class="section-title">Profile Breakdown</div>
+        ${barRows}
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ASSESSMENT SUMMARY ═══════════ -->
+  ${summary ? `
+  <div class="section">
+    <div class="section-title">Assessment Summary</div>
+    <div class="summary-box">${summary}</div>
+  </div>
+  ` : ''}
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <div class="report-footer">
+    <span>Career Assessment System &mdash; Reach India Trust, Kolkata</span>
+    <span>Generated: ${today} &nbsp;|&nbsp; Page 1</span>
+  </div>
+
+</div>
+</body>
+</html>
+        `;
+
+        // Create a hidden container, put our report in it, run html2pdf
+        const container = document.createElement('div');
+        container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;';
+        container.innerHTML = reportHtml;
+        document.body.appendChild(container);
+
+        const opt = {
+            margin:      0,
+            filename:    'Career_Assessment_Report.pdf',
+            image:       { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            pagebreak: { mode: ['css', 'legacy'] },
+            jsPDF:       { unit: 'px', format: 'a4', orientation: 'portrait', hotfixes: ['px_scaling'] }
+        };
+
+        await html2pdf().set(opt).from(container.querySelector('.page')).save();
+        document.body.removeChild(container);
+
+    } catch (err) {
+        console.error('PDF generation error:', err);
+        alert('Could not generate PDF. Please try again.');
+    }
+
     btn.innerHTML = originalText;
     btn.disabled = false;
 }
@@ -230,6 +416,7 @@ async function checkRedoStatus() {
                     const res = await apiPost('/assessments/start-new');
                     if (res && res.ok) {
                         // Clear frontend state (just to be thorough as requested)
+                        localStorage.removeItem('cas_timer_start');
                         localStorage.removeItem('currentQuestionIndex');
                         sessionStorage.removeItem('assessmentState');
                         window.location.href = '../assessment/assessment.html';

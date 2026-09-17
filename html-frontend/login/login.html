@@ -26,19 +26,19 @@
 
                 <!-- Heading -->
                 <div class="text-center mb-3">
-                    <h4 class="fw-bold mb-1 text-dark">Welcome Back</h4>
-                    <p class="text-muted small mb-0">Please login to your account</p>
+                    <h4 class="fw-bold mb-1 text-dark"><span data-i18n="admin:login.subtitle">Welcome Back</span></h4>
+                    <p class="text-muted small mb-0"><span data-i18n="admin:login.subtitle2">Please login to your account</span></p>
                 </div>
 
                 <!-- Login Form -->
                 <div class="role-selector mb-4">
-                    <p class="role-label">I am a...</p>
+                    <p class="role-label" data-i18n="admin:login.i_am">I am a...</p>
                     <div class="d-flex gap-3">
                         <input type="radio" id="roleUser" name="role" value="user" checked>
-                        <label for="roleUser" class="role-btn"><i class="bi bi-person-fill me-1"></i> Student</label>
+                        <label for="roleUser" class="role-btn"><i class="bi bi-person-fill me-1"></i> <span data-i18n="admin:login.student">Student</span></label>
                         
                         <input type="radio" id="roleAdmin" name="role" value="admin">
-                        <label for="roleAdmin" class="role-btn"><i class="bi bi-shield-lock-fill me-1"></i> Admin</label>
+                        <label for="roleAdmin" class="role-btn"><i class="bi bi-shield-lock-fill me-1"></i> <span data-i18n="admin:login.admin">Admin</span></label>
                     </div>
                 </div>
                 <form id="loginForm">
@@ -88,10 +88,16 @@
     <script src="https://accounts.google.com/gsi/client"></script>
     <!-- api.js MUST come before login.js -->
     <script src="/assets/js/api.js"></script>
+    
+    <!-- i18next -->
+    <script src="/admin/assets/vendor/i18next/i18next.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/i18nextHttpBackend.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/i18nextBrowserLanguageDetector.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/loc-i18next.min.js"></script>
+    <script src="/admin/assets/js/i18n-config.js"></script>
     <script src="login.js"></script>
     
     <!-- Google Translate Integration -->
-    <script src="../assets/js/translate.js"></script>
-</body>
+    </body>
 </html>
 

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications — Admin</title>
+    <title>Notifications â€” Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -78,36 +78,36 @@
 <div class="app-shell">
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- ══ SIDEBAR ══ -->
+    <!-- â•â• SIDEBAR â•â• -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <img src="../../assets/images/logo.jpg" alt="Logo" class="brand-logo-sm">
             <div class="brand-text">
-                <div class="brand-name">Career Assessment</div>
-                <div class="brand-role"><span class="admin-dot"></span>Admin Portal</div>
+                <div class="brand-name" data-i18n="common:career_assessment">Career Assessment</div>
+                <div class="brand-role"><span class="admin-dot"></span><span data-i18n="admin:sidebar.admin_portal">Admin Portal</span></div>
             </div>
         </div>
         <div id="sidebarNav"></div>
         <div class="sidebar-footer">
             <a href="../../login/login.html" class="nav-item logout" data-tip="Logout">
                 <i class="bi bi-box-arrow-right"></i>
-                <span class="nav-lbl">Logout</span>
+                <span class="nav-lbl" data-i18n="admin:sidebar.logout">Logout</span>
             </a>
         </div>
     </aside>
 
-    <!-- ══ MAIN ══ -->
+    <!-- â•â• MAIN â•â• -->
     <div class="main">
         <header class="topbar">
             <div class="topbar-left">
                 <button class="hamburger" onclick="openSidebar()"><i class="bi bi-list"></i></button>
                 <button class="collapse-btn" onclick="toggleCollapse()"><i class="bi bi-layout-sidebar"></i></button>
-                <span class="topbar-title">Notifications</span>
+                <span class="topbar-title" data-i18n="admin:sidebar.notifications">Notifications</span>
             </div>
             <div class="topbar-right">
                 <div class="search-bar d-none d-md-flex">
                     <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" data-i18n-placeholder="common:search" placeholder="Search...">
                 </div>
                 <div class="dropdown">
                     <div class="icon-btn" data-bs-toggle="dropdown" style="cursor:pointer;" title="Translate">
@@ -115,20 +115,19 @@
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius:10px;font-size:.85rem;margin-top:8px;">
                         <li><a class="dropdown-item fw-bold" style="color:var(--purple);" href="#">English</a></li>
-                        <li><a class="dropdown-item" href="#">हिंदी (Hindi)</a></li>
-                        <li><a class="dropdown-item" href="#">বাংলা (Bengali)</a></li>
+                        <li><a class="dropdown-item" href="#">à¤¹à¤¿à¤‚à¤¦à¥€ (Hindi)</a></li>
+                        <li><a class="dropdown-item" href="#">à¦¬à¦¾à¦‚à¦²à¦¾ (Bengali)</a></li>
                     </ul>
                 </div>
                 <a href="notifications.html" class="icon-btn text-decoration-none" title="Notifications"><i class="bi bi-bell"></i><span class="notif-dot"></span></a>
                 <div class="dropdown">
                     <div class="user-chip" data-bs-toggle="dropdown" style="cursor:pointer;">
                         <div class="user-avatar">A</div>
-                        <div class="user-info"><div class="u-name">Admin</div><div class="u-role">Super Admin</div></div>
+                        <div class="user-info"><div class="u-name">Admin</div><div class="u-role"><span data-i18n="admin:sidebar.super_admin">Super Admin</span></div></div>
                         <i class="bi bi-chevron-down" style="font-size:.6rem;color:var(--text-muted);margin-left:2px;"></i>
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius:10px;font-size:.85rem;margin-top:8px;">
                         <li><a class="dropdown-item" href="../profile/profile.html"><i class="bi bi-person me-2"></i>My Profile</a></li>
-                        <li><a class="dropdown-item" href="../settings/settings.html"><i class="bi bi-gear me-2"></i>Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="../../login/login.html"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                     </ul>
@@ -143,7 +142,7 @@
                         <h2>Notifications</h2>
                         <p>Stay updated on user activity, system alerts, and reports.</p>
                     </div>
-                    <button class="btn-outline"><i class="bi bi-check-all me-1"></i> Mark all as read</button>
+                    <button class="btn-outline"><i class="bi bi-check-all me-1"></i> <span data-i18n="admin:notifications.mark_all_read">Mark all as read</span></button>
                 </div>
 
                 <div class="panel">
@@ -161,7 +160,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../assets/js/admin-api.js"></script>
+
+    <!-- i18next -->
+    <script src="/admin/assets/vendor/i18next/i18next.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/i18nextHttpBackend.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/i18nextBrowserLanguageDetector.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/loc-i18next.min.js"></script>
+    <script src="/admin/assets/js/i18n-config.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
 <script src="../assets/js/admin-shared.js"></script>
 
 <!-- Google Translate Integration -->

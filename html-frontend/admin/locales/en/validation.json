@@ -1,0 +1,8 @@
+{
+  "invalid_json": "Invalid JSON format for Traits or Roles",
+  "career_name_required": "Career name is required",
+  "name_email_required": "Name and Email are required",
+  "all_passwords_required": "All password fields are required",
+  "password_min_length": "New password must be at least 8 characters",
+  "rejection_reason_required": "Please provide a reason for rejection."
+}

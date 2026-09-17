@@ -1,4 +1,4 @@
-
+﻿
 /**
  * admin/results/results.js
  */
@@ -16,7 +16,7 @@ async function loadResults() {
         const data = await window.adminApi.get('/admin/results');
         renderTable(data && data.results ? data.results : []);
     } catch (e) {
-        window.adminApi.showToast('Failed to load results', 'error');
+        window.adminApi.showToast(''+i18next.t('common:error')+'', 'error');
         renderTable([]);
     }
 }
@@ -26,7 +26,7 @@ function renderTable(results) {
     if (!tbody) return;
 
     if (results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No completed assessments found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">'+i18next.t('admin:results.no_results')+'</td></tr>';
         return;
     }
 
@@ -40,6 +40,8 @@ function renderTable(results) {
             <td>${new Date(r.completed_at).toLocaleString('en-IN')}</td>
         </tr>
     `).join('');
+
+    if (window.translateAll) window.translateAll();
 }
 
 window.logout = function() { window.adminApi.logout(); }

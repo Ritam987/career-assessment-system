@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const adminMiddleware = require('../middlewares/adminMiddleware');
 
@@ -22,7 +22,7 @@ const {
     approveRedoRequest,
     rejectRedoRequest,
     getAdminProfile,
-
+    getProfile,
     updateProfile,
     updateAvatar,
     updatePassword,
@@ -45,7 +45,7 @@ router.get('/google-client-id', (req, res) =>
 );
 
 // ─── Protected (admin_token cookie required) ───────────
-router.get('/profile',        adminMiddleware, getAdminProfile);
+router.get('/profile',        adminMiddleware, getProfile);
 
 router.put('/profile',            adminMiddleware, updateProfile);
 router.post('/profile/avatar',    adminMiddleware, updateAvatar);

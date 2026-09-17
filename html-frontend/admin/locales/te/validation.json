@@ -1,0 +1,8 @@
+{
+  "invalid_json": "లక్షణాలు లేదా పాత్రలకు చెల్లని JSON ఫార్మాట్",
+  "career_name_required": "కెరీర్ పేరు అవసరం",
+  "name_email_required": "పేరు మరియు ఇమెయిల్ అవసరం",
+  "all_passwords_required": "అన్ని పాస్వర్డ్ ఫీల్డ్‌లు అవసరం",
+  "password_min_length": "కొత్త పాస్వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి",
+  "rejection_reason_required": "దయచేసి తిరస్కరణకు కారణం తెలపండి."
+}

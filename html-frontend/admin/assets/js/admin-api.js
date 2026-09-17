@@ -1,4 +1,4 @@
-﻿/**
+/**
  * admin-api.js — Admin API wrapper
  * MUST be loaded before any page-specific admin JS.
  * Automatically sends admin_token cookie via credentials:'include'
@@ -50,7 +50,9 @@ const adminDelete = (ep)       => adminFetch(ep, { method: 'DELETE' });
 async function requireAdminAuth() {
     const data = await adminGet('/admin/profile');
     if (!data) return null; // redirect already triggered
-    const admin = data.admin;
+    // getProfile returns { profile: {...} }, legacy getAdminProfile returned { admin: {...} }
+    const admin = data.profile || data.admin;
+    if (!admin) return null;
     localStorage.setItem('cas_admin', JSON.stringify(admin));
     return admin;
 }

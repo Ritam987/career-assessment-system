@@ -1,4 +1,4 @@
-/**
+﻿/**
  * admin/categories/categories.js
  */
 
@@ -16,7 +16,7 @@ async function loadCategories() {
         const categories = data && data.categories ? data.categories : [];
         renderTable(categories);
     } catch (e) {
-        window.adminApi.showToast('Failed to load categories', 'error');
+        window.adminApi.showToast(''+i18next.t('common:error')+'', 'error');
     }
 }
 
@@ -25,7 +25,7 @@ function renderTable(categories) {
     if (!tbody) return;
 
     if (categories.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">No categories found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">'+i18next.t('admin:categories.no_categories')+'</td></tr>';
         return;
     }
 
@@ -36,6 +36,8 @@ function renderTable(categories) {
             <td class="text-muted">${c.description || 'No description provided.'}</td>
         </tr>
     `).join('');
+
+    if (window.translateAll) window.translateAll();
 }
 
 window.logout = function() { window.adminApi.logout(); }

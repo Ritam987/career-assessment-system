@@ -1,6 +1,6 @@
 /**
- * admin-shared.js — Career Assessment System
- * True accordion sidebar: open one → all others close automatically.
+ * admin-shared.js â€” Career Assessment System
+ * True accordion sidebar: open one â†’ all others close automatically.
  */
 
 const ADMIN_NAV = [
@@ -36,7 +36,7 @@ const ADMIN_NAV = [
   { type:'link', label:'Settings',  icon:'bi-gear',     href:'../settings/settings.html' }
 ];
 
-// ── Build sidebar HTML ─────────────────────────────────────────────────────
+// â”€â”€ Build sidebar HTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function buildSidebar() {
   const cur = location.pathname.split('/').pop();
   let html = '';
@@ -44,10 +44,11 @@ function buildSidebar() {
   ADMIN_NAV.forEach(node => {
     if (node.type === 'link') {
       const active = node.href.split('/').pop() === cur ? 'active' : '';
+      const key = 'admin.sidebar.' + node.label.toLowerCase().replace(/\s+/g, '_');
       html += `
-        <a href="${node.href}" class="nav-item ${active}" data-tip="${node.label}">
+        <a href="${node.href}" class="nav-item ${active}" data-i18n-title="${key}">
           <i class="bi ${node.icon}"></i>
-          <span class="nav-lbl">${node.label}</span>
+          <span class="nav-lbl" data-i18n="${key}">${node.label}</span>
         </a>`;
       return;
     }
@@ -55,13 +56,14 @@ function buildSidebar() {
     // Auto-open if a child page is active
     const hasActive = node.items.some(c => c.href.split('/').pop() === cur);
     const isOpen = hasActive; // only open by default if current page is in this group
+    const groupKey = 'admin:sidebar.' + node.label.toLowerCase().replace(/\s+/g, '_');
 
     html += `
       <div class="nav-group" id="${node.id}">
         <div class="nav-group-hd ${isOpen ? 'open' : ''}" onclick="toggleGroup('${node.id}',this)">
           <span class="nav-group-left">
             <i class="bi ${node.icon}"></i>
-            <span class="nav-lbl">${node.label}</span>
+            <span class="nav-lbl" data-i18n="${groupKey}">${node.label}</span>
           </span>
           <i class="bi bi-chevron-right nav-chevron"></i>
         </div>
@@ -70,10 +72,11 @@ function buildSidebar() {
 
     node.items.forEach(child => {
       const active = child.href.split('/').pop() === cur ? 'active' : '';
+      const childKey = 'admin:sidebar.' + child.label.toLowerCase().replace(/\s+/g, '_');
       html += `
             <a href="${child.href}" class="nav-sub-item ${active}">
               <i class="bi ${child.icon}"></i>
-              <span class="nav-lbl">${child.label}</span>
+              <span class="nav-lbl" data-i18n="${childKey}">${child.label}</span>
             </a>`;
     });
 
@@ -86,7 +89,7 @@ function buildSidebar() {
   return html;
 }
 
-// ── Toggle accordion ── close all others, open clicked one ─────────────────
+// â”€â”€ Toggle accordion â”€â”€ close all others, open clicked one â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function toggleGroup(id, hd) {
   const allHds    = document.querySelectorAll('.nav-group-hd');
   const allBodies = document.querySelectorAll('.nav-group-body');
@@ -121,14 +124,14 @@ function toggleGroup(id, hd) {
   }
 }
 
-// ── Sidebar collapse (icon-only mode, desktop) ─────────────────────────────
+// â”€â”€ Sidebar collapse (icon-only mode, desktop) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function toggleCollapse() {
   const s = document.getElementById('sidebar');
   const collapsed = s.classList.toggle('collapsed');
   localStorage.setItem('agy_col', collapsed ? '1' : '0');
 }
 
-// ── Mobile drawer ──────────────────────────────────────────────────────────
+// â”€â”€ Mobile drawer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openSidebar() {
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('sidebarOverlay').classList.add('show');
@@ -138,12 +141,12 @@ function closeSidebar() {
   document.getElementById('sidebarOverlay').classList.remove('show');
 }
 
-// ── Modal helpers ──────────────────────────────────────────────────────────
+// â”€â”€ Modal helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openModal(id)       { document.getElementById(id).classList.add('show'); }
 function closeModal(id)      { document.getElementById(id).classList.remove('show'); }
 function closeOutside(e, id) { if (e.target.id === id) closeModal(id); }
 
-// ── Init ───────────────────────────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.addEventListener('DOMContentLoaded', () => {
   const nav = document.getElementById('sidebarNav');
   if (nav) nav.innerHTML = buildSidebar();
@@ -154,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ── GLOBAL NOTIFICATION POLLING ──
+// â”€â”€ GLOBAL NOTIFICATION POLLING â”€â”€
 let notificationPollInterval = null;
 
 async function updateNotificationBell() {

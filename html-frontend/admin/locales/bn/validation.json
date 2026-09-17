@@ -1,0 +1,8 @@
+{
+  "invalid_json": "বৈশিষ্ট্য বা ভূমিকার জন্য অবৈধ JSON বিন্যাস",
+  "career_name_required": "ক্যারিয়ারের নাম প্রয়োজন",
+  "name_email_required": "নাম এবং ইমেইল প্রয়োজন",
+  "all_passwords_required": "সমস্ত পাসওয়ার্ড ক্ষেত্র প্রয়োজন",
+  "password_min_length": "নতুন পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে",
+  "rejection_reason_required": "প্রত্যাখ্যানের একটি কারণ প্রদান করুন।"
+}

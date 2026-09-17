@@ -307,7 +307,7 @@
                 <ul class="list-unstyled lp-flinks">
                     <li><a href="./register.html">Sign Up</a></li>
                     <li><a href="./login/login.html">Log In</a></li>
-                    <li><a href="./help/help.html">Support</a></li>
+                    <li><a href="#" onclick="navigateToSupport(event)">Support</a></li>
                 </ul>
             </div>
             <div class="col-lg-3">
@@ -336,5 +336,36 @@
 
 <!-- Google Translate Integration -->
 <script src="./assets/js/translate.js"></script>
+
+<script>
+// Support link authentication check
+async function navigateToSupport(event) {
+    event.preventDefault();
+    // Quick check: try to get user from localStorage first, then verify with server
+    const cachedUser = localStorage.getItem('cas_user');
+    if (!cachedUser) {
+        // Definitely not logged in
+        window.location.href = './login/login.html';
+        return;
+    }
+    // Verify the session is still valid
+    try {
+        const res = await fetch('/api/auth/profile', {
+            credentials: 'include',
+            cache: 'no-store'
+        });
+        if (res.ok) {
+            window.location.href = './help/help.html';
+        } else {
+            localStorage.removeItem('cas_user');
+            window.location.href = './login/login.html';
+        }
+    } catch (e) {
+        // Network error - redirect to login to be safe
+        window.location.href = './login/login.html';
+    }
+}
+</script>
+
 </body>
 </html>

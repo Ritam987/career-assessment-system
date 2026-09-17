@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Profile — Admin</title>
+    <title>Admin Profile â€” Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -63,25 +63,25 @@
 <div class="app-shell">
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- ══ SIDEBAR ══ -->
+    <!-- â•â• SIDEBAR â•â• -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <img src="../../assets/images/logo.jpg" alt="Logo" class="brand-logo-sm">
             <div class="brand-text">
-                <div class="brand-name">Career Assessment</div>
-                <div class="brand-role"><span class="admin-dot"></span>Admin Portal</div>
+                <div class="brand-name" data-i18n="common:career_assessment">Career Assessment</div>
+                <div class="brand-role"><span class="admin-dot"></span><span data-i18n="admin:sidebar.admin_portal">Admin Portal</span></div>
             </div>
         </div>
         <div id="sidebarNav"></div>
         <div class="sidebar-footer">
             <a href="../../login/login.html" class="nav-item logout" data-tip="Logout">
                 <i class="bi bi-box-arrow-right"></i>
-                <span class="nav-lbl">Logout</span>
+                <span class="nav-lbl" data-i18n="admin:sidebar.logout">Logout</span>
             </a>
         </div>
     </aside>
 
-    <!-- ══ MAIN ══ -->
+    <!-- â•â• MAIN â•â• -->
     <div class="main">
         <header class="topbar">
             <div class="topbar-left">
@@ -92,7 +92,7 @@
             <div class="topbar-right">
                 <div class="search-bar d-none d-md-flex">
                     <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" data-i18n-placeholder="common:search" placeholder="Search...">
                 </div>
                 <div class="dropdown">
                     <div class="icon-btn" data-bs-toggle="dropdown" style="cursor:pointer;" title="Translate">
@@ -100,20 +100,19 @@
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius:10px;font-size:.85rem;margin-top:8px;">
                         <li><a class="dropdown-item fw-bold" style="color:var(--purple);" href="#">English</a></li>
-                        <li><a class="dropdown-item" href="#">हिंदी (Hindi)</a></li>
-                        <li><a class="dropdown-item" href="#">বাংলা (Bengali)</a></li>
+                        <li><a class="dropdown-item" href="#">à¤¹à¤¿à¤‚à¤¦à¥€ (Hindi)</a></li>
+                        <li><a class="dropdown-item" href="#">à¦¬à¦¾à¦‚à¦²à¦¾ (Bengali)</a></li>
                     </ul>
                 </div>
                 <a href="../notifications/notifications.html" class="icon-btn text-decoration-none" title="Notifications"><i class="bi bi-bell"></i><span class="notif-dot"></span></a>
                 <div class="dropdown">
                     <div class="user-chip" data-bs-toggle="dropdown" style="cursor:pointer;">
                         <div class="user-avatar">A</div>
-                        <div class="user-info"><div class="u-name">Admin</div><div class="u-role">Super Admin</div></div>
+                        <div class="user-info"><div class="u-name">Admin</div><div class="u-role"><span data-i18n="admin:sidebar.super_admin">Super Admin</span></div></div>
                         <i class="bi bi-chevron-down" style="font-size:.6rem;color:var(--text-muted);margin-left:2px;"></i>
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius:10px;font-size:.85rem;margin-top:8px;">
                         <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>My Profile</a></li>
-                        <li><a class="dropdown-item" href="../settings/settings.html"><i class="bi bi-gear me-2"></i>Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="../../login/login.html"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                     </ul>
@@ -133,7 +132,7 @@
             <!-- Profile Header -->
             <div class="profile-hdr">
                 <div style="display:flex; justify-content:flex-end;">
-                    <button class="upload-btn" onclick="document.getElementById('avatarUpload').click()"><i class="bi bi-camera me-1"></i> Change Avatar</button>
+                    <button class="upload-btn" onclick="document.getElementById('avatarUpload').click()"><i class="bi bi-camera me-1"></i> <span data-i18n="admin:profile.change_picture">Change Avatar</span></button>
                     <input type="file" id="avatarUpload" style="display:none;" accept="image/*">
                 </div>
                 <div class="profile-avatar-wrap">
@@ -150,13 +149,13 @@
                 <div class="col-lg-7">
                     <div class="panel h-100">
                         <div class="panel-header">
-                            <div class="panel-title">Personal Information</div>
+                            <div class="panel-title" data-i18n="admin:profile.personal_info">Personal Information</div>
                         </div>
                         <div class="panel-body" style="padding:20px;">
                             <div class="row g-3">
                                 
                                 <div class="col-md-6">
-                                    <label class="f-lbl">Full Name</label>
+                                    <label class="f-lbl" data-i18n="admin:profile.full_name">Full Name</label>
                                     <input type="text" id="pName" class="f-ctrl">
                                 </div>
                                 <div class="col-md-6">
@@ -164,7 +163,7 @@
                                     <input type="text" id="pRole" class="f-ctrl" readonly style="background-color:#f8f9fa;">
                                 </div>
                                 <div class="col-md-12">
-                                    <label class="f-lbl">Email Address</label>
+                                    <label class="f-lbl" data-i18n="admin:profile.email">Email Address</label>
                                     <input type="email" id="pEmail" class="f-ctrl">
                                 </div>
 
@@ -186,21 +185,21 @@
                             <div class="row g-3">
                                 
                                 <div class="col-12">
-                                    <label class="f-lbl">Current Password</label>
+                                    <label class="f-lbl" data-i18n="admin:profile.current_password">Current Password</label>
                                     <input type="password" id="pOldPass" class="f-ctrl" placeholder="Enter current password">
                                 </div>
                                 <div class="col-12 mt-3">
-                                    <label class="f-lbl">New Password</label>
+                                    <label class="f-lbl" data-i18n="admin:profile.new_password">New Password</label>
                                     <input type="password" id="pNewPass" class="f-ctrl" placeholder="Create new password">
                                     <div style="font-size:.65rem; color:var(--text-muted); margin-top:4px;">Must be at least 8 characters.</div>
                                 </div>
                                 <div class="col-12 mt-3">
-                                    <label class="f-lbl">Confirm New Password</label>
+                                    <label class="f-lbl" data-i18n="admin:profile.confirm_password">Confirm New Password</label>
                                     <input type="password" id="pConfirmPass" class="f-ctrl" placeholder="Confirm new password">
                                 </div>
 
                                 <div class="col-12 mt-4">
-                                    <button class="btn-outline" id="btnSavePassword" style="color:var(--purple); border-color:var(--purple);"><i class="bi bi-shield-lock me-1"></i> Update Password</button>
+                                    <button class="btn-outline" id="btnSavePassword" style="color:var(--purple); border-color:var(--purple);"><i class="bi bi-shield-lock me-1"></i> <span data-i18n="admin:profile.save_password" data-i18n="admin:profile.update_password">Update Password</span></button>
                                 </div>
                             </div>
                         </div>
@@ -213,8 +212,16 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../assets/js/admin-api.js"></script>
+
+    <!-- i18next -->
+    <script src="/admin/assets/vendor/i18next/i18next.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/i18nextHttpBackend.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/i18nextBrowserLanguageDetector.min.js"></script>
+    <script src="/admin/assets/vendor/i18next/loc-i18next.min.js"></script>
+    <script src="/admin/assets/js/i18n-config.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
 <script src="../assets/js/admin-shared.js"></script>
+<script src="profile.js"></script>
 
 <!-- Google Translate Integration -->
 <script src="../../assets/js/translate.js"></script>

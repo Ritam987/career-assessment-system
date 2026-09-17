@@ -27,13 +27,22 @@
             <a href="../dashboard/dashboard.html" class="nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
             <a href="../assessment-intro/intro.html" class="nav-item active"><i class="bi bi-pencil-square"></i><span>Take Assessment</span></a>
             <a href="../results/results.html" class="nav-item"><i class="bi bi-bar-chart-line"></i><span>My Results</span></a>
-            <a href="../notifications/notifications.html" class="nav-item"><i class="bi bi-bell"></i><span>Notifications</span><span class="nav-badge" id="sidebarBadge">3</span></a>
             <a href="../profile/profile.html" class="nav-item"><i class="bi bi-person"></i><span>My Profile</span></a>
             <a href="#" class="nav-item"><i class="bi bi-gear"></i><span>Settings</span></a>
         </nav>
         <div class="sidebar-footer">
             <a href="../help/help.html" class="nav-item"><i class="bi bi-question-circle"></i><span>Help & Support</span></a>
             <a href="../login/login.html" class="nav-item logout"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+            <div class="lang-switcher">
+                <i class="bi bi-globe2"></i>
+                <div class="lang-switcher-wrapper">
+                    <select id="langSelect" onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="hi">&#2361;&#2367;&#2306;&#2342;&#2368;</option>
+                        <option value="bn">&#2476;&#2494;&#2434;&#2482;&#2494;</option>
+                    </select>
+                </div>
+            </div>
             <div class="help-card">
                 <div class="help-icon"><i class="bi bi-headset"></i></div>
                 <p class="help-title">Need Help?</p>
@@ -53,10 +62,6 @@
                 <h5 class="topbar-title">Assessment</h5>
             </div>
             <div class="topbar-right">
-                <button class="notif-btn">
-                    <i class="bi bi-bell"></i>
-                    <span class="notif-dot"></span>
-                </button>
                 <div class="user-chip dropdown" data-bs-toggle="dropdown">
                     <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
                     <span>Name</span>
@@ -287,12 +292,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/api.js"></script>
     <script src="assessment.js"></script>
-<script>
-    function changeLanguage(lang) {
-        const langNames = { 'en': 'English', 'hi': 'Hindi (हिंदी)', 'bn': 'Bengali (বাংলা)' };
-        alert('Language changed to: ' + langNames[lang]);
-    }
-</script>
+<!-- Google Translate Integration -->
+<script src="../assets/js/translate.js"></script>
 </body>
 </html>
 

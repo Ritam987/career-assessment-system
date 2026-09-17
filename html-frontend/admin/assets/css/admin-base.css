@@ -197,9 +197,9 @@ html, body {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 20px; flex-shrink: 0; gap: 12px;
 }
-.topbar-left  { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.topbar-left  { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1; overflow: hidden; }
 .topbar-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
-.topbar-title { font-size: 1rem; font-weight: 700; color: var(--text); white-space: nowrap; }
+.topbar-title { font-size: 1rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .collapse-btn, .hamburger {
   width: 38px; height: 38px; border-radius: 9px;

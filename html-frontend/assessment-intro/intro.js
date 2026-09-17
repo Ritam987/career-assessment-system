@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (d.status === 'Completed') {
         // Already done â€” redirect to results
-        startBtn.textContent = 'âœ“ View My Results';
+        startBtn.innerHTML = '<i class="bi bi-bar-chart-line me-2"></i>View My Results';
         startBtn.href        = '../results/results.html';
         // Show info banner
         insertStatusBanner('You have already completed the assessment. Click below to view your career results.', 'success');
@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         startBtn.style.opacity = '0.7';
         startBtn.style.pointerEvents = 'none';
         // Start (or resume) assessment on backend
+        if (d.status !== 'In-Progress') localStorage.removeItem('cas_timer_start');
         const r = await apiPost('/assessments/start');
         if (r && r.ok) {
             window.location.href = '../assessment/assessment.html';

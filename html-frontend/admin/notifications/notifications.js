@@ -1,4 +1,4 @@
-/**
+﻿/**
  * admin/notifications/notifications.js
  */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,7 +14,7 @@ async function loadNotifications() {
         const notifs = data && data.notifications ? data.notifications : [];
         renderNotifications(notifs);
     } catch(e) {
-        window.adminApi.showToast('Failed to load notifications', 'error');
+        window.adminApi.showToast(i18next.t('messages:failed_notifications'), 'error');
     }
 }
 
@@ -30,7 +30,7 @@ function renderNotifications(notifs) {
     list.innerHTML = notifs.map(n => {
         let actionBtn = '';
         if (n.type === 'REDO_REQUEST') {
-            actionBtn = `<a href="../redo-requests/redo-requests.html?id=${n.related_id}" class="btn btn-sm btn-primary mt-2" onclick="markRead(${n.id})">View Request</a>`;
+            actionBtn = `<a href="../redo-requests/redo-requests.html?id=${n.related_id}" class="btn btn-sm btn-primary mt-2" onclick="markRead(${n.id})" data-i18n="common:view_request" data-i18n="common:view_request">View Request</a>`;
         }
         
         return `
@@ -46,6 +46,8 @@ function renderNotifications(notifs) {
         </div>
         `;
     }).join('');
+
+    if (window.translateAll) window.translateAll();
 }
 
 window.markRead = async (id) => {
@@ -53,14 +55,14 @@ window.markRead = async (id) => {
         await window.adminApi.patch('/admin/notifications/' + id + '/read', {});
         const card = document.querySelector('.notif-card[data-id="' + id + '"]');
         if (card) { card.classList.remove('unread'); card.querySelector('button') && card.querySelector('button').remove(); }
-    } catch(e) { window.adminApi.showToast('Error', 'error'); }
+    } catch(e) { window.adminApi.showToast(i18next.t('messages:error'), 'error'); }
 };
 
 window.markAllRead = async () => {
     try {
         await window.adminApi.patch('/admin/notifications/read-all', {});
         loadNotifications();
-    } catch(e) { window.adminApi.showToast('Error', 'error'); }
+    } catch(e) { window.adminApi.showToast(i18next.t('messages:error'), 'error'); }
 };
 
 function logout() { window.adminApi.logout(); }

@@ -35,7 +35,7 @@ async function loadReportData() {
             bar.textContent = percentage + '%';
         }
     } catch (e) {
-        window.adminApi.showToast('Failed to load report analytics', 'error');
+        window.adminApi.showToast(i18next.t('messages:failed_reports'), 'error');
     }
 }
 

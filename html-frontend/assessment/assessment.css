@@ -429,3 +429,55 @@ body {
 
 
 
+
+
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    transition: background 0.25s ease;
+}
+.lang-switcher:hover {
+    background: var(--surface, #f8fafc);
+}
+.lang-switcher i {
+    font-size: 0.95rem;
+    color: var(--text-sub, #64748b);
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+}
+.lang-switcher select {
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-sub, #64748b);
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    appearance: none;
+    padding-right: 15px;
+}
+.lang-switcher select:focus {
+    color: var(--text, #0f172a);
+}
+.lang-switcher-wrapper {
+    position: relative;
+    flex-grow: 1;
+}
+.lang-switcher-wrapper::after {
+    content: "\F282";
+    font-family: "bootstrap-icons";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--text-sub, #64748b);
+    pointer-events: none;
+}
